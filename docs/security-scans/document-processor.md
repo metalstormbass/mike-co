@@ -7,20 +7,21 @@ Container image for the **document-processor** service.
 | Property | Value |
 |----------|-------|
 | **Image** | `ghcr.io/metalstormbass/mike-co/document-processor` |
-| **Digest** | `sha256:67b91e6b1d3d566c1d27ae3c6fe1f38bfaff83e6d1598a68157f585c642226df` |
-| **Scan Date** | 2026-01-25 20:58:17 UTC |
+| **Digest** | `sha256:e37e24513355a0ff9e119adc68c713eab3641ce7029dfaf5408310e1e9a84aab` |
+| **Size** | 495.02 MB |
+| **Scan Date** | 2026-01-25 22:47:58 UTC |
 | **Scanner** | Grype |
 
 ## Vulnerability Summary
 
 | Severity | Count |
 |----------|-------|
-| $\color{red}{\textsf{Critical}}$ | 3 |
-| $\color{orange}{\textsf{High}}$ | 27 |
+| $\color{red}{\textsf{Critical}}$ | 2 |
+| $\color{orange}{\textsf{High}}$ | 25 |
 | $\color{gold}{\textsf{Medium}}$ | 41 |
 | $\color{green}{\textsf{Low}}$ | 9 |
 | $\color{gray}{\textsf{Negligible}}$ | 416 |
-| **Total** | **497** |
+| **Total** | **494** |
 
 ## Detailed Findings
 
@@ -28,17 +29,14 @@ Container image for the **document-processor** service.
 |----------|---------|---------|---------------|----------|
 | 🔴 Critical | python | 3.11.14 | CVE-2025-13836 | 3.13.11 |
 | 🔴 Critical | libsqlite3-0 | 3.40.1-2+deb12u2 | CVE-2025-7458 | N/A |
-| 🔴 Critical | langchain-core | 0.1.53 | GHSA-c67j-w6g6-q2cm | 0.3.81 |
 | 🟠 High | aiohttp | 3.9.0 | GHSA-5h86-8mv2-jq9f | 3.9.2 |
 | 🟠 High | python-multipart | 0.0.6 | GHSA-2jv5-9r88-3w3p | 0.0.7 |
-| 🟠 High | langchain-text-splitters | 0.0.1 | GHSA-m42m-m8cr-8m58 | 0.3.9 |
 | 🟠 High | aiohttp | 3.9.0 | GHSA-5m98-qgg9-wh84 | 3.9.4 |
 | 🟠 High | python-multipart | 0.0.6 | GHSA-59g5-xgcq-4qw3 | 0.0.18 |
 | 🟠 High | dpkg | 1.21.22 | CVE-2025-6297 | N/A |
 | 🟠 High | dpkg-dev | 1.21.22 | CVE-2025-6297 | N/A |
 | 🟠 High | libdpkg-perl | 1.21.22 | CVE-2025-6297 | N/A |
 | 🟠 High | starlette | 0.27.0 | GHSA-f96h-pmfr-66vw | 0.40.0 |
-| 🟠 High | langchain-core | 0.1.53 | GHSA-6qv9-48xg-fc7f | 0.3.80 |
 | 🟠 High | aiohttp | 3.9.0 | GHSA-6mq8-rvhq-8wgg | 3.13.3 |
 | 🟠 High | libtasn1-6 | 4.19.0-2+deb12u1 | CVE-2025-13151 | N/A |
 | 🟠 High | jaraco-context | 5.3.0 | GHSA-58pv-8j8x-9vj2 | 6.1.0 |
@@ -76,5 +74,8 @@ Container image for the **document-processor** service.
 | 🟡 Medium | python | 3.11.14 | CVE-2025-15366 | 3.15.0 |
 | 🟡 Medium | python | 3.11.14 | CVE-2025-15367 | 3.15.0 |
 | 🟡 Medium | python | 3.11.14 | CVE-2025-11468 | 3.15.0 |
+| 🟡 Medium | pypdf2 | 3.0.1 | GHSA-4vvm-4w3v-6mr8 | N/A |
+| 🟡 Medium | libpam-modules | 1.5.2-6+deb12u2 | CVE-2024-10041 | N/A |
+| 🟡 Medium | libpam-modules-bin | 1.5.2-6+deb12u2 | CVE-2024-10041 | N/A |
 
-*Showing top 50 of 497 vulnerabilities (sorted by severity)*
+*Showing top 50 of 494 vulnerabilities (sorted by severity)*

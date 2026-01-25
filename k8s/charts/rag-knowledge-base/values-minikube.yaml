@@ -1,0 +1,215 @@
+# Minikube local development values
+# Optimized for local Kubernetes with limited resources
+
+namespace: rag-kb
+
+# Use local images built with docker
+global:
+  imageRegistry: ""
+  imagePullSecrets: []
+
+# ============================================
+# API Gateway - minimal resources
+# ============================================
+apiGateway:
+  enabled: true
+  replicaCount: 1
+  image:
+    repository: mike-co-api-gateway
+    tag: latest
+    pullPolicy: Never  # Use local images
+  resources:
+    requests:
+      memory: "128Mi"
+      cpu: "100m"
+    limits:
+      memory: "256Mi"
+      cpu: "250m"
+  env:
+    NODE_ENV: "development"
+
+# ============================================
+# Embedding Service - CPU only for local dev
+# ============================================
+embeddingService:
+  enabled: true
+  replicaCount: 1
+  image:
+    repository: mike-co-embedding-service
+    tag: latest
+    pullPolicy: Never
+  resources:
+    requests:
+      memory: "512Mi"
+      cpu: "250m"
+    limits:
+      memory: "1Gi"
+      cpu: "500m"
+  env:
+    MODEL_NAME: "sentence-transformers/all-MiniLM-L6-v2"
+    DEVICE: "cpu"
+  tolerations: []  # No GPU tolerations
+
+# ============================================
+# LLM Service - CPU only, lightweight model
+# ============================================
+llmService:
+  enabled: true
+  replicaCount: 1
+  image:
+    repository: mike-co-llm-service
+    tag: latest
+    pullPolicy: Never
+  resources:
+    requests:
+      memory: "1Gi"
+      cpu: "500m"
+    limits:
+      memory: "2Gi"
+      cpu: "1000m"
+  env:
+    MODEL_NAME: "TinyLlama/TinyLlama-1.1B-Chat-v1.0"
+    DEVICE: "cpu"
+    LOAD_IN_4BIT: "false"
+  tolerations: []
+
+# ============================================
+# Document Processor
+# ============================================
+documentProcessor:
+  enabled: true
+  replicaCount: 1
+  image:
+    repository: mike-co-document-processor
+    tag: latest
+    pullPolicy: Never
+  resources:
+    requests:
+      memory: "256Mi"
+      cpu: "100m"
+    limits:
+      memory: "512Mi"
+      cpu: "250m"
+
+# ============================================
+# Frontend
+# ============================================
+frontend:
+  enabled: true
+  replicaCount: 1
+  image:
+    repository: mike-co-frontend
+    tag: latest
+    pullPolicy: Never
+  resources:
+    requests:
+      memory: "64Mi"
+      cpu: "50m"
+    limits:
+      memory: "128Mi"
+      cpu: "100m"
+
+# ============================================
+# NGINX Reverse Proxy
+# ============================================
+nginx:
+  enabled: true
+  replicaCount: 1
+  image:
+    repository: mike-co-nginx
+    tag: latest
+    pullPolicy: Never
+  service:
+    type: NodePort
+    port: 80
+    nodePort: 30080
+  resources:
+    requests:
+      memory: "64Mi"
+      cpu: "50m"
+    limits:
+      memory: "128Mi"
+      cpu: "100m"
+
+# ============================================
+# Ingress - disabled for Minikube (use NodePort)
+# ============================================
+ingress:
+  enabled: false
+
+# ============================================
+# OpenSearch - Single node for local
+# ============================================
+opensearch:
+  enabled: true
+  replicas: 1
+  singleNode: true
+  opensearchJavaOpts: "-Xmx512m -Xms512m"
+  resources:
+    requests:
+      cpu: "250m"
+      memory: "1Gi"
+    limits:
+      cpu: "500m"
+      memory: "1536Mi"
+  persistence:
+    enabled: true
+    size: 5Gi
+  extraEnvs:
+    - name: DISABLE_SECURITY_PLUGIN
+      value: "true"
+    - name: discovery.type
+      value: "single-node"
+
+# ============================================
+# Redis (groundhog2k Chart) - Minimal for local
+# ============================================
+redis:
+  enabled: true
+  image:
+    repository: redis
+    tag: 7-alpine
+  resources:
+    requests:
+      cpu: "50m"
+      memory: "64Mi"
+    limits:
+      cpu: "100m"
+      memory: "128Mi"
+  storage:
+    requestedSize: 1Gi
+
+# ============================================
+# PostgreSQL (groundhog2k Chart) - Minimal for local
+# ============================================
+postgresql:
+  enabled: true
+  image:
+    repository: postgres
+    tag: "16-alpine"
+  settings:
+    superuser: rag
+    superuserPassword: ragpassword
+    defaultDatabase: rag
+  resources:
+    requests:
+      cpu: "100m"
+      memory: "128Mi"
+    limits:
+      cpu: "250m"
+      memory: "256Mi"
+  storage:
+    requestedSize: 2Gi
+
+# ============================================
+# Config
+# ============================================
+config:
+  opensearchUrl: "http://rag-kb-opensearch:9200"
+  redisUrl: "redis://rag-kb-redis:6379"
+  postgresHost: "rag-kb-postgres"
+  postgresDb: "rag"
+  postgresUser: "rag"
+
+secrets:
+  postgresPassword: "ragpassword"

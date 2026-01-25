@@ -1,0 +1,113 @@
+services:
+  # NGINX Reverse Proxy
+  nginx:
+    build: ./services/nginx
+    ports:
+      - "80:80"
+    depends_on:
+      - api-gateway
+      - frontend
+    networks:
+      - rag-network
+
+  # Frontend
+  frontend:
+    build: ./services/frontend
+    networks:
+      - rag-network
+
+  # Node.js API Gateway
+  api-gateway:
+    build: ./services/api-gateway
+    environment:
+      - NODE_ENV=development
+      - OPENSEARCH_URL=http://opensearch:9200
+      - POSTGRES_URL=postgresql://rag:rag@postgresql:5432/rag
+      - REDIS_URL=redis://redis:6379
+      - EMBEDDING_SERVICE_URL=http://embedding-service:8000
+      - LLM_SERVICE_URL=http://llm-service:8001
+      - DOCUMENT_PROCESSOR_URL=http://document-processor:8002
+    depends_on:
+      - opensearch
+      - postgresql
+      - redis
+    networks:
+      - rag-network
+
+  # PyTorch Embedding Service
+  embedding-service:
+    build: ./services/embedding-service
+    environment:
+      - MODEL_NAME=sentence-transformers/all-MiniLM-L6-v2
+    networks:
+      - rag-network
+
+  # PyTorch LLM Service
+  llm-service:
+    build: ./services/llm-service
+    environment:
+      - MODEL_NAME=mistralai/Mistral-7B-Instruct-v0.1
+      - LOAD_IN_4BIT=true
+    networks:
+      - rag-network
+
+  # Document Processor
+  document-processor:
+    build: ./services/document-processor
+    environment:
+      - EMBEDDING_SERVICE_URL=http://embedding-service:8000
+      - OPENSEARCH_URL=http://opensearch:9200
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      - embedding-service
+      - opensearch
+      - redis
+    networks:
+      - rag-network
+
+  # OpenSearch
+  opensearch:
+    image: opensearchproject/opensearch:2.11.0
+    environment:
+      - discovery.type=single-node
+      - DISABLE_SECURITY_PLUGIN=true
+      - "OPENSEARCH_JAVA_OPTS=-Xms512m -Xmx512m"
+    volumes:
+      - opensearch-data:/usr/share/opensearch/data
+    ports:
+      - "9200:9200"
+    networks:
+      - rag-network
+
+  # PostgreSQL
+  postgresql:
+    image: postgres:16-alpine
+    environment:
+      - POSTGRES_USER=rag
+      - POSTGRES_PASSWORD=rag
+      - POSTGRES_DB=rag
+    volumes:
+      - postgresql-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - rag-network
+
+  # Redis
+  redis:
+    image: redis:7-alpine
+    volumes:
+      - redis-data:/data
+    ports:
+      - "6379:6379"
+    networks:
+      - rag-network
+
+networks:
+  rag-network:
+    driver: bridge
+
+volumes:
+  opensearch-data:
+  postgresql-data:
+  redis-data:

@@ -1,0 +1,103 @@
+# Production environment overrides
+
+namespace: rag-knowledge-base-prod
+
+# Scale up for production
+apiGateway:
+  replicaCount: 3
+  resources:
+    requests:
+      memory: "512Mi"
+      cpu: "500m"
+    limits:
+      memory: "1Gi"
+      cpu: "1000m"
+
+embeddingService:
+  replicaCount: 3
+
+llmService:
+  replicaCount: 2
+
+documentProcessor:
+  replicaCount: 3
+
+frontend:
+  replicaCount: 3
+
+nginx:
+  replicaCount: 3
+
+# Production Ingress
+ingress:
+  enabled: true
+  className: nginx
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    nginx.ingress.kubernetes.io/proxy-body-size: "100m"
+  hosts:
+    - host: rag.example.com
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: rag-tls
+      hosts:
+        - rag.example.com
+
+# Production OpenSearch cluster
+opensearch:
+  replicas: 3
+  singleNode: false
+  opensearchJavaOpts: "-Xmx4g -Xms4g"
+  resources:
+    requests:
+      cpu: "2000m"
+      memory: "8Gi"
+    limits:
+      cpu: "4000m"
+      memory: "16Gi"
+  persistence:
+    enabled: true
+    size: 100Gi
+
+# Production Redis (groundhog2k)
+redis:
+  image:
+    repository: redis
+    tag: 7-alpine
+  resources:
+    requests:
+      cpu: "200m"
+      memory: "256Mi"
+    limits:
+      cpu: "500m"
+      memory: "512Mi"
+  storage:
+    requestedSize: 10Gi
+
+# Production PostgreSQL (groundhog2k)
+postgresql:
+  image:
+    repository: postgres
+    tag: "16-alpine"
+  settings:
+    superuser: rag
+    superuserPassword: ""  # Set via --set in production
+    defaultDatabase: rag_prod
+  resources:
+    requests:
+      memory: "1Gi"
+      cpu: "1000m"
+    limits:
+      memory: "2Gi"
+      cpu: "2000m"
+  storage:
+    requestedSize: 50Gi
+
+config:
+  opensearchUrl: "http://rag-knowledge-base-prod-opensearch:9200"
+  redisUrl: "redis://rag-knowledge-base-prod-redis:6379"
+  postgresHost: "rag-knowledge-base-prod-postgres"
+  postgresDb: "rag_prod"
+  postgresUser: "rag"

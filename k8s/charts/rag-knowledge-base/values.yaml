@@ -1,0 +1,328 @@
+# Default values for rag-knowledge-base
+
+# Global settings
+global:
+  imageRegistry: ""
+  imagePullSecrets: []
+  storageClass: ""
+
+# Namespace
+namespace: rag-knowledge-base
+
+# ============================================
+# API Gateway (Node.js)
+# ============================================
+apiGateway:
+  enabled: true
+  replicaCount: 2
+  
+  image:
+    repository: rag-api-gateway
+    tag: latest
+    pullPolicy: IfNotPresent
+  
+  service:
+    type: ClusterIP
+    port: 3000
+  
+  resources:
+    requests:
+      memory: "256Mi"
+      cpu: "250m"
+    limits:
+      memory: "512Mi"
+      cpu: "500m"
+  
+  env:
+    NODE_ENV: "production"
+  
+  # Additional environment variables from configmap/secrets
+  envFrom: []
+  
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+
+# ============================================
+# Embedding Service (PyTorch)
+# ============================================
+embeddingService:
+  enabled: true
+  replicaCount: 2
+  
+  image:
+    repository: rag-embedding-service
+    tag: latest
+    pullPolicy: IfNotPresent
+  
+  service:
+    type: ClusterIP
+    port: 8000
+  
+  resources:
+    requests:
+      memory: "2Gi"
+      cpu: "1000m"
+      nvidia.com/gpu: "1"
+    limits:
+      memory: "4Gi"
+      cpu: "2000m"
+      nvidia.com/gpu: "1"
+  
+  env:
+    MODEL_NAME: "sentence-transformers/all-MiniLM-L6-v2"
+  
+  # GPU tolerations
+  tolerations:
+    - key: "nvidia.com/gpu"
+      operator: "Exists"
+      effect: "NoSchedule"
+  
+  nodeSelector: {}
+  affinity: {}
+
+# ============================================
+# LLM Service (PyTorch)
+# ============================================
+llmService:
+  enabled: true
+  replicaCount: 1
+  
+  image:
+    repository: rag-llm-service
+    tag: latest
+    pullPolicy: IfNotPresent
+  
+  service:
+    type: ClusterIP
+    port: 8001
+  
+  resources:
+    requests:
+      memory: "16Gi"
+      cpu: "2000m"
+      nvidia.com/gpu: "1"
+    limits:
+      memory: "32Gi"
+      cpu: "4000m"
+      nvidia.com/gpu: "1"
+  
+  env:
+    MODEL_NAME: "mistralai/Mistral-7B-Instruct-v0.1"
+    LOAD_IN_4BIT: "true"
+  
+  # GPU tolerations
+  tolerations:
+    - key: "nvidia.com/gpu"
+      operator: "Exists"
+      effect: "NoSchedule"
+  
+  nodeSelector: {}
+  affinity: {}
+
+# ============================================
+# Document Processor (Python)
+# ============================================
+documentProcessor:
+  enabled: true
+  replicaCount: 2
+  
+  image:
+    repository: rag-document-processor
+    tag: latest
+    pullPolicy: IfNotPresent
+  
+  service:
+    type: ClusterIP
+    port: 8002
+  
+  resources:
+    requests:
+      memory: "512Mi"
+      cpu: "500m"
+    limits:
+      memory: "1Gi"
+      cpu: "1000m"
+  
+  env: {}
+  
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+
+# ============================================
+# Frontend
+# ============================================
+frontend:
+  enabled: true
+  replicaCount: 2
+  
+  image:
+    repository: rag-frontend
+    tag: latest
+    pullPolicy: IfNotPresent
+  
+  service:
+    type: ClusterIP
+    port: 80
+  
+  resources:
+    requests:
+      memory: "64Mi"
+      cpu: "100m"
+    limits:
+      memory: "128Mi"
+      cpu: "200m"
+  
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+
+# ============================================
+# NGINX (Reverse Proxy)
+# ============================================
+nginx:
+  enabled: true
+  replicaCount: 2
+  
+  image:
+    repository: rag-nginx
+    tag: latest
+    pullPolicy: IfNotPresent
+  
+  service:
+    type: LoadBalancer
+    port: 80
+  
+  resources:
+    requests:
+      memory: "64Mi"
+      cpu: "100m"
+    limits:
+      memory: "128Mi"
+      cpu: "200m"
+  
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+
+# ============================================
+# Ingress
+# ============================================
+ingress:
+  enabled: false
+  className: nginx
+  annotations: {}
+  hosts:
+    - host: rag.local
+      paths:
+        - path: /
+          pathType: Prefix
+  tls: []
+
+# ============================================
+# OpenSearch (Official OpenSearch Helm Chart)
+# https://github.com/opensearch-project/helm-charts
+# ============================================
+opensearch:
+  enabled: true
+  
+  # Single node for dev, increase for production
+  singleNode: true
+  replicas: 1
+  
+  opensearchJavaOpts: "-Xmx1g -Xms1g"
+  
+  resources:
+    requests:
+      cpu: "500m"
+      memory: "2Gi"
+    limits:
+      cpu: "1000m"
+      memory: "4Gi"
+  
+  persistence:
+    enabled: true
+    size: 30Gi
+  
+  # Disable security plugin for simplicity
+  extraEnvs:
+    - name: DISABLE_SECURITY_PLUGIN
+      value: "true"
+    - name: discovery.type
+      value: "single-node"
+
+# ============================================
+# Redis (groundhog2k Chart)
+# https://github.com/groundhog2k/helm-charts/tree/master/charts/redis
+# ============================================
+redis:
+  enabled: true
+  
+  # Redis image
+  image:
+    repository: redis
+    tag: 7-alpine
+  
+  # Resources
+  resources:
+    requests:
+      cpu: "100m"
+      memory: "128Mi"
+    limits:
+      cpu: "250m"
+      memory: "256Mi"
+  
+  # Storage
+  storage:
+    persistentVolumeClaimName: ""
+    requestedSize: 5Gi
+
+# ============================================
+# PostgreSQL (groundhog2k Chart)
+# https://github.com/groundhog2k/helm-charts/tree/master/charts/postgres
+# ============================================
+postgresql:
+  enabled: true
+  
+  # PostgreSQL image
+  image:
+    repository: postgres
+    tag: "16-alpine"
+  
+  # Database settings
+  settings:
+    superuser: rag
+    superuserPassword: ragpassword
+    defaultDatabase: rag
+  
+  # Resources
+  resources:
+    requests:
+      cpu: "250m"
+      memory: "256Mi"
+    limits:
+      cpu: "500m"
+      memory: "512Mi"
+  
+  # Storage
+  storage:
+    persistentVolumeClaimName: ""
+    requestedSize: 10Gi
+
+# ============================================
+# ConfigMap values
+# ============================================
+config:
+  # Service names follow Helm release naming conventions
+  opensearchUrl: "http://rag-knowledge-base-opensearch:9200"
+  redisUrl: "redis://rag-knowledge-base-redis:6379"
+  postgresHost: "rag-knowledge-base-postgres"
+  postgresDb: "rag"
+  postgresUser: "rag"
+
+# ============================================
+# Secrets (set via --set or external secrets)
+# ============================================
+secrets:
+  postgresPassword: "ragpassword"

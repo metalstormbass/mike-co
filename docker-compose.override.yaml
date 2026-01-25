@@ -1,0 +1,17 @@
+# Docker Compose override for local CPU-only development
+# This file is automatically loaded with docker-compose.yaml
+
+services:
+  # Use CPU-only Dockerfile for embedding service
+  embedding-service:
+    build:
+      context: ./services/embedding-service
+      dockerfile: Dockerfile.cpu
+    deploy: {}  # Remove GPU requirements
+
+  # Use CPU-only Dockerfile for LLM service
+  llm-service:
+    build:
+      context: ./services/llm-service
+      dockerfile: Dockerfile.cpu
+    deploy: {}  # Remove GPU requirements

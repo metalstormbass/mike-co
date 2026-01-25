@@ -1,0 +1,53 @@
+# Dependencies
+node_modules/
+__pycache__/
+*.pyc
+.venv/
+venv/
+env/
+
+# Environment
+.env
+.env.local
+.env.*.local
+*.env
+
+# Build outputs
+dist/
+build/
+*.egg-info/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Testing
+coverage/
+.coverage
+htmlcov/
+.pytest_cache/
+
+# Docker
+.docker/
+
+# Kubernetes secrets (never commit)
+*-secret.yaml
+*-secrets.yaml
+secrets/
+
+# Model weights (too large for git)
+*.pt
+*.pth
+*.bin
+*.safetensors
+models/

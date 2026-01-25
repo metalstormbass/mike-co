@@ -185,19 +185,3 @@ make prod
 make uninstall-dev
 make uninstall-prod
 ```
-
-## Project Structure
-
-```
-├── services/
-│   ├── api-gateway/       # Node.js API Gateway
-│   ├── document-processor/ # Python document processing
-│   ├── embedding-service/  # PyTorch embedding generation
-│   ├── frontend/          # React/Vite frontend
-│   ├── llm-service/       # PyTorch LLM service
-│   └── nginx/             # NGINX reverse proxy
-├── k8s/
-│   └── charts/            # Helm charts for Kubernetes
-├── docker-compose.yaml    # Local development setup
-└── Makefile              # Build and deployment commands
-```

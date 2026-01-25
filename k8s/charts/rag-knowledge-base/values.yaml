@@ -262,7 +262,7 @@ redis:
   # Redis image
   image:
     repository: redis
-    tag: 7-alpine
+    tag: 7-bookworm
   
   # Resources
   resources:
@@ -288,7 +288,7 @@ postgresql:
   # PostgreSQL image
   image:
     repository: postgres
-    tag: "16-alpine"
+    tag: "16-bookworm"
   
   # Database settings
   settings:

@@ -81,7 +81,7 @@ services:
 
   # PostgreSQL
   postgresql:
-    image: postgres:16-alpine
+    image: postgres:16-bookworm
     environment:
       - POSTGRES_USER=rag
       - POSTGRES_PASSWORD=rag
@@ -95,7 +95,7 @@ services:
 
   # Redis
   redis:
-    image: redis:7-alpine
+    image: redis:7-bookworm
     volumes:
       - redis-data:/data
     ports:

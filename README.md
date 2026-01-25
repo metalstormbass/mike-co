@@ -77,8 +77,8 @@ A Retrieval-Augmented Generation (RAG) knowledge base application that allows us
 | Service | Image | Version |
 |---------|-------|---------|
 | OpenSearch | `opensearchproject/opensearch` | 2.11.0 |
-| PostgreSQL | `postgres` | 16-alpine |
-| Redis | `redis` | 7-alpine |
+| PostgreSQL | `postgres` | 16-bookworm |
+| Redis | `redis` | 7-bookworm |
 
 ## Prerequisites
 

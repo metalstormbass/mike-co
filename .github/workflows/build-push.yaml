@@ -17,7 +17,7 @@ jobs:
   build-and-push:
     runs-on: ubuntu-latest
     permissions:
-      contents: write
+      contents: read
       packages: write
 
     strategy:
@@ -98,29 +98,30 @@ jobs:
           output-file: grype-results.json
 
       - name: Generate scan report
+        env:
+          SERVICE: ${{ matrix.service }}
+          IMAGE_SHA: ${{ steps.digest.outputs.sha }}
         run: |
           mkdir -p docs/security-scans
-          
           SCAN_DATE=$(date -u '+%Y-%m-%d %H:%M:%S UTC')
-          IMAGE_NAME="${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}/${{ matrix.service }}"
-          IMAGE_SHA="${{ steps.digest.outputs.sha }}"
+          IMAGE_NAME="${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}/${SERVICE}"
+          OUTFILE="docs/security-scans/${SERVICE}.md"
           
-          # Start the markdown file
-          echo "# ${{ matrix.service }}" > docs/security-scans/${{ matrix.service }}.md
-          echo "" >> docs/security-scans/${{ matrix.service }}.md
-          echo "Container image for the **${{ matrix.service }}** service." >> docs/security-scans/${{ matrix.service }}.md
-          echo "" >> docs/security-scans/${{ matrix.service }}.md
-          echo "## Image Details" >> docs/security-scans/${{ matrix.service }}.md
-          echo "" >> docs/security-scans/${{ matrix.service }}.md
-          echo "| Property | Value |" >> docs/security-scans/${{ matrix.service }}.md
-          echo "|----------|-------|" >> docs/security-scans/${{ matrix.service }}.md
-          echo "| **Image** | \`${IMAGE_NAME}\` |" >> docs/security-scans/${{ matrix.service }}.md
-          echo "| **Digest** | \`${IMAGE_SHA}\` |" >> docs/security-scans/${{ matrix.service }}.md
-          echo "| **Scan Date** | ${SCAN_DATE} |" >> docs/security-scans/${{ matrix.service }}.md
-          echo "| **Scanner** | Grype |" >> docs/security-scans/${{ matrix.service }}.md
-          echo "" >> docs/security-scans/${{ matrix.service }}.md
-          echo "## Vulnerability Summary" >> docs/security-scans/${{ matrix.service }}.md
-          echo "" >> docs/security-scans/${{ matrix.service }}.md
+          echo "# ${SERVICE}" > "$OUTFILE"
+          echo "" >> "$OUTFILE"
+          echo "Container image for the **${SERVICE}** service." >> "$OUTFILE"
+          echo "" >> "$OUTFILE"
+          echo "## Image Details" >> "$OUTFILE"
+          echo "" >> "$OUTFILE"
+          echo "| Property | Value |" >> "$OUTFILE"
+          echo "|----------|-------|" >> "$OUTFILE"
+          echo "| **Image** | \`${IMAGE_NAME}\` |" >> "$OUTFILE"
+          echo "| **Digest** | \`${IMAGE_SHA}\` |" >> "$OUTFILE"
+          echo "| **Scan Date** | ${SCAN_DATE} |" >> "$OUTFILE"
+          echo "| **Scanner** | Grype |" >> "$OUTFILE"
+          echo "" >> "$OUTFILE"
+          echo "## Vulnerability Summary" >> "$OUTFILE"
+          echo "" >> "$OUTFILE"
           
           if [ -f grype-results.json ]; then
             CRITICAL=$(jq '[.matches[] | select(.vulnerability.severity == "Critical")] | length' grype-results.json)
@@ -130,29 +131,29 @@ jobs:
             NEGLIGIBLE=$(jq '[.matches[] | select(.vulnerability.severity == "Negligible")] | length' grype-results.json)
             TOTAL=$(jq '.matches | length' grype-results.json)
             
-            echo "| Severity | Count |" >> docs/security-scans/${{ matrix.service }}.md
-            echo "|----------|-------|" >> docs/security-scans/${{ matrix.service }}.md
-            echo "| 🔴 Critical | ${CRITICAL} |" >> docs/security-scans/${{ matrix.service }}.md
-            echo "| 🟠 High | ${HIGH} |" >> docs/security-scans/${{ matrix.service }}.md
-            echo "| 🟡 Medium | ${MEDIUM} |" >> docs/security-scans/${{ matrix.service }}.md
-            echo "| 🟢 Low | ${LOW} |" >> docs/security-scans/${{ matrix.service }}.md
-            echo "| ⚪ Negligible | ${NEGLIGIBLE} |" >> docs/security-scans/${{ matrix.service }}.md
-            echo "| **Total** | **${TOTAL}** |" >> docs/security-scans/${{ matrix.service }}.md
-            echo "" >> docs/security-scans/${{ matrix.service }}.md
+            echo "| Severity | Count |" >> "$OUTFILE"
+            echo "|----------|-------|" >> "$OUTFILE"
+            echo "| Critical | ${CRITICAL} |" >> "$OUTFILE"
+            echo "| High | ${HIGH} |" >> "$OUTFILE"
+            echo "| Medium | ${MEDIUM} |" >> "$OUTFILE"
+            echo "| Low | ${LOW} |" >> "$OUTFILE"
+            echo "| Negligible | ${NEGLIGIBLE} |" >> "$OUTFILE"
+            echo "| **Total** | **${TOTAL}** |" >> "$OUTFILE"
+            echo "" >> "$OUTFILE"
             
             if [ "$TOTAL" -gt 0 ]; then
-              echo "## Detailed Findings" >> docs/security-scans/${{ matrix.service }}.md
-              echo "" >> docs/security-scans/${{ matrix.service }}.md
-              echo "| Package | Version | Vulnerability | Severity | Fixed In |" >> docs/security-scans/${{ matrix.service }}.md
-              echo "|---------|---------|---------------|----------|----------|" >> docs/security-scans/${{ matrix.service }}.md
-              jq -r '.matches[:50][] | "| \(.artifact.name) | \(.artifact.version) | \(.vulnerability.id) | \(.vulnerability.severity) | \(.vulnerability.fix.versions[0] // "N/A") |"' grype-results.json >> docs/security-scans/${{ matrix.service }}.md
+              echo "## Detailed Findings" >> "$OUTFILE"
+              echo "" >> "$OUTFILE"
+              echo "| Package | Version | Vulnerability | Severity | Fixed In |" >> "$OUTFILE"
+              echo "|---------|---------|---------------|----------|----------|" >> "$OUTFILE"
+              jq -r '.matches[:50][] | "| \(.artifact.name) | \(.artifact.version) | \(.vulnerability.id) | \(.vulnerability.severity) | \(.vulnerability.fix.versions[0] // "N/A") |"' grype-results.json >> "$OUTFILE"
               
               if [ "$TOTAL" -gt 50 ]; then
-                echo "" >> docs/security-scans/${{ matrix.service }}.md
-                echo "*Showing top 50 of ${TOTAL} vulnerabilities*" >> docs/security-scans/${{ matrix.service }}.md
+                echo "" >> "$OUTFILE"
+                echo "*Showing top 50 of ${TOTAL} vulnerabilities*" >> "$OUTFILE"
               fi
             else
-              echo "✅ **No vulnerabilities found!**" >> docs/security-scans/${{ matrix.service }}.md
+              echo "No vulnerabilities found." >> "$OUTFILE"
             fi
           fi
 
@@ -178,20 +179,10 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      - name: Commit scan results
-        if: github.event_name != 'pull_request'
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git pull --rebase || true
-          git add docs/security-scans/${{ matrix.service }}.md
-          git diff --staged --quiet || git commit -m "Update security scan for ${{ matrix.service }} [skip ci]"
-          git push || echo "Push failed, will retry in next job"
-
   mirror-external-images:
     runs-on: ubuntu-latest
     permissions:
-      contents: write
+      contents: read
       packages: write
     if: github.event_name != 'pull_request'
 
@@ -237,30 +228,32 @@ jobs:
           output-file: grype-results.json
 
       - name: Generate scan report
+        env:
+          SERVICE: ${{ matrix.service }}
+          SOURCE_IMAGE: ${{ matrix.source_image }}
+          IMAGE_SHA: ${{ steps.digest.outputs.sha }}
         run: |
           mkdir -p docs/security-scans
-          
           SCAN_DATE=$(date -u '+%Y-%m-%d %H:%M:%S UTC')
-          IMAGE_NAME="${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}/${{ matrix.service }}"
-          SOURCE_IMAGE="${{ matrix.source_image }}"
-          IMAGE_SHA="${{ steps.digest.outputs.sha }}"
+          IMAGE_NAME="${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}/${SERVICE}"
+          OUTFILE="docs/security-scans/${SERVICE}.md"
           
-          echo "# ${{ matrix.service }}" > docs/security-scans/${{ matrix.service }}.md
-          echo "" >> docs/security-scans/${{ matrix.service }}.md
-          echo "Mirrored container image for the **${{ matrix.service }}** service." >> docs/security-scans/${{ matrix.service }}.md
-          echo "" >> docs/security-scans/${{ matrix.service }}.md
-          echo "## Image Details" >> docs/security-scans/${{ matrix.service }}.md
-          echo "" >> docs/security-scans/${{ matrix.service }}.md
-          echo "| Property | Value |" >> docs/security-scans/${{ matrix.service }}.md
-          echo "|----------|-------|" >> docs/security-scans/${{ matrix.service }}.md
-          echo "| **Source Image** | \`${SOURCE_IMAGE}\` |" >> docs/security-scans/${{ matrix.service }}.md
-          echo "| **GHCR Image** | \`${IMAGE_NAME}\` |" >> docs/security-scans/${{ matrix.service }}.md
-          echo "| **Digest** | \`${IMAGE_SHA}\` |" >> docs/security-scans/${{ matrix.service }}.md
-          echo "| **Scan Date** | ${SCAN_DATE} |" >> docs/security-scans/${{ matrix.service }}.md
-          echo "| **Scanner** | Grype |" >> docs/security-scans/${{ matrix.service }}.md
-          echo "" >> docs/security-scans/${{ matrix.service }}.md
-          echo "## Vulnerability Summary" >> docs/security-scans/${{ matrix.service }}.md
-          echo "" >> docs/security-scans/${{ matrix.service }}.md
+          echo "# ${SERVICE}" > "$OUTFILE"
+          echo "" >> "$OUTFILE"
+          echo "Mirrored container image for the **${SERVICE}** service." >> "$OUTFILE"
+          echo "" >> "$OUTFILE"
+          echo "## Image Details" >> "$OUTFILE"
+          echo "" >> "$OUTFILE"
+          echo "| Property | Value |" >> "$OUTFILE"
+          echo "|----------|-------|" >> "$OUTFILE"
+          echo "| **Source Image** | \`${SOURCE_IMAGE}\` |" >> "$OUTFILE"
+          echo "| **GHCR Image** | \`${IMAGE_NAME}\` |" >> "$OUTFILE"
+          echo "| **Digest** | \`${IMAGE_SHA}\` |" >> "$OUTFILE"
+          echo "| **Scan Date** | ${SCAN_DATE} |" >> "$OUTFILE"
+          echo "| **Scanner** | Grype |" >> "$OUTFILE"
+          echo "" >> "$OUTFILE"
+          echo "## Vulnerability Summary" >> "$OUTFILE"
+          echo "" >> "$OUTFILE"
           
           if [ -f grype-results.json ]; then
             CRITICAL=$(jq '[.matches[] | select(.vulnerability.severity == "Critical")] | length' grype-results.json)
@@ -270,29 +263,29 @@ jobs:
             NEGLIGIBLE=$(jq '[.matches[] | select(.vulnerability.severity == "Negligible")] | length' grype-results.json)
             TOTAL=$(jq '.matches | length' grype-results.json)
             
-            echo "| Severity | Count |" >> docs/security-scans/${{ matrix.service }}.md
-            echo "|----------|-------|" >> docs/security-scans/${{ matrix.service }}.md
-            echo "| 🔴 Critical | ${CRITICAL} |" >> docs/security-scans/${{ matrix.service }}.md
-            echo "| 🟠 High | ${HIGH} |" >> docs/security-scans/${{ matrix.service }}.md
-            echo "| 🟡 Medium | ${MEDIUM} |" >> docs/security-scans/${{ matrix.service }}.md
-            echo "| 🟢 Low | ${LOW} |" >> docs/security-scans/${{ matrix.service }}.md
-            echo "| ⚪ Negligible | ${NEGLIGIBLE} |" >> docs/security-scans/${{ matrix.service }}.md
-            echo "| **Total** | **${TOTAL}** |" >> docs/security-scans/${{ matrix.service }}.md
-            echo "" >> docs/security-scans/${{ matrix.service }}.md
+            echo "| Severity | Count |" >> "$OUTFILE"
+            echo "|----------|-------|" >> "$OUTFILE"
+            echo "| Critical | ${CRITICAL} |" >> "$OUTFILE"
+            echo "| High | ${HIGH} |" >> "$OUTFILE"
+            echo "| Medium | ${MEDIUM} |" >> "$OUTFILE"
+            echo "| Low | ${LOW} |" >> "$OUTFILE"
+            echo "| Negligible | ${NEGLIGIBLE} |" >> "$OUTFILE"
+            echo "| **Total** | **${TOTAL}** |" >> "$OUTFILE"
+            echo "" >> "$OUTFILE"
             
             if [ "$TOTAL" -gt 0 ]; then
-              echo "## Detailed Findings" >> docs/security-scans/${{ matrix.service }}.md
-              echo "" >> docs/security-scans/${{ matrix.service }}.md
-              echo "| Package | Version | Vulnerability | Severity | Fixed In |" >> docs/security-scans/${{ matrix.service }}.md
-              echo "|---------|---------|---------------|----------|----------|" >> docs/security-scans/${{ matrix.service }}.md
-              jq -r '.matches[:50][] | "| \(.artifact.name) | \(.artifact.version) | \(.vulnerability.id) | \(.vulnerability.severity) | \(.vulnerability.fix.versions[0] // "N/A") |"' grype-results.json >> docs/security-scans/${{ matrix.service }}.md
+              echo "## Detailed Findings" >> "$OUTFILE"
+              echo "" >> "$OUTFILE"
+              echo "| Package | Version | Vulnerability | Severity | Fixed In |" >> "$OUTFILE"
+              echo "|---------|---------|---------------|----------|----------|" >> "$OUTFILE"
+              jq -r '.matches[:50][] | "| \(.artifact.name) | \(.artifact.version) | \(.vulnerability.id) | \(.vulnerability.severity) | \(.vulnerability.fix.versions[0] // "N/A") |"' grype-results.json >> "$OUTFILE"
               
               if [ "$TOTAL" -gt 50 ]; then
-                echo "" >> docs/security-scans/${{ matrix.service }}.md
-                echo "*Showing top 50 of ${TOTAL} vulnerabilities*" >> docs/security-scans/${{ matrix.service }}.md
+                echo "" >> "$OUTFILE"
+                echo "*Showing top 50 of ${TOTAL} vulnerabilities*" >> "$OUTFILE"
               fi
             else
-              echo "✅ **No vulnerabilities found!**" >> docs/security-scans/${{ matrix.service }}.md
+              echo "No vulnerabilities found." >> "$OUTFILE"
             fi
           fi
 
@@ -313,11 +306,44 @@ jobs:
           docker push ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}/${{ matrix.service }}:${{ matrix.tag }}
           docker push ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}/${{ matrix.service }}:latest
 
-      - name: Commit scan results
+  commit-scan-results:
+    runs-on: ubuntu-latest
+    needs: [build-and-push, mirror-external-images]
+    if: github.event_name != 'pull_request' && always() && (needs.build-and-push.result == 'success' || needs.mirror-external-images.result == 'success')
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Download all scan artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: scan-*
+          path: scan-artifacts
+          merge-multiple: false
+
+      - name: Move scan results to docs folder
+        run: |
+          mkdir -p docs/security-scans
+          for dir in scan-artifacts/scan-*; do
+            if [ -d "$dir" ]; then
+              cp "$dir"/*.md docs/security-scans/
+            fi
+          done
+          ls -la docs/security-scans/
+
+      - name: Commit and push scan results
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git pull --rebase || true
-          git add docs/security-scans/${{ matrix.service }}.md
-          git diff --staged --quiet || git commit -m "Update security scan for ${{ matrix.service }} [skip ci]"
-          git push || echo "Push failed, will retry in next job"
+          git add docs/security-scans/
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "Update security scan results [skip ci]"
+            git push
+          fi

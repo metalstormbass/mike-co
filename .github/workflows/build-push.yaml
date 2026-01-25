@@ -38,9 +38,15 @@ jobs:
           - service: embedding-service
             context: ./services/embedding-service
             dockerfile: ./services/embedding-service/Dockerfile.cpu
+          - service: embedding-service-gpu
+            context: ./services/embedding-service
+            dockerfile: ./services/embedding-service/Dockerfile
           - service: llm-service
             context: ./services/llm-service
             dockerfile: ./services/llm-service/Dockerfile.cpu
+          - service: llm-service-gpu
+            context: ./services/llm-service
+            dockerfile: ./services/llm-service/Dockerfile
 
     steps:
       - name: Checkout repository
@@ -67,13 +73,199 @@ jobs:
             type=sha,prefix=
             type=raw,value=latest,enable={{is_default_branch}}
 
-      - name: Build and push Docker image
+      - name: Build Docker image
         uses: docker/build-push-action@v5
         with:
           context: ${{ matrix.context }}
           file: ${{ matrix.dockerfile }}
-          push: ${{ github.event_name != 'pull_request' }}
+          load: true
+          tags: ${{ matrix.service }}:scan
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Run Grype vulnerability scan
+        id: grype
+        uses: anchore/scan-action@v4
+        with:
+          image: ${{ matrix.service }}:scan
+          fail-build: false
+          output-format: table
+
+      - name: Generate scan summary
+        id: scan-summary
+        run: |
+          echo "## Vulnerability Scan Results" > scan-results.md
+          echo "" >> scan-results.md
+          echo "**Scan Date:** $(date -u '+%Y-%m-%d %H:%M:%S UTC')" >> scan-results.md
+          echo "" >> scan-results.md
+          echo "**Image:** \`${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}/${{ matrix.service }}\`" >> scan-results.md
+          echo "" >> scan-results.md
+          
+          # Run grype again to capture output for README
+          docker run --rm anchore/grype:latest ${{ matrix.service }}:scan -o table > grype-output.txt 2>&1 || true
+          
+          if [ -s grype-output.txt ]; then
+            echo "### Vulnerabilities Found" >> scan-results.md
+            echo "" >> scan-results.md
+            echo "\`\`\`" >> scan-results.md
+            head -100 grype-output.txt >> scan-results.md
+            echo "\`\`\`" >> scan-results.md
+          else
+            echo "✅ No vulnerabilities found" >> scan-results.md
+          fi
+          
+          # Store results for package README
+          SCAN_CONTENT=$(cat scan-results.md)
+          echo "scan_content<<EOF" >> $GITHUB_OUTPUT
+          echo "$SCAN_CONTENT" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Push Docker image
+        if: github.event_name != 'pull_request'
+        uses: docker/build-push-action@v5
+        with:
+          context: ${{ matrix.context }}
+          file: ${{ matrix.dockerfile }}
+          push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+      - name: Update package README with scan results
+        if: github.event_name != 'pull_request'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Create package README content
+          cat << 'READMEEOF' > package-readme.md
+          # ${{ matrix.service }}
+          
+          Container image for the ${{ matrix.service }} service in the RAG Knowledge Base application.
+          
+          ## Usage
+          
+          ```bash
+          docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}/${{ matrix.service }}:latest
+          ```
+          
+          ${{ steps.scan-summary.outputs.scan_content }}
+          READMEEOF
+          
+          # Update the package README via GitHub API
+          README_CONTENT=$(base64 -w 0 package-readme.md)
+          
+          curl -X PATCH \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/user/packages/container/${{ github.event.repository.name }}%2F${{ matrix.service }}" \
+            -d "{\"description\":\"${{ matrix.service }} container image with vulnerability scan results\",\"readme\":\"$(cat package-readme.md | jq -Rs .)\"}" || echo "Package README update skipped (package may not exist yet)"
+
+  # Pull, scan, and push external images to GHCR
+  mirror-external-images:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    if: github.event_name != 'pull_request'
+
+    strategy:
+      matrix:
+        include:
+          - service: opensearch
+            source_image: opensearchproject/opensearch:2.11.0
+            tag: "2.11.0"
+          - service: postgresql
+            source_image: postgres:16-alpine
+            tag: "16-alpine"
+          - service: redis
+            source_image: redis:7-alpine
+            tag: "7-alpine"
+
+    steps:
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Pull external image
+        run: docker pull ${{ matrix.source_image }}
+
+      - name: Run Grype vulnerability scan
+        id: grype
+        uses: anchore/scan-action@v4
+        with:
+          image: ${{ matrix.source_image }}
+          fail-build: false
+          output-format: table
+
+      - name: Generate scan summary
+        id: scan-summary
+        run: |
+          echo "## Vulnerability Scan Results" > scan-results.md
+          echo "" >> scan-results.md
+          echo "**Scan Date:** $(date -u '+%Y-%m-%d %H:%M:%S UTC')" >> scan-results.md
+          echo "" >> scan-results.md
+          echo "**Source Image:** \`${{ matrix.source_image }}\`" >> scan-results.md
+          echo "" >> scan-results.md
+          echo "**GHCR Image:** \`${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}/${{ matrix.service }}\`" >> scan-results.md
+          echo "" >> scan-results.md
+          
+          # Run grype to capture output for README
+          docker run --rm anchore/grype:latest ${{ matrix.source_image }} -o table > grype-output.txt 2>&1 || true
+          
+          if [ -s grype-output.txt ]; then
+            echo "### Vulnerabilities Found" >> scan-results.md
+            echo "" >> scan-results.md
+            echo "\`\`\`" >> scan-results.md
+            head -100 grype-output.txt >> scan-results.md
+            echo "\`\`\`" >> scan-results.md
+          else
+            echo "✅ No vulnerabilities found" >> scan-results.md
+          fi
+          
+          # Store results for package README
+          SCAN_CONTENT=$(cat scan-results.md)
+          echo "scan_content<<EOF" >> $GITHUB_OUTPUT
+          echo "$SCAN_CONTENT" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Tag and push to GHCR
+        run: |
+          docker tag ${{ matrix.source_image }} ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}/${{ matrix.service }}:${{ matrix.tag }}
+          docker tag ${{ matrix.source_image }} ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}/${{ matrix.service }}:latest
+          docker push ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}/${{ matrix.service }}:${{ matrix.tag }}
+          docker push ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}/${{ matrix.service }}:latest
+
+      - name: Update package README with scan results
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Create package README content
+          cat << 'READMEEOF' > package-readme.md
+          # ${{ matrix.service }}
+          
+          Mirrored container image for the ${{ matrix.service }} service in the RAG Knowledge Base application.
+          
+          **Source:** `${{ matrix.source_image }}`
+          
+          ## Usage
+          
+          ```bash
+          docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}/${{ matrix.service }}:latest
+          ```
+          
+          ${{ steps.scan-summary.outputs.scan_content }}
+          READMEEOF
+          
+          # Update the package README via GitHub API
+          curl -X PATCH \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/user/packages/container/${{ github.event.repository.name }}%2F${{ matrix.service }}" \
+            -d "{\"description\":\"${{ matrix.service }} container image (mirrored) with vulnerability scan results\",\"readme\":\"$(cat package-readme.md | jq -Rs .)\"}" || echo "Package README update skipped (package may not exist yet)"
+

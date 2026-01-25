@@ -17,7 +17,7 @@ jobs:
   build-and-push:
     runs-on: ubuntu-latest
     permissions:
-      contents: read
+      contents: write
       packages: write
 
     strategy:
@@ -62,7 +62,7 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Extract metadata (tags, labels)
+      - name: Extract metadata
         id: meta
         uses: docker/metadata-action@v5
         with:
@@ -87,11 +87,9 @@ jobs:
         id: digest
         run: |
           DIGEST=$(docker inspect --format='{{.Id}}' ${{ matrix.service }}:scan)
-          SHORT_SHA=$(echo "$DIGEST" | sed 's/sha256://' | head -c 12)
-          echo "short_sha=${SHORT_SHA}" >> $GITHUB_OUTPUT
+          echo "sha=${DIGEST}" >> $GITHUB_OUTPUT
 
       - name: Run Grype vulnerability scan
-        id: grype
         uses: anchore/scan-action@v4
         with:
           image: ${{ matrix.service }}:scan
@@ -99,42 +97,32 @@ jobs:
           output-format: json
           output-file: grype-results.json
 
-      - name: Generate scan summary
-        id: scan-summary
+      - name: Generate scan report
         run: |
+          mkdir -p docs/security-scans
+          
           SCAN_DATE=$(date -u '+%Y-%m-%d %H:%M:%S UTC')
           IMAGE_NAME="${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}/${{ matrix.service }}"
-          IMAGE_SHA="${{ steps.digest.outputs.short_sha }}"
+          IMAGE_SHA="${{ steps.digest.outputs.sha }}"
           
-          cat << EOF > package-readme.md
-          # ${{ matrix.service }}
-
-          Container image for the **${{ matrix.service }}** service in the RAG Knowledge Base application.
-
-          ## Usage
-
-          \`\`\`bash
-          docker pull ${IMAGE_NAME}:latest
-          \`\`\`
-
-          ---
-
-          ## Vulnerability Scan Results
-
-          | Property | Value |
-          |----------|-------|
-          | **Image** | \`${IMAGE_NAME}\` |
-          | **Digest** | \`sha256:${IMAGE_SHA}...\` |
-          | **Scan Date** | ${SCAN_DATE} |
-          | **Scanner** | Grype |
-
-          ### Vulnerability Summary
-
-          EOF
+          # Start the markdown file
+          echo "# ${{ matrix.service }}" > docs/security-scans/${{ matrix.service }}.md
+          echo "" >> docs/security-scans/${{ matrix.service }}.md
+          echo "Container image for the **${{ matrix.service }}** service." >> docs/security-scans/${{ matrix.service }}.md
+          echo "" >> docs/security-scans/${{ matrix.service }}.md
+          echo "## Image Details" >> docs/security-scans/${{ matrix.service }}.md
+          echo "" >> docs/security-scans/${{ matrix.service }}.md
+          echo "| Property | Value |" >> docs/security-scans/${{ matrix.service }}.md
+          echo "|----------|-------|" >> docs/security-scans/${{ matrix.service }}.md
+          echo "| **Image** | \`${IMAGE_NAME}\` |" >> docs/security-scans/${{ matrix.service }}.md
+          echo "| **Digest** | \`${IMAGE_SHA}\` |" >> docs/security-scans/${{ matrix.service }}.md
+          echo "| **Scan Date** | ${SCAN_DATE} |" >> docs/security-scans/${{ matrix.service }}.md
+          echo "| **Scanner** | Grype |" >> docs/security-scans/${{ matrix.service }}.md
+          echo "" >> docs/security-scans/${{ matrix.service }}.md
+          echo "## Vulnerability Summary" >> docs/security-scans/${{ matrix.service }}.md
+          echo "" >> docs/security-scans/${{ matrix.service }}.md
           
-          # Parse JSON and create vulnerability table
           if [ -f grype-results.json ]; then
-            # Count vulnerabilities by severity
             CRITICAL=$(jq '[.matches[] | select(.vulnerability.severity == "Critical")] | length' grype-results.json)
             HIGH=$(jq '[.matches[] | select(.vulnerability.severity == "High")] | length' grype-results.json)
             MEDIUM=$(jq '[.matches[] | select(.vulnerability.severity == "Medium")] | length' grype-results.json)
@@ -142,39 +130,41 @@ jobs:
             NEGLIGIBLE=$(jq '[.matches[] | select(.vulnerability.severity == "Negligible")] | length' grype-results.json)
             TOTAL=$(jq '.matches | length' grype-results.json)
             
-            cat << EOF >> package-readme.md
-          | Severity | Count |
-          |----------|-------|
-          | 🔴 Critical | ${CRITICAL} |
-          | 🟠 High | ${HIGH} |
-          | 🟡 Medium | ${MEDIUM} |
-          | 🟢 Low | ${LOW} |
-          | ⚪ Negligible | ${NEGLIGIBLE} |
-          | **Total** | **${TOTAL}** |
-
-          EOF
+            echo "| Severity | Count |" >> docs/security-scans/${{ matrix.service }}.md
+            echo "|----------|-------|" >> docs/security-scans/${{ matrix.service }}.md
+            echo "| 🔴 Critical | ${CRITICAL} |" >> docs/security-scans/${{ matrix.service }}.md
+            echo "| 🟠 High | ${HIGH} |" >> docs/security-scans/${{ matrix.service }}.md
+            echo "| 🟡 Medium | ${MEDIUM} |" >> docs/security-scans/${{ matrix.service }}.md
+            echo "| 🟢 Low | ${LOW} |" >> docs/security-scans/${{ matrix.service }}.md
+            echo "| ⚪ Negligible | ${NEGLIGIBLE} |" >> docs/security-scans/${{ matrix.service }}.md
+            echo "| **Total** | **${TOTAL}** |" >> docs/security-scans/${{ matrix.service }}.md
+            echo "" >> docs/security-scans/${{ matrix.service }}.md
             
             if [ "$TOTAL" -gt 0 ]; then
-              cat << EOF >> package-readme.md
-          ### Detailed Findings
-
-          | Package | Version | Vulnerability | Severity | Fixed In |
-          |---------|---------|---------------|----------|----------|
-          EOF
-              
-              # Extract top 50 vulnerabilities and format as table
-              jq -r '.matches[:50][] | "| \(.artifact.name) | \(.artifact.version) | \(.vulnerability.id) | \(.vulnerability.severity) | \(.vulnerability.fix.versions[0] // "N/A") |"' grype-results.json >> package-readme.md
+              echo "## Detailed Findings" >> docs/security-scans/${{ matrix.service }}.md
+              echo "" >> docs/security-scans/${{ matrix.service }}.md
+              echo "| Package | Version | Vulnerability | Severity | Fixed In |" >> docs/security-scans/${{ matrix.service }}.md
+              echo "|---------|---------|---------------|----------|----------|" >> docs/security-scans/${{ matrix.service }}.md
+              jq -r '.matches[:50][] | "| \(.artifact.name) | \(.artifact.version) | \(.vulnerability.id) | \(.vulnerability.severity) | \(.vulnerability.fix.versions[0] // "N/A") |"' grype-results.json >> docs/security-scans/${{ matrix.service }}.md
               
               if [ "$TOTAL" -gt 50 ]; then
-                echo "" >> package-readme.md
-                echo "*Showing top 50 of ${TOTAL} vulnerabilities*" >> package-readme.md
+                echo "" >> docs/security-scans/${{ matrix.service }}.md
+                echo "*Showing top 50 of ${TOTAL} vulnerabilities*" >> docs/security-scans/${{ matrix.service }}.md
               fi
             else
-              echo "✅ **No vulnerabilities found!**" >> package-readme.md
+              echo "✅ **No vulnerabilities found!**" >> docs/security-scans/${{ matrix.service }}.md
             fi
-          else
-            echo "⚠️ Scan results not available" >> package-readme.md
           fi
+
+      - name: Add scan results to job summary
+        run: cat docs/security-scans/${{ matrix.service }}.md >> $GITHUB_STEP_SUMMARY
+
+      - name: Upload scan artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: scan-${{ matrix.service }}
+          path: docs/security-scans/${{ matrix.service }}.md
+          retention-days: 90
 
       - name: Push Docker image
         if: github.event_name != 'pull_request'
@@ -188,24 +178,20 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      - name: Update package README with scan results
+      - name: Commit scan results
         if: github.event_name != 'pull_request'
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # Update the package README via GitHub API
-          curl -X PATCH \
-            -H "Accept: application/vnd.github+json" \
-            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-            -H "X-GitHub-Api-Version: 2022-11-28" \
-            "https://api.github.com/user/packages/container/${{ github.event.repository.name }}%2F${{ matrix.service }}" \
-            -d "{\"description\":\"${{ matrix.service }} container image with vulnerability scan results\",\"readme\":$(cat package-readme.md | jq -Rs .)}" || echo "Package README update skipped (package may not exist yet)"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git pull --rebase || true
+          git add docs/security-scans/${{ matrix.service }}.md
+          git diff --staged --quiet || git commit -m "Update security scan for ${{ matrix.service }} [skip ci]"
+          git push || echo "Push failed, will retry in next job"
 
-  # Pull, scan, and push external images to GHCR
   mirror-external-images:
     runs-on: ubuntu-latest
     permissions:
-      contents: read
+      contents: write
       packages: write
     if: github.event_name != 'pull_request'
 
@@ -223,6 +209,9 @@ jobs:
             tag: "7-bookworm"
 
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
       - name: Log in to GitHub Container Registry
         uses: docker/login-action@v3
         with:
@@ -236,12 +225,10 @@ jobs:
       - name: Get image digest
         id: digest
         run: |
-          DIGEST=$(docker inspect --format='{{index .RepoDigests 0}}' ${{ matrix.source_image }} | sed 's/.*@sha256://')
-          SHORT_SHA=$(echo "$DIGEST" | head -c 12)
-          echo "short_sha=${SHORT_SHA}" >> $GITHUB_OUTPUT
+          DIGEST=$(docker inspect --format='{{index .RepoDigests 0}}' ${{ matrix.source_image }})
+          echo "sha=${DIGEST}" >> $GITHUB_OUTPUT
 
       - name: Run Grype vulnerability scan
-        id: grype
         uses: anchore/scan-action@v4
         with:
           image: ${{ matrix.source_image }}
@@ -249,44 +236,33 @@ jobs:
           output-format: json
           output-file: grype-results.json
 
-      - name: Generate scan summary
-        id: scan-summary
+      - name: Generate scan report
         run: |
+          mkdir -p docs/security-scans
+          
           SCAN_DATE=$(date -u '+%Y-%m-%d %H:%M:%S UTC')
           IMAGE_NAME="${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}/${{ matrix.service }}"
           SOURCE_IMAGE="${{ matrix.source_image }}"
-          IMAGE_SHA="${{ steps.digest.outputs.short_sha }}"
+          IMAGE_SHA="${{ steps.digest.outputs.sha }}"
           
-          cat << EOF > package-readme.md
-          # ${{ matrix.service }}
-
-          Mirrored container image for the **${{ matrix.service }}** service in the RAG Knowledge Base application.
-
-          ## Usage
-
-          \`\`\`bash
-          docker pull ${IMAGE_NAME}:latest
-          \`\`\`
-
-          ---
-
-          ## Vulnerability Scan Results
-
-          | Property | Value |
-          |----------|-------|
-          | **Source Image** | \`${SOURCE_IMAGE}\` |
-          | **GHCR Image** | \`${IMAGE_NAME}\` |
-          | **Digest** | \`sha256:${IMAGE_SHA}...\` |
-          | **Scan Date** | ${SCAN_DATE} |
-          | **Scanner** | Grype |
-
-          ### Vulnerability Summary
-
-          EOF
+          echo "# ${{ matrix.service }}" > docs/security-scans/${{ matrix.service }}.md
+          echo "" >> docs/security-scans/${{ matrix.service }}.md
+          echo "Mirrored container image for the **${{ matrix.service }}** service." >> docs/security-scans/${{ matrix.service }}.md
+          echo "" >> docs/security-scans/${{ matrix.service }}.md
+          echo "## Image Details" >> docs/security-scans/${{ matrix.service }}.md
+          echo "" >> docs/security-scans/${{ matrix.service }}.md
+          echo "| Property | Value |" >> docs/security-scans/${{ matrix.service }}.md
+          echo "|----------|-------|" >> docs/security-scans/${{ matrix.service }}.md
+          echo "| **Source Image** | \`${SOURCE_IMAGE}\` |" >> docs/security-scans/${{ matrix.service }}.md
+          echo "| **GHCR Image** | \`${IMAGE_NAME}\` |" >> docs/security-scans/${{ matrix.service }}.md
+          echo "| **Digest** | \`${IMAGE_SHA}\` |" >> docs/security-scans/${{ matrix.service }}.md
+          echo "| **Scan Date** | ${SCAN_DATE} |" >> docs/security-scans/${{ matrix.service }}.md
+          echo "| **Scanner** | Grype |" >> docs/security-scans/${{ matrix.service }}.md
+          echo "" >> docs/security-scans/${{ matrix.service }}.md
+          echo "## Vulnerability Summary" >> docs/security-scans/${{ matrix.service }}.md
+          echo "" >> docs/security-scans/${{ matrix.service }}.md
           
-          # Parse JSON and create vulnerability table
           if [ -f grype-results.json ]; then
-            # Count vulnerabilities by severity
             CRITICAL=$(jq '[.matches[] | select(.vulnerability.severity == "Critical")] | length' grype-results.json)
             HIGH=$(jq '[.matches[] | select(.vulnerability.severity == "High")] | length' grype-results.json)
             MEDIUM=$(jq '[.matches[] | select(.vulnerability.severity == "Medium")] | length' grype-results.json)
@@ -294,39 +270,41 @@ jobs:
             NEGLIGIBLE=$(jq '[.matches[] | select(.vulnerability.severity == "Negligible")] | length' grype-results.json)
             TOTAL=$(jq '.matches | length' grype-results.json)
             
-            cat << EOF >> package-readme.md
-          | Severity | Count |
-          |----------|-------|
-          | 🔴 Critical | ${CRITICAL} |
-          | 🟠 High | ${HIGH} |
-          | 🟡 Medium | ${MEDIUM} |
-          | 🟢 Low | ${LOW} |
-          | ⚪ Negligible | ${NEGLIGIBLE} |
-          | **Total** | **${TOTAL}** |
-
-          EOF
+            echo "| Severity | Count |" >> docs/security-scans/${{ matrix.service }}.md
+            echo "|----------|-------|" >> docs/security-scans/${{ matrix.service }}.md
+            echo "| 🔴 Critical | ${CRITICAL} |" >> docs/security-scans/${{ matrix.service }}.md
+            echo "| 🟠 High | ${HIGH} |" >> docs/security-scans/${{ matrix.service }}.md
+            echo "| 🟡 Medium | ${MEDIUM} |" >> docs/security-scans/${{ matrix.service }}.md
+            echo "| 🟢 Low | ${LOW} |" >> docs/security-scans/${{ matrix.service }}.md
+            echo "| ⚪ Negligible | ${NEGLIGIBLE} |" >> docs/security-scans/${{ matrix.service }}.md
+            echo "| **Total** | **${TOTAL}** |" >> docs/security-scans/${{ matrix.service }}.md
+            echo "" >> docs/security-scans/${{ matrix.service }}.md
             
             if [ "$TOTAL" -gt 0 ]; then
-              cat << EOF >> package-readme.md
-          ### Detailed Findings
-
-          | Package | Version | Vulnerability | Severity | Fixed In |
-          |---------|---------|---------------|----------|----------|
-          EOF
-              
-              # Extract top 50 vulnerabilities and format as table
-              jq -r '.matches[:50][] | "| \(.artifact.name) | \(.artifact.version) | \(.vulnerability.id) | \(.vulnerability.severity) | \(.vulnerability.fix.versions[0] // "N/A") |"' grype-results.json >> package-readme.md
+              echo "## Detailed Findings" >> docs/security-scans/${{ matrix.service }}.md
+              echo "" >> docs/security-scans/${{ matrix.service }}.md
+              echo "| Package | Version | Vulnerability | Severity | Fixed In |" >> docs/security-scans/${{ matrix.service }}.md
+              echo "|---------|---------|---------------|----------|----------|" >> docs/security-scans/${{ matrix.service }}.md
+              jq -r '.matches[:50][] | "| \(.artifact.name) | \(.artifact.version) | \(.vulnerability.id) | \(.vulnerability.severity) | \(.vulnerability.fix.versions[0] // "N/A") |"' grype-results.json >> docs/security-scans/${{ matrix.service }}.md
               
               if [ "$TOTAL" -gt 50 ]; then
-                echo "" >> package-readme.md
-                echo "*Showing top 50 of ${TOTAL} vulnerabilities*" >> package-readme.md
+                echo "" >> docs/security-scans/${{ matrix.service }}.md
+                echo "*Showing top 50 of ${TOTAL} vulnerabilities*" >> docs/security-scans/${{ matrix.service }}.md
               fi
             else
-              echo "✅ **No vulnerabilities found!**" >> package-readme.md
+              echo "✅ **No vulnerabilities found!**" >> docs/security-scans/${{ matrix.service }}.md
             fi
-          else
-            echo "⚠️ Scan results not available" >> package-readme.md
           fi
+
+      - name: Add scan results to job summary
+        run: cat docs/security-scans/${{ matrix.service }}.md >> $GITHUB_STEP_SUMMARY
+
+      - name: Upload scan artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: scan-${{ matrix.service }}
+          path: docs/security-scans/${{ matrix.service }}.md
+          retention-days: 90
 
       - name: Tag and push to GHCR
         run: |
@@ -335,15 +313,11 @@ jobs:
           docker push ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}/${{ matrix.service }}:${{ matrix.tag }}
           docker push ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}/${{ matrix.service }}:latest
 
-      - name: Update package README with scan results
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Commit scan results
         run: |
-          # Update the package README via GitHub API
-          curl -X PATCH \
-            -H "Accept: application/vnd.github+json" \
-            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-            -H "X-GitHub-Api-Version: 2022-11-28" \
-            "https://api.github.com/user/packages/container/${{ github.event.repository.name }}%2F${{ matrix.service }}" \
-            -d "{\"description\":\"${{ matrix.service }} container image (mirrored) with vulnerability scan results\",\"readme\":$(cat package-readme.md | jq -Rs .)}" || echo "Package README update skipped (package may not exist yet)"
-
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git pull --rebase || true
+          git add docs/security-scans/${{ matrix.service }}.md
+          git diff --staged --quiet || git commit -m "Update security scan for ${{ matrix.service }} [skip ci]"
+          git push || echo "Push failed, will retry in next job"

@@ -89,13 +89,13 @@ jobs:
           DIGEST=$(docker inspect --format='{{.Id}}' ${{ matrix.service }}:scan)
           echo "sha=${DIGEST}" >> $GITHUB_OUTPUT
 
+      - name: Install Grype
+        run: |
+          curl -sSfL https://raw.githubusercontent.com/anchore/grype/main/install.sh | sh -s -- -b /usr/local/bin
+
       - name: Run Grype vulnerability scan
-        uses: anchore/scan-action@v4
-        with:
-          image: ${{ matrix.service }}:scan
-          fail-build: false
-          output-format: json
-          output-file: grype-results.json
+        run: |
+          grype ${{ matrix.service }}:scan -o json > grype-results.json || true
 
       - name: Generate scan report
         env:
@@ -219,13 +219,13 @@ jobs:
           DIGEST=$(docker inspect --format='{{index .RepoDigests 0}}' ${{ matrix.source_image }})
           echo "sha=${DIGEST}" >> $GITHUB_OUTPUT
 
+      - name: Install Grype
+        run: |
+          curl -sSfL https://raw.githubusercontent.com/anchore/grype/main/install.sh | sh -s -- -b /usr/local/bin
+
       - name: Run Grype vulnerability scan
-        uses: anchore/scan-action@v4
-        with:
-          image: ${{ matrix.source_image }}
-          fail-build: false
-          output-format: json
-          output-file: grype-results.json
+        run: |
+          grype ${{ matrix.source_image }} -o json > grype-results.json || true
 
       - name: Generate scan report
         env:

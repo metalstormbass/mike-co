@@ -10,7 +10,7 @@ Mirrored container image for the **opensearch** service.
 | **GHCR Image** | `ghcr.io/metalstormbass/mike-co/opensearch` |
 | **Digest** | `opensearchproject/opensearch@sha256:2f49c399988df5c9a3b25a05ec78ea75ac4b39ae76e1d2609f94a653224bb24b` |
 | **Size** | 1.13 GB |
-| **Scan Date** | 2026-01-25 22:47:30 UTC |
+| **Scan Date** | 2026-01-25 22:55:17 UTC |
 | **Scanner** | Grype |
 
 ## Vulnerability Summary

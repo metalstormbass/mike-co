@@ -38,15 +38,9 @@ jobs:
           - service: embedding-service
             context: ./services/embedding-service
             dockerfile: ./services/embedding-service/Dockerfile.cpu
-          - service: embedding-service-gpu
-            context: ./services/embedding-service
-            dockerfile: ./services/embedding-service/Dockerfile
           - service: llm-service
             context: ./services/llm-service
             dockerfile: ./services/llm-service/Dockerfile.cpu
-          - service: llm-service-gpu
-            context: ./services/llm-service
-            dockerfile: ./services/llm-service/Dockerfile
 
     steps:
       - name: Checkout repository

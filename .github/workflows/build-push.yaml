@@ -86,9 +86,9 @@ jobs:
       - name: Get image digest
         id: digest
         run: |
-          DIGEST=$(docker inspect --format='{{index .RepoDigests 0}}' ${{ matrix.service }}:scan 2>/dev/null || docker inspect --format='{{.Id}}' ${{ matrix.service }}:scan)
-          echo "digest=$DIGEST" >> $GITHUB_OUTPUT
-          echo "short_sha=$(echo $DIGEST | cut -d':' -f2 | head -c 12)" >> $GITHUB_OUTPUT
+          DIGEST=$(docker inspect --format='{{.Id}}' ${{ matrix.service }}:scan)
+          SHORT_SHA=$(echo "$DIGEST" | sed 's/sha256://' | head -c 12)
+          echo "short_sha=${SHORT_SHA}" >> $GITHUB_OUTPUT
 
       - name: Run Grype vulnerability scan
         id: grype
@@ -236,9 +236,9 @@ jobs:
       - name: Get image digest
         id: digest
         run: |
-          DIGEST=$(docker inspect --format='{{index .RepoDigests 0}}' ${{ matrix.source_image }} 2>/dev/null || docker inspect --format='{{.Id}}' ${{ matrix.source_image }})
-          echo "digest=$DIGEST" >> $GITHUB_OUTPUT
-          echo "short_sha=$(echo $DIGEST | cut -d':' -f2 | head -c 12)" >> $GITHUB_OUTPUT
+          DIGEST=$(docker inspect --format='{{index .RepoDigests 0}}' ${{ matrix.source_image }} | sed 's/.*@sha256://')
+          SHORT_SHA=$(echo "$DIGEST" | head -c 12)
+          echo "short_sha=${SHORT_SHA}" >> $GITHUB_OUTPUT
 
       - name: Run Grype vulnerability scan
         id: grype

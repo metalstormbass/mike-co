@@ -19,23 +19,39 @@ embeddingService:
     requests:
       memory: "1Gi"
       cpu: "500m"
-      nvidia.com/gpu: "0"
     limits:
       memory: "2Gi"
       cpu: "1000m"
-      nvidia.com/gpu: "0"
+  tolerations: []
 
 llmService:
   replicaCount: 1
   resources:
     requests:
+      memory: "256Mi"
+      cpu: "100m"
+    limits:
+      memory: "512Mi"
+      cpu: "250m"
+  env:
+    USE_OLLAMA: "true"
+    USE_OPENAI: "false"
+    OLLAMA_MODEL: "mistral"
+  tolerations: []
+
+ollama:
+  enabled: true
+  replicaCount: 1
+  resources:
+    requests:
       memory: "4Gi"
       cpu: "1000m"
-      nvidia.com/gpu: "0"
     limits:
       memory: "8Gi"
       cpu: "2000m"
-      nvidia.com/gpu: "0"
+  persistence:
+    enabled: true
+    size: 10Gi
 
 documentProcessor:
   replicaCount: 1

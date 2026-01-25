@@ -1,19 +1,55 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useCallback } from 'react'
 import Sidebar from './components/Sidebar'
 import ChatArea from './components/ChatArea'
 import WelcomeScreen from './components/WelcomeScreen'
 import UploadModal from './components/UploadModal'
+import SettingsModal from './components/SettingsModal'
+
+// API base URL for document processor
+const DOCUMENT_API = '/api/documents'
 
 function App() {
   const [messages, setMessages] = useState([])
   const [isLoading, setIsLoading] = useState(false)
   const [sidebarOpen, setSidebarOpen] = useState(true)
   const [uploadModalOpen, setUploadModalOpen] = useState(false)
+  const [settingsModalOpen, setSettingsModalOpen] = useState(false)
   const [documents, setDocuments] = useState([])
   const [conversations, setConversations] = useState([
     { id: 1, title: 'New Conversation', date: new Date() }
   ])
   const [activeConversation, setActiveConversation] = useState(1)
+
+  // Fetch documents from API
+  const fetchDocuments = useCallback(async () => {
+    try {
+      const response = await fetch(DOCUMENT_API)
+      if (response.ok) {
+        const data = await response.json()
+        setDocuments(data.documents.map(doc => ({
+          id: doc.id,
+          name: doc.filename,
+          size: doc.file_size,
+          type: doc.file_type,
+          status: doc.status,
+          chunkCount: doc.chunk_count,
+          uploadedAt: new Date(doc.created_at),
+          processedAt: doc.processed_at ? new Date(doc.processed_at) : null
+        })))
+      }
+    } catch (error) {
+      console.error('Failed to fetch documents:', error)
+    }
+  }, [])
+
+  // Fetch documents on mount and set up polling
+  useEffect(() => {
+    fetchDocuments()
+    
+    // Poll for updates every 5 seconds (for processing status)
+    const interval = setInterval(fetchDocuments, 5000)
+    return () => clearInterval(interval)
+  }, [fetchDocuments])
 
   const sendMessage = async (content) => {
     if (!content.trim()) return
@@ -74,27 +110,67 @@ function App() {
   }
 
   const handleUpload = async (files) => {
-    // Handle file upload
-    const newDocs = files.map(file => ({
-      id: Date.now() + Math.random(),
-      name: file.name,
-      size: file.size,
-      type: file.type,
-      status: 'processing',
-      uploadedAt: new Date()
-    }))
-    
-    setDocuments(prev => [...prev, ...newDocs])
     setUploadModalOpen(false)
 
-    // Simulate processing
-    setTimeout(() => {
-      setDocuments(prev => prev.map(doc => 
-        newDocs.find(n => n.id === doc.id) 
-          ? { ...doc, status: 'indexed' }
-          : doc
-      ))
-    }, 3000)
+    // Upload each file to the document processor
+    for (const file of files) {
+      // Add placeholder document with uploading status
+      const tempId = `temp-${Date.now()}-${Math.random()}`
+      setDocuments(prev => [...prev, {
+        id: tempId,
+        name: file.name,
+        size: file.size,
+        type: file.type,
+        status: 'uploading',
+        uploadedAt: new Date()
+      }])
+
+      try {
+        const formData = new FormData()
+        formData.append('file', file)
+
+        const response = await fetch(`${DOCUMENT_API}/upload`, {
+          method: 'POST',
+          body: formData
+        })
+
+        if (response.ok) {
+          const result = await response.json()
+          // Update the temp document with real data
+          setDocuments(prev => prev.map(doc => 
+            doc.id === tempId 
+              ? {
+                  id: result.document_id,
+                  name: file.name,
+                  size: file.size,
+                  type: file.type,
+                  status: result.status,
+                  chunkCount: result.chunks_created,
+                  uploadedAt: new Date()
+                }
+              : doc
+          ))
+        } else {
+          // Mark as error
+          const error = await response.json()
+          setDocuments(prev => prev.map(doc => 
+            doc.id === tempId 
+              ? { ...doc, status: 'error', error: error.detail || 'Upload failed' }
+              : doc
+          ))
+        }
+      } catch (error) {
+        console.error('Upload error:', error)
+        setDocuments(prev => prev.map(doc => 
+          doc.id === tempId 
+            ? { ...doc, status: 'error', error: error.message }
+            : doc
+        ))
+      }
+    }
+    
+    // Refresh document list
+    fetchDocuments()
   }
 
   const startNewConversation = () => {
@@ -127,6 +203,7 @@ function App() {
         onNewConversation={startNewConversation}
         documents={documents}
         onUploadClick={() => setUploadModalOpen(true)}
+        onSettingsClick={() => setSettingsModalOpen(true)}
       />
 
       {/* Main content */}
@@ -149,6 +226,12 @@ function App() {
         isOpen={uploadModalOpen}
         onClose={() => setUploadModalOpen(false)}
         onUpload={handleUpload}
+      />
+
+      {/* Settings Modal */}
+      <SettingsModal
+        isOpen={settingsModalOpen}
+        onClose={() => setSettingsModalOpen(false)}
       />
     </div>
   )

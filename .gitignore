@@ -51,3 +51,6 @@ secrets/
 *.bin
 *.safetensors
 models/
+
+# Project todo list (personal tracking)
+TODO.md

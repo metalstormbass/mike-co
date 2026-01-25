@@ -8,6 +8,7 @@ Container image for the **nginx** service.
 |----------|-------|
 | **Image** | `ghcr.io/metalstormbass/mike-co/nginx` |
 | **Digest** | `sha256:59c662b07eb4243882a3b3751b7bd57691ca5a6b11fe719475f795ef193423df` |
+| **Size** | 187 MB |
 | **Scan Date** | 2026-01-25 20:58:09 UTC |
 | **Scanner** | Grype |
 

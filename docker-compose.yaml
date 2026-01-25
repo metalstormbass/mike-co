@@ -36,18 +36,45 @@ services:
 
   # PyTorch Embedding Service
   embedding-service:
-    build: ./services/embedding-service
+    build:
+      context: ./services/embedding-service
+      dockerfile: Dockerfile.cpu
+    platform: linux/amd64
     environment:
       - MODEL_NAME=sentence-transformers/all-MiniLM-L6-v2
+    ports:
+      - "8002:8000"
     networks:
       - rag-network
 
-  # PyTorch LLM Service
+  # Ollama (Local LLM)
+  ollama:
+    image: ollama/ollama:latest
+    volumes:
+      - ollama-data:/root/.ollama
+    ports:
+      - "11434:11434"
+    networks:
+      - rag-network
+
+  # LLM Service (RAG Query)
   llm-service:
     build: ./services/llm-service
     environment:
-      - MODEL_NAME=mistralai/Mistral-7B-Instruct-v0.1
-      - LOAD_IN_4BIT=true
+      - EMBEDDING_SERVICE_URL=http://embedding-service:8000
+      - OPENSEARCH_URL=http://opensearch:9200
+      - USE_OLLAMA=true
+      - OLLAMA_URL=http://ollama:11434
+      - OLLAMA_MODEL=mistral
+      - USE_OPENAI=false
+      # - OPENAI_API_KEY=your-key-here  # Uncomment to use OpenAI
+      # - OPENAI_MODEL=gpt-3.5-turbo
+    ports:
+      - "8001:8001"
+    depends_on:
+      - embedding-service
+      - opensearch
+      - ollama
     networks:
       - rag-network
 
@@ -57,10 +84,14 @@ services:
     environment:
       - EMBEDDING_SERVICE_URL=http://embedding-service:8000
       - OPENSEARCH_URL=http://opensearch:9200
+      - POSTGRES_URL=postgresql://rag:rag@postgresql:5432/rag
       - REDIS_URL=redis://redis:6379
+    ports:
+      - "8003:8002"
     depends_on:
       - embedding-service
       - opensearch
+      - postgresql
       - redis
     networks:
       - rag-network
@@ -111,3 +142,4 @@ volumes:
   opensearch-data:
   postgresql-data:
   redis-data:
+  ollama-data:

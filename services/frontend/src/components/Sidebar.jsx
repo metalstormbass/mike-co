@@ -21,7 +21,8 @@ export default function Sidebar({
   onSelectConversation,
   onNewConversation,
   documents,
-  onUploadClick 
+  onUploadClick,
+  onSettingsClick 
 }) {
   const [activeTab, setActiveTab] = useState('chats')
 
@@ -142,14 +143,28 @@ export default function Sidebar({
                       bg-dark-800/30 hover:bg-dark-800/50
                       transition-all duration-150 group"
                   >
-                    <FileText className="w-4 h-4 text-primary-400 flex-shrink-0" />
+                    <FileText className={`w-4 h-4 flex-shrink-0 ${
+                      doc.status === 'indexed' ? 'text-green-400' :
+                      doc.status === 'error' ? 'text-red-400' :
+                      'text-yellow-400'
+                    }`} />
                     <div className="flex-1 min-w-0">
                       <p className="text-sm text-dark-200 truncate">{doc.name}</p>
                       <p className="text-xs text-dark-500">
-                        {doc.status === 'processing' ? (
-                          <span className="text-yellow-400">Processing...</span>
-                        ) : (
-                          <span className="text-green-400">Indexed</span>
+                        {doc.status === 'uploading' && (
+                          <span className="text-blue-400">⬆ Uploading...</span>
+                        )}
+                        {doc.status === 'processing' && (
+                          <span className="text-yellow-400">⏳ Processing...</span>
+                        )}
+                        {doc.status === 'indexed' && (
+                          <span className="text-green-400">✓ Indexed ({doc.chunkCount || 0} chunks)</span>
+                        )}
+                        {doc.status === 'error' && (
+                          <span className="text-red-400">✗ Error</span>
+                        )}
+                        {doc.status === 'pending' && (
+                          <span className="text-gray-400">◯ Pending</span>
                         )}
                       </p>
                     </div>
@@ -165,7 +180,9 @@ export default function Sidebar({
 
         {/* Footer */}
         <div className="p-3 border-t border-dark-700/50">
-          <button className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg
+          <button 
+            onClick={onSettingsClick}
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg
             text-dark-400 hover:text-dark-200 hover:bg-dark-800/50
             transition-all duration-150">
             <Settings className="w-4 h-4" />

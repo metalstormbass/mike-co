@@ -28,7 +28,10 @@ Port forward to access the application:
   ✅ Embedding Service (PyTorch) - {{ .Values.embeddingService.replicaCount }} replica(s)
 {{- end }}
 {{- if .Values.llmService.enabled }}
-  ✅ LLM Service (PyTorch) - {{ .Values.llmService.replicaCount }} replica(s)
+  ✅ LLM Service (FastAPI) - {{ .Values.llmService.replicaCount }} replica(s)
+{{- end }}
+{{- if .Values.ollama.enabled }}
+  ✅ Ollama ({{ .Values.llmService.env.OLLAMA_MODEL | default "mistral" }}) - {{ .Values.ollama.replicaCount }} replica(s)
 {{- end }}
 {{- if .Values.documentProcessor.enabled }}
   ✅ Document Processor - {{ .Values.documentProcessor.replicaCount }} replica(s)
@@ -45,10 +48,10 @@ Port forward to access the application:
   ✅ OpenSearch - {{ .Values.opensearch.replicas }} node(s)
 {{- end }}
 {{- if .Values.redis.enabled }}
-  ✅ Redis Cluster
+  ✅ Redis
 {{- end }}
-{{- if .Values.cnpg.enabled }}
-  ✅ PostgreSQL (CloudNativePG) - {{ .Values.cnpg.instances }} instance(s)
+{{- if .Values.postgresql.enabled }}
+  ✅ PostgreSQL
 {{- end }}
 
 📝 To check the status of your deployment:

@@ -1,9 +1,9 @@
 apiVersion: v2
 name: rag-knowledge-base
-description: A Helm chart for RAG Knowledge Base application
+description: A Helm chart for RAG Knowledge Base application with Ollama LLM support
 type: application
-version: 0.1.0
-appVersion: "1.0.0"
+version: 0.2.0
+appVersion: "1.1.0"
 
 dependencies:
   - name: opensearch
@@ -11,11 +11,11 @@ dependencies:
     repository: "https://opensearch-project.github.io/helm-charts/"
     condition: opensearch.enabled
   - name: redis
-    version: "7.0.0"
-    repository: "https://charts.groundhog2k.de"
+    version: "18.x.x"
+    repository: "https://charts.bitnami.com/bitnami"
     condition: redis.enabled
-  - name: postgres
-    version: "5.0.0"
-    repository: "https://charts.groundhog2k.de"
+  - name: postgresql
+    version: "13.x.x"
+    repository: "https://charts.bitnami.com/bitnami"
     condition: postgresql.enabled
 

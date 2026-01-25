@@ -136,3 +136,16 @@ app.kubernetes.io/component: nginx
 {{ include "rag-knowledge-base.selectorLabels" . }}
 app.kubernetes.io/component: nginx
 {{- end }}
+
+{{/*
+Ollama labels
+*/}}
+{{- define "rag-knowledge-base.ollama.labels" -}}
+{{ include "rag-knowledge-base.labels" . }}
+app.kubernetes.io/component: ollama
+{{- end }}
+
+{{- define "rag-knowledge-base.ollama.selectorLabels" -}}
+{{ include "rag-knowledge-base.selectorLabels" . }}
+app.kubernetes.io/component: ollama
+{{- end }}

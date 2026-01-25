@@ -11,6 +11,10 @@ data:
   POSTGRES_HOST: {{ .Values.config.postgresHost | quote }}
   POSTGRES_DB: {{ .Values.config.postgresDb | quote }}
   POSTGRES_USER: {{ .Values.config.postgresUser | default "rag" | quote }}
+  POSTGRES_URL: "postgresql://{{ .Values.config.postgresUser | default "rag" }}:{{ .Values.secrets.postgresPassword }}@{{ .Values.config.postgresHost }}:5432/{{ .Values.config.postgresDb }}"
   EMBEDDING_SERVICE_URL: "http://{{ include "rag-knowledge-base.fullname" . }}-embedding-service:{{ .Values.embeddingService.service.port }}"
   LLM_SERVICE_URL: "http://{{ include "rag-knowledge-base.fullname" . }}-llm-service:{{ .Values.llmService.service.port }}"
   DOCUMENT_PROCESSOR_URL: "http://{{ include "rag-knowledge-base.fullname" . }}-document-processor:{{ .Values.documentProcessor.service.port }}"
+  {{- if .Values.ollama.enabled }}
+  OLLAMA_URL: "http://{{ include "rag-knowledge-base.fullname" . }}-ollama:{{ .Values.ollama.service.port }}"
+  {{- end }}

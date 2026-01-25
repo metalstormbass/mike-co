@@ -50,22 +50,32 @@ function Message({ message, isLast }) {
 
         {/* Sources */}
         {!isUser && message.sources && message.sources.length > 0 && (
-          <div className="flex flex-wrap gap-2 mt-2">
-            {message.sources.map((source, i) => (
-              <a
-                key={i}
-                href={source.url || '#'}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg
-                  bg-dark-800/50 hover:bg-dark-700/50
-                  text-xs text-dark-300 hover:text-primary-400
-                  border border-dark-700/50
-                  transition-all duration-200"
-              >
-                <FileText className="w-3 h-3" />
-                <span>{source.title || source.name || `Source ${i + 1}`}</span>
-                <ExternalLink className="w-3 h-3" />
-              </a>
-            ))}
+          <div className="mt-3 p-3 rounded-xl bg-dark-800/30 border border-dark-700/50">
+            <p className="text-xs text-dark-400 mb-2 flex items-center gap-1">
+              <FileText className="w-3 h-3" />
+              Sources ({message.sources.length})
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {message.sources.map((source, i) => (
+                <div
+                  key={i}
+                  className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg
+                    bg-dark-700/50 hover:bg-dark-600/50
+                    text-xs text-dark-200
+                    border border-dark-600/50
+                    transition-all duration-200"
+                  title={source.content_preview}
+                >
+                  <FileText className="w-3 h-3 text-primary-400" />
+                  <span>{source.filename || source.title || source.name || `Source ${i + 1}`}</span>
+                  {source.score && (
+                    <span className="px-1.5 py-0.5 rounded bg-primary-500/20 text-primary-300 text-[10px]">
+                      {Math.round(source.score * 100)}%
+                    </span>
+                  )}
+                </div>
+              ))}
+            </div>
           </div>
         )}
 

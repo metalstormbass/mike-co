@@ -6,7 +6,43 @@
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
   line-height: 1.5;
   font-weight: 400;
+  --base-font-size: 16px;
+  
+  /* Dark theme (default) - RGB values for opacity support */
+  --color-dark-50: 248 250 252;
+  --color-dark-100: 241 245 249;
+  --color-dark-200: 226 232 240;
+  --color-dark-300: 203 213 225;
+  --color-dark-400: 148 163 184;
+  --color-dark-500: 100 116 139;
+  --color-dark-600: 71 85 105;
+  --color-dark-700: 51 65 85;
+  --color-dark-800: 30 41 59;
+  --color-dark-850: 23 32 51;
+  --color-dark-900: 15 23 42;
+  --color-dark-950: 2 6 23;
   color-scheme: dark;
+}
+
+/* Light mode - invert the color scale */
+.light-mode {
+  --color-dark-50: 2 6 23;
+  --color-dark-100: 15 23 42;
+  --color-dark-200: 30 41 59;
+  --color-dark-300: 51 65 85;
+  --color-dark-400: 71 85 105;
+  --color-dark-500: 100 116 139;
+  --color-dark-600: 148 163 184;
+  --color-dark-700: 203 213 225;
+  --color-dark-800: 226 232 240;
+  --color-dark-850: 238 242 246;
+  --color-dark-900: 241 245 249;
+  --color-dark-950: 248 250 252;
+  color-scheme: light;
+}
+
+html {
+  font-size: var(--base-font-size);
 }
 
 body {

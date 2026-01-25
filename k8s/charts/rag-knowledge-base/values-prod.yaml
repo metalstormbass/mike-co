@@ -15,9 +15,48 @@ apiGateway:
 
 embeddingService:
   replicaCount: 3
+  resources:
+    requests:
+      memory: "2Gi"
+      cpu: "1000m"
+    limits:
+      memory: "4Gi"
+      cpu: "2000m"
 
 llmService:
   replicaCount: 2
+  resources:
+    requests:
+      memory: "512Mi"
+      cpu: "250m"
+    limits:
+      memory: "1Gi"
+      cpu: "500m"
+  env:
+    USE_OLLAMA: "true"
+    USE_OPENAI: "false"
+    OLLAMA_MODEL: "mistral"
+    # For production with OpenAI (higher quality):
+    # USE_OLLAMA: "false"
+    # USE_OPENAI: "true"
+    # OPENAI_MODEL: "gpt-4"
+
+ollama:
+  enabled: true
+  replicaCount: 2
+  resources:
+    requests:
+      memory: "8Gi"
+      cpu: "2000m"
+    limits:
+      memory: "16Gi"
+      cpu: "4000m"
+  persistence:
+    enabled: true
+    size: 50Gi
+  env:
+    OLLAMA_NUM_PARALLEL: "4"
+    OLLAMA_MAX_LOADED_MODELS: "2"
 
 documentProcessor:
   replicaCount: 3

@@ -51,7 +51,7 @@ embeddingService:
   tolerations: []  # No GPU tolerations
 
 # ============================================
-# LLM Service - CPU only, lightweight model
+# LLM Service - Uses Ollama for inference
 # ============================================
 llmService:
   enabled: true
@@ -62,15 +62,43 @@ llmService:
     pullPolicy: Never
   resources:
     requests:
-      memory: "1Gi"
-      cpu: "500m"
+      memory: "256Mi"
+      cpu: "100m"
     limits:
-      memory: "2Gi"
-      cpu: "1000m"
+      memory: "512Mi"
+      cpu: "250m"
   env:
-    MODEL_NAME: "TinyLlama/TinyLlama-1.1B-Chat-v1.0"
-    DEVICE: "cpu"
-    LOAD_IN_4BIT: "false"
+    USE_OLLAMA: "true"
+    USE_OPENAI: "false"
+    OLLAMA_MODEL: "mistral"
+  tolerations: []
+
+# ============================================
+# Ollama - Local LLM Inference
+# ============================================
+ollama:
+  enabled: true
+  replicaCount: 1
+  image:
+    repository: ollama/ollama
+    tag: latest
+    pullPolicy: IfNotPresent
+  service:
+    type: ClusterIP
+    port: 11434
+  resources:
+    requests:
+      memory: "4Gi"
+      cpu: "1000m"
+    limits:
+      memory: "8Gi"
+      cpu: "2000m"
+  persistence:
+    enabled: true
+    size: 10Gi
+  env:
+    OLLAMA_NUM_PARALLEL: "1"
+    OLLAMA_MAX_LOADED_MODELS: "1"
   tolerations: []
 
 # ============================================

@@ -11,36 +11,36 @@ A Retrieval-Augmented Generation (RAG) knowledge base application that allows us
 ```
                                     ┌───────────────────┐
                                     │       User        │
-                                    └───────────────────┘
-                                            │
-                                            ▼
+                                    └─────────┬─────────┘
+                                              │
+                                              ▼
                                     ┌───────────────────┐
                                     │      nginx        │
                                     │    (Port 80)      │
-                                    └───────────────────┘
-                                            │
-                        ┌───────────────────┴───────────────────┐
-                        ▼                                       ▼
-                ┌───────────────────┐               ┌───────────────────┐
-                │     frontend      │               │    api-gateway    │
-                │   (React/Vite)    │               │     (Node.js)     │
-                └───────────────────┘               └───────────────────┘
-                                                            │
-                ┌───────────────────┬───────────────────────┼───────────────────┐
-                ▼                   ▼                       ▼                   ▼
-        ┌───────────────┐   ┌───────────────┐       ┌───────────────┐   ┌───────────────┐
-        │   document-   │   │   embedding-  │       │  llm-service  │   │  opensearch   │
-        │   processor   │   │    service    │       │   (PyTorch)   │   │  (Port 9200)  │
-        │   (Python)    │   │   (PyTorch)   │       │   Mistral-7B  │   └───────────────┘
-        │  (Port 8002)  │   │  (Port 8000)  │       │  (Port 8001)  │           │
-        └───────────────┘   └───────────────┘       └───────────────┘           │
-                │                   │                                           │
-                └─────────┬─────────┘                                           │
-                          ▼                                                     │
-                  ┌───────────────┐                                             │
-                  │  opensearch   │◄────────────────────────────────────────────┘
-                  │  (Vectors)    │
-                  └───────────────┘
+                                    └─────────┬─────────┘
+                                              │
+                        ┌─────────────────────┴─────────────────────┐
+                        ▼                                           ▼
+                ┌───────────────────┐                   ┌───────────────────┐
+                │     frontend      │                   │    api-gateway    │
+                │   (React/Vite)    │                   │     (Node.js)     │
+                └───────────────────┘                   └─────────┬─────────┘
+                                                                  │
+                ┌─────────────────────┬───────────────────────────┼───────────────────┐
+                ▼                     ▼                           ▼                   ▼
+        ┌───────────────┐     ┌───────────────┐           ┌───────────────┐   ┌───────────────┐
+        │   document-   │     │   embedding-  │           │  llm-service  │   │  opensearch   │
+        │   processor   │     │    service    │           │   (FastAPI)   │   │  (Port 9200)  │
+        │   (FastAPI)   │     │   (PyTorch)   │           │  (Port 8001)  │   │   (Vectors)   │
+        │  (Port 8002)  │     │  (Port 8000)  │           └───────┬───────┘   └───────────────┘
+        └───────┬───────┘     └───────────────┘                   │
+                │                     ▲                           │
+                │                     │                           ▼
+                │                     │                   ┌───────────────┐
+                └─────────────────────┘                   │    ollama     │
+                                                          │   (Mistral)   │
+                                                          │ (Port 11434)  │
+                                                          └───────────────┘
 
         ┌───────────────┐   ┌───────────────┐
         │  postgresql   │   │     redis     │
@@ -49,18 +49,25 @@ A Retrieval-Augmented Generation (RAG) knowledge base application that allows us
         └───────────────┘   └───────────────┘
 ```
 
+### Data Flow
+
+1. **Document Upload**: User uploads document → nginx → api-gateway → document-processor → embedding-service → OpenSearch (vector storage) + PostgreSQL (metadata)
+
+2. **Query/Chat**: User asks question → nginx → api-gateway → llm-service → embedding-service (query embedding) → OpenSearch (k-NN search) → Ollama (response generation) → User
+
 ## Services
 
 | Service | Description | Port |
 |---------|-------------|------|
 | **NGINX** | Reverse proxy routing traffic to frontend and API | 80 |
 | **Frontend** | React/Vite web application | - |
-| **API Gateway** | Node.js REST API handling requests | - |
-| **Document Processor** | Python service for parsing and chunking documents | 8002 |
-| **Embedding Service** | PyTorch service generating vector embeddings | 8000 |
-| **LLM Service** | PyTorch service running Mistral-7B for responses | 8001 |
-| **OpenSearch** | Vector database for document embeddings | 9200 |
-| **PostgreSQL** | Relational database for metadata | 5432 |
+| **API Gateway** | Node.js REST API handling requests | 3000 (internal) |
+| **Document Processor** | FastAPI service for parsing and chunking documents | 8002 |
+| **Embedding Service** | PyTorch service generating vector embeddings (all-MiniLM-L6-v2) | 8000 |
+| **LLM Service** | FastAPI service orchestrating RAG queries | 8001 |
+| **Ollama** | Local LLM inference server running Mistral | 11434 |
+| **OpenSearch** | Vector database for document embeddings (k-NN) | 9200 |
+| **PostgreSQL** | Relational database for document metadata | 5432 |
 | **Redis** | Caching layer | 6379 |
 
 ## Container Images
@@ -83,6 +90,33 @@ A Retrieval-Augmented Generation (RAG) knowledge base application that allows us
 | OpenSearch | `opensearchproject/opensearch` | 2.11.0 |
 | PostgreSQL | `postgres` | 16-bookworm |
 | Redis | `redis` | 7-bookworm |
+| Ollama | `ollama/ollama` | latest |
+
+## LLM Configuration
+
+The RAG system supports multiple LLM backends:
+
+### Ollama (Default - Local)
+Runs locally using the Mistral model. No API key required.
+
+```yaml
+# docker-compose.yaml
+environment:
+  - USE_OLLAMA=true
+  - OLLAMA_URL=http://ollama:11434
+  - OLLAMA_MODEL=mistral  # or llama3, codellama, etc.
+```
+
+### OpenAI (Cloud)
+Use OpenAI's API for higher quality responses.
+
+```yaml
+# docker-compose.yaml
+environment:
+  - USE_OPENAI=true
+  - OPENAI_API_KEY=your-api-key-here
+  - OPENAI_MODEL=gpt-3.5-turbo  # or gpt-4
+```
 
 ## Prerequisites
 

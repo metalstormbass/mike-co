@@ -61,28 +61,39 @@ embeddingService:
   
   resources:
     requests:
+      memory: "1Gi"
+      cpu: "500m"
+    limits:
       memory: "2Gi"
       cpu: "1000m"
-      nvidia.com/gpu: "1"
-    limits:
-      memory: "4Gi"
-      cpu: "2000m"
-      nvidia.com/gpu: "1"
+  
+  # GPU support (optional - for faster inference)
+  # Uncomment if you have GPU nodes available
+  # resources:
+  #   requests:
+  #     memory: "2Gi"
+  #     cpu: "1000m"
+  #     nvidia.com/gpu: "1"
+  #   limits:
+  #     memory: "4Gi"
+  #     cpu: "2000m"
+  #     nvidia.com/gpu: "1"
   
   env:
     MODEL_NAME: "sentence-transformers/all-MiniLM-L6-v2"
   
-  # GPU tolerations
-  tolerations:
-    - key: "nvidia.com/gpu"
-      operator: "Exists"
-      effect: "NoSchedule"
+  # GPU tolerations (uncomment if using GPU)
+  # tolerations:
+  #   - key: "nvidia.com/gpu"
+  #     operator: "Exists"
+  #     effect: "NoSchedule"
   
   nodeSelector: {}
+  tolerations: []
   affinity: {}
 
 # ============================================
-# LLM Service (PyTorch)
+# LLM Service (FastAPI - RAG Orchestration)
 # ============================================
 llmService:
   enabled: true
@@ -99,25 +110,72 @@ llmService:
   
   resources:
     requests:
-      memory: "16Gi"
-      cpu: "2000m"
-      nvidia.com/gpu: "1"
+      memory: "512Mi"
+      cpu: "500m"
     limits:
-      memory: "32Gi"
-      cpu: "4000m"
-      nvidia.com/gpu: "1"
+      memory: "1Gi"
+      cpu: "1000m"
   
   env:
-    MODEL_NAME: "mistralai/Mistral-7B-Instruct-v0.1"
-    LOAD_IN_4BIT: "true"
-  
-  # GPU tolerations
-  tolerations:
-    - key: "nvidia.com/gpu"
-      operator: "Exists"
-      effect: "NoSchedule"
+    USE_OLLAMA: "true"
+    USE_OPENAI: "false"
+    OLLAMA_MODEL: "mistral"
+    # Uncomment to use OpenAI instead:
+    # USE_OPENAI: "true"
+    # OPENAI_MODEL: "gpt-3.5-turbo"
   
   nodeSelector: {}
+  tolerations: []
+  affinity: {}
+
+# ============================================
+# Ollama (Local LLM Inference)
+# ============================================
+ollama:
+  enabled: true
+  replicaCount: 1
+  
+  image:
+    repository: ollama/ollama
+    tag: latest
+    pullPolicy: IfNotPresent
+  
+  service:
+    type: ClusterIP
+    port: 11434
+  
+  resources:
+    requests:
+      memory: "8Gi"
+      cpu: "2000m"
+    limits:
+      memory: "16Gi"
+      cpu: "4000m"
+  
+  # GPU support (optional - for faster inference)
+  # Uncomment if you have GPU nodes available
+  # resources:
+  #   requests:
+  #     nvidia.com/gpu: "1"
+  #   limits:
+  #     nvidia.com/gpu: "1"
+  
+  persistence:
+    enabled: true
+    size: 20Gi
+  
+  env:
+    OLLAMA_NUM_PARALLEL: "2"
+    OLLAMA_MAX_LOADED_MODELS: "1"
+  
+  # GPU tolerations (uncomment if using GPU)
+  # tolerations:
+  #   - key: "nvidia.com/gpu"
+  #     operator: "Exists"
+  #     effect: "NoSchedule"
+  
+  nodeSelector: {}
+  tolerations: []
   affinity: {}
 
 # ============================================

@@ -59,6 +59,27 @@ A Retrieval-Augmented Generation (RAG) knowledge base application that allows us
 | **PostgreSQL** | Relational database for metadata | 5432 |
 | **Redis** | Caching layer | 6379 |
 
+## Container Images
+
+### Custom Images (Built from Source)
+
+| Service | Base Image | Version | GHCR Image |
+|---------|------------|---------|------------|
+| nginx | `nginx:bookworm` | Debian Bookworm | `ghcr.io/metalstormbass/mike-co/nginx` |
+| frontend | `node:20-bookworm-slim` / `nginx:bookworm` | Node 20 / Debian Bookworm | `ghcr.io/metalstormbass/mike-co/frontend` |
+| api-gateway | `node:20-bookworm-slim` | Node 20 | `ghcr.io/metalstormbass/mike-co/api-gateway` |
+| document-processor | `python:3.11-slim-bookworm` | Python 3.11 | `ghcr.io/metalstormbass/mike-co/document-processor` |
+| embedding-service | `pytorch/pytorch:2.1.0-cuda12.1-cudnn8-runtime` | PyTorch 2.1.0 / CUDA 12.1 | `ghcr.io/metalstormbass/mike-co/embedding-service` |
+| llm-service | `pytorch/pytorch:2.1.0-cuda12.1-cudnn8-runtime` | PyTorch 2.1.0 / CUDA 12.1 | `ghcr.io/metalstormbass/mike-co/llm-service` |
+
+### Pre-built Images (External)
+
+| Service | Image | Version |
+|---------|-------|---------|
+| OpenSearch | `opensearchproject/opensearch` | 2.11.0 |
+| PostgreSQL | `postgres` | 16-alpine |
+| Redis | `redis` | 7-alpine |
+
 ## Prerequisites
 
 - Docker and Docker Compose

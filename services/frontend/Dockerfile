@@ -3,6 +3,11 @@ FROM node:20-bookworm-slim AS builder
 
 WORKDIR /app
 
+# Install Git for build-time Git info
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    git \
+    && rm -rf /var/lib/apt/lists/*
+
 # Copy package files
 COPY package*.json ./
 

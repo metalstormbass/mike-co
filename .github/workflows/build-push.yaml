@@ -251,7 +251,10 @@ jobs:
 
       - name: Install chainctl for Chainguard authentication
         run: |
-          curl -sL https://dl.enforce.dev/chainctl/latest/install.sh | sudo bash
+          # Install chainctl from GitHub releases
+          CHAINCTL_VERSION=$(curl -s https://api.github.com/repos/chainguard-dev/chainctl/releases/latest | jq -r .tag_name)
+          curl -sL "https://github.com/chainguard-dev/chainctl/releases/download/${CHAINCTL_VERSION}/chainctl_linux_amd64" -o /tmp/chainctl
+          sudo install /tmp/chainctl /usr/local/bin/chainctl
 
       - name: Authenticate with Chainguard
         env:

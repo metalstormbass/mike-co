@@ -4,6 +4,7 @@ import ChatArea from './components/ChatArea'
 import WelcomeScreen from './components/WelcomeScreen'
 import UploadModal from './components/UploadModal'
 import SettingsModal from './components/SettingsModal'
+import ToolsModal from './components/ToolsModal'
 
 // API base URL for document processor
 const DOCUMENT_API = '/api/documents'
@@ -14,6 +15,7 @@ function App() {
   const [sidebarOpen, setSidebarOpen] = useState(true)
   const [uploadModalOpen, setUploadModalOpen] = useState(false)
   const [settingsModalOpen, setSettingsModalOpen] = useState(false)
+  const [toolsModalOpen, setToolsModalOpen] = useState(false)
   const [documents, setDocuments] = useState([])
   const [conversations, setConversations] = useState([
     { id: 1, title: 'New Conversation', date: new Date() }
@@ -194,7 +196,7 @@ function App() {
       </div>
 
       {/* Sidebar */}
-      <Sidebar 
+      <Sidebar
         isOpen={sidebarOpen}
         onToggle={() => setSidebarOpen(!sidebarOpen)}
         conversations={conversations}
@@ -203,6 +205,7 @@ function App() {
         onNewConversation={startNewConversation}
         documents={documents}
         onUploadClick={() => setUploadModalOpen(true)}
+        onToolsClick={() => setToolsModalOpen(true)}
         onSettingsClick={() => setSettingsModalOpen(true)}
       />
 
@@ -232,6 +235,12 @@ function App() {
       <SettingsModal
         isOpen={settingsModalOpen}
         onClose={() => setSettingsModalOpen(false)}
+      />
+
+      {/* Tools Modal */}
+      <ToolsModal
+        isOpen={toolsModalOpen}
+        onClose={() => setToolsModalOpen(false)}
       />
     </div>
   )

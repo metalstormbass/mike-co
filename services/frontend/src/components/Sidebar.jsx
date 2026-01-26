@@ -1,28 +1,30 @@
 import { useState } from 'react'
-import { 
-  MessageSquarePlus, 
-  FileText, 
-  Upload, 
-  ChevronLeft, 
+import {
+  MessageSquarePlus,
+  FileText,
+  Upload,
+  ChevronLeft,
   ChevronRight,
   Brain,
   Trash2,
   MoreHorizontal,
   Search,
   Settings,
-  FolderOpen
+  FolderOpen,
+  Wand2
 } from 'lucide-react'
 
-export default function Sidebar({ 
-  isOpen, 
-  onToggle, 
-  conversations, 
+export default function Sidebar({
+  isOpen,
+  onToggle,
+  conversations,
   activeConversation,
   onSelectConversation,
   onNewConversation,
   documents,
   onUploadClick,
-  onSettingsClick 
+  onToolsClick,
+  onSettingsClick
 }) {
   const [activeTab, setActiveTab] = useState('chats')
 
@@ -179,8 +181,16 @@ export default function Sidebar({
         </div>
 
         {/* Footer */}
-        <div className="p-3 border-t border-dark-700/50">
-          <button 
+        <div className="p-3 border-t border-dark-700/50 space-y-1">
+          <button
+            onClick={onToolsClick}
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg
+            text-dark-400 hover:text-dark-200 hover:bg-dark-800/50
+            transition-all duration-150">
+            <Wand2 className="w-4 h-4" />
+            <span className="text-sm">Tools</span>
+          </button>
+          <button
             onClick={onSettingsClick}
             className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg
             text-dark-400 hover:text-dark-200 hover:bg-dark-800/50

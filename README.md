@@ -1,4 +1,4 @@
-# RAG Knowledge Base
+# Chainguard RAG Knowledge Base
 
 A Retrieval-Augmented Generation (RAG) knowledge base application that allows users to upload documents, process them into embeddings, and query them using a large language model.
 

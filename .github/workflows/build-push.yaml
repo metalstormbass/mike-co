@@ -506,14 +506,17 @@ jobs:
             if [ "$(basename "$report")" != "README.md" ]; then
               SERVICE=$(basename "$report" .md)
 
-              CRITICAL=$(grep -A 1 "Critical" "$report" | tail -1 | grep -oE '[0-9]+' | head -1 || echo "0")
-              HIGH=$(grep -A 1 "High" "$report" | tail -1 | grep -oE '[0-9]+' | head -1 || echo "0")
-              MEDIUM=$(grep -A 1 "Medium" "$report" | tail -1 | grep -oE '[0-9]+' | head -1 || echo "0")
-              LOW=$(grep -A 1 "Low" "$report" | tail -1 | grep -oE '[0-9]+' | head -1 || echo "0")
-              NEGLIGIBLE=$(grep -A 1 "Negligible" "$report" | tail -1 | grep -oE '[0-9]+' | head -1 || echo "0")
+              # Extract counts from the Vulnerability Summary section
+              # Using awk to get the specific section and then extract values
+              CRITICAL=$(awk '/## Vulnerability Summary/,/## Detailed Findings/ {print}' "$report" | grep "Critical" | grep -oE '\| [0-9]+ \|' | grep -oE '[0-9]+' | head -1 || echo "0")
+              HIGH=$(awk '/## Vulnerability Summary/,/## Detailed Findings/ {print}' "$report" | grep "High" | grep -oE '\| [0-9]+ \|' | grep -oE '[0-9]+' | head -1 || echo "0")
+              MEDIUM=$(awk '/## Vulnerability Summary/,/## Detailed Findings/ {print}' "$report" | grep "Medium" | grep -oE '\| [0-9]+ \|' | grep -oE '[0-9]+' | head -1 || echo "0")
+              LOW=$(awk '/## Vulnerability Summary/,/## Detailed Findings/ {print}' "$report" | grep "Low" | grep -oE '\| [0-9]+ \|' | grep -oE '[0-9]+' | head -1 || echo "0")
+              NEGLIGIBLE=$(awk '/## Vulnerability Summary/,/## Detailed Findings/ {print}' "$report" | grep "Negligible" | grep -oE '\| [0-9]+ \|' | grep -oE '[0-9]+' | head -1 || echo "0")
 
-              SIZE=$(grep "Size" "$report" | sed 's/.*| \([^|]*\) |$/\1/' | tr -d '`' || echo "N/A")
-              REPORT_SCAN_DATE=$(grep "Scan Date" "$report" | sed 's/.*| \([^|]*\) |$/\1/' | cut -d' ' -f1 || echo "N/A")
+              # Extract size and scan date from Image Details section
+              SIZE=$(grep "| \*\*Size\*\*" "$report" | sed 's/.*| \(.*\) |/\1/' | xargs || echo "N/A")
+              REPORT_SCAN_DATE=$(grep "| \*\*Scan Date\*\*" "$report" | sed 's/.*| \(.*\) UTC.*/\1/' | xargs || echo "N/A")
 
               REPORT_TOTAL=$((CRITICAL + HIGH + MEDIUM + LOW + NEGLIGIBLE))
 

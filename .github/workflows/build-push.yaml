@@ -43,6 +43,15 @@ jobs:
             dockerfile: ./services/llm-service/Dockerfile.cpu
 
     steps:
+      - name: Free up disk space
+        run: |
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /opt/ghc
+          sudo rm -rf /usr/local/share/boost
+          sudo rm -rf "$AGENT_TOOLSDIRECTORY"
+          docker system prune -af --volumes
+          df -h
+
       - name: Checkout repository
         uses: actions/checkout@v4
 
@@ -193,15 +202,19 @@ jobs:
 
       - name: Push Docker image
         if: github.event_name != 'pull_request'
-        uses: docker/build-push-action@v5
-        with:
-          context: ${{ matrix.context }}
-          file: ${{ matrix.dockerfile }}
-          push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+        run: |
+          # Re-tag the scanned image and push it (avoid rebuilding)
+          IFS=',' read -ra TAGS <<< "${{ steps.meta.outputs.tags }}"
+          for tag in "${TAGS[@]}"; do
+            docker tag ${{ matrix.service }}:scan "$tag"
+            docker push "$tag"
+          done
+
+      - name: Cleanup
+        if: always()
+        run: |
+          docker system prune -af --volumes
+          df -h
 
   mirror-external-images:
     runs-on: ubuntu-latest
@@ -419,40 +432,43 @@ jobs:
           
           echo "## Summary" >> "$OUTFILE"
           echo "" >> "$OUTFILE"
-          echo "| Image | Size | Critical | High | Medium | Low | Total |" >> "$OUTFILE"
-          echo "|-------|------|----------|------|--------|-----|-------|" >> "$OUTFILE"
-          
+          echo "| Image | Size | Scan Date | Critical | High | Medium | Low | Negligible | Total |" >> "$OUTFILE"
+          echo "|-------|------|-----------|----------|------|--------|-----|------------|-------|" >> "$OUTFILE"
+
           # Process each scan report
           for report in docs/security-scans/*.md; do
             if [ "$(basename "$report")" != "README.md" ]; then
               SERVICE=$(basename "$report" .md)
-              
+
               # Extract counts from each report
               CRITICAL=$(grep -A 1 "Critical" "$report" | tail -1 | grep -oE '[0-9]+' | head -1 || echo "0")
               HIGH=$(grep -A 1 "High" "$report" | tail -1 | grep -oE '[0-9]+' | head -1 || echo "0")
               MEDIUM=$(grep -A 1 "Medium" "$report" | tail -1 | grep -oE '[0-9]+' | head -1 || echo "0")
               LOW=$(grep -A 1 "Low" "$report" | tail -1 | grep -oE '[0-9]+' | head -1 || echo "0")
-              
-              # Extract size
+              NEGLIGIBLE=$(grep -A 1 "Negligible" "$report" | tail -1 | grep -oE '[0-9]+' | head -1 || echo "0")
+
+              # Extract size and scan date
               SIZE=$(grep "Size" "$report" | sed 's/.*| \([^|]*\) |$/\1/' | tr -d '`' || echo "N/A")
-              
-              # Calculate total
-              REPORT_TOTAL=$((CRITICAL + HIGH + MEDIUM + LOW))
-              
+              REPORT_SCAN_DATE=$(grep "Scan Date" "$report" | sed 's/.*| \([^|]*\) |$/\1/' | cut -d' ' -f1 || echo "N/A")
+
+              # Calculate total (including negligible)
+              REPORT_TOTAL=$((CRITICAL + HIGH + MEDIUM + LOW + NEGLIGIBLE))
+
               # Add to running totals
               TOTAL_CRITICAL=$((TOTAL_CRITICAL + CRITICAL))
               TOTAL_HIGH=$((TOTAL_HIGH + HIGH))
               TOTAL_MEDIUM=$((TOTAL_MEDIUM + MEDIUM))
               TOTAL_LOW=$((TOTAL_LOW + LOW))
-              
-              echo "| [${SERVICE}](./${SERVICE}.md) | ${SIZE} | ${CRITICAL} | ${HIGH} | ${MEDIUM} | ${LOW} | ${REPORT_TOTAL} |" >> "$OUTFILE"
+              TOTAL_NEGLIGIBLE=$((TOTAL_NEGLIGIBLE + NEGLIGIBLE))
+
+              echo "| [${SERVICE}](./${SERVICE}.md) | ${SIZE} | ${REPORT_SCAN_DATE} | ${CRITICAL} | ${HIGH} | ${MEDIUM} | ${LOW} | ${NEGLIGIBLE} | ${REPORT_TOTAL} |" >> "$OUTFILE"
             fi
           done
-          
-          # Calculate grand total
-          GRAND_TOTAL=$((TOTAL_CRITICAL + TOTAL_HIGH + TOTAL_MEDIUM + TOTAL_LOW))
-          
-          echo "| **TOTAL** | - | **${TOTAL_CRITICAL}** | **${TOTAL_HIGH}** | **${TOTAL_MEDIUM}** | **${TOTAL_LOW}** | **${GRAND_TOTAL}** |" >> "$OUTFILE"
+
+          # Calculate grand total (including negligible)
+          GRAND_TOTAL=$((TOTAL_CRITICAL + TOTAL_HIGH + TOTAL_MEDIUM + TOTAL_LOW + TOTAL_NEGLIGIBLE))
+
+          echo "| **TOTAL** | - | - | **${TOTAL_CRITICAL}** | **${TOTAL_HIGH}** | **${TOTAL_MEDIUM}** | **${TOTAL_LOW}** | **${TOTAL_NEGLIGIBLE}** | **${GRAND_TOTAL}** |" >> "$OUTFILE"
           echo "" >> "$OUTFILE"
           
           # Add severity summary
@@ -464,6 +480,7 @@ jobs:
           echo "| 🟠 High | ${TOTAL_HIGH} |" >> "$OUTFILE"
           echo "| 🟡 Medium | ${TOTAL_MEDIUM} |" >> "$OUTFILE"
           echo "| 🟢 Low | ${TOTAL_LOW} |" >> "$OUTFILE"
+          echo "| ⚪ Negligible | ${TOTAL_NEGLIGIBLE} |" >> "$OUTFILE"
           echo "| **Total** | **${GRAND_TOTAL}** |" >> "$OUTFILE"
           echo "" >> "$OUTFILE"
           
@@ -498,7 +515,7 @@ jobs:
           echo "" >> "$OUTFILE"
           echo "## Update Frequency" >> "$OUTFILE"
           echo "" >> "$OUTFILE"
-          echo "Scan results are updated automatically on every push to \`main\` branch." >> "$OUTFILE"
+          echo "Scan results are updated automatically on every push to \`original\` branch." >> "$OUTFILE"
 
       - name: Commit and push scan results
         run: |

@@ -186,10 +186,11 @@ jobs:
           SERVICE: ${{ matrix.service }}
           IMAGE_SHA: ${{ steps.digest.outputs.sha }}
           IMAGE_SIZE: ${{ steps.size.outputs.size }}
+          WORKFLOW_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
           mkdir -p docs/security-scans
           SCAN_DATE=$(date -u '+%Y-%m-%d %H:%M:%S UTC')
-          IMAGE_NAME="${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}/${SERVICE}"
+          IMAGE_NAME="${SERVICE}:scan"
           OUTFILE="docs/security-scans/${SERVICE}.md"
 
           echo "# ${SERVICE}" > "$OUTFILE"
@@ -205,6 +206,7 @@ jobs:
           echo "| **Size** | ${IMAGE_SIZE} |" >> "$OUTFILE"
           echo "| **Scan Date** | ${SCAN_DATE} |" >> "$OUTFILE"
           echo "| **Scanner** | Grype |" >> "$OUTFILE"
+          echo "| **Workflow** | [View Run](${WORKFLOW_URL}) |" >> "$OUTFILE"
           echo "" >> "$OUTFILE"
           echo "## Vulnerability Summary" >> "$OUTFILE"
           echo "" >> "$OUTFILE"

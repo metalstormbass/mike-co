@@ -76,12 +76,13 @@ jobs:
             type=sha,prefix=
             type=raw,value=latest,enable={{is_default_branch}}
 
-      - name: Build Docker image
+      - name: Build Docker image for scanning (AMD64 only)
         uses: docker/build-push-action@v5
         with:
           context: ${{ matrix.context }}
           file: ${{ matrix.dockerfile }}
           load: true
+          platforms: linux/amd64
           tags: ${{ matrix.service }}:scan
           cache-from: type=gha
           cache-to: type=gha,mode=max
@@ -200,15 +201,18 @@ jobs:
           path: docs/security-scans/${{ matrix.service }}.md
           retention-days: 90
 
-      - name: Push Docker image
+      - name: Build and push multi-arch Docker image
         if: github.event_name != 'pull_request'
-        run: |
-          # Re-tag the scanned image and push it (avoid rebuilding)
-          IFS=',' read -ra TAGS <<< "${{ steps.meta.outputs.tags }}"
-          for tag in "${TAGS[@]}"; do
-            docker tag ${{ matrix.service }}:scan "$tag"
-            docker push "$tag"
-          done
+        uses: docker/build-push-action@v5
+        with:
+          context: ${{ matrix.context }}
+          file: ${{ matrix.dockerfile }}
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
       - name: Cleanup
         if: always()

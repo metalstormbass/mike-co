@@ -9,7 +9,7 @@ External container image for the **opensearch** service.
 | **Source Image** | `opensearchproject/opensearch:2.11.0` |
 | **Digest** | `opensearchproject/opensearch@sha256:2f49c399988df5c9a3b25a05ec78ea75ac4b39ae76e1d2609f94a653224bb24b` |
 | **Size** | 1.13 GB |
-| **Scan Date** | 2026-01-26 17:49:28 UTC |
+| **Scan Date** | 2026-01-26 18:44:07 UTC |
 | **Scanner** | Grype |
 
 ## Vulnerability Summary

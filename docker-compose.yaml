@@ -49,7 +49,7 @@ services:
 
   # Ollama (Local LLM)
   ollama:
-    image: ollama/ollama:latest
+    image: cgr.dev/chainguard-private/ollama:latest
     volumes:
       - ollama-data:/root/.ollama
     ports:

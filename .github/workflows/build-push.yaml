@@ -349,16 +349,17 @@ jobs:
               echo "Chainguard private image detected (authentication handled via docker login)"
             fi
 
-            # Try to pull the image
-            if ! docker pull "$IMAGE" 2>/dev/null; then
-              echo "Warning: Could not pull $IMAGE (may require authentication)"
-              echo "Skipping $SERVICE..."
-              continue
+            # Get image size from manifest before pulling (to decide scanning strategy)
+            echo "Checking image size for $SERVICE..."
+            MANIFEST=$(docker manifest inspect "$IMAGE" 2>/dev/null || echo "{}")
+
+            if [ "$MANIFEST" != "{}" ]; then
+              SIZE_BYTES=$(echo "$MANIFEST" | jq '[.layers[].size] | add // 0')
+            else
+              # Fallback: try to get size from config
+              SIZE_BYTES=$(docker manifest inspect "$IMAGE" 2>/dev/null | jq '.config.size // 0' || echo "0")
             fi
 
-            # Get image details
-            DIGEST=$(docker inspect --format='{{index .RepoDigests 0}}' "$IMAGE" 2>/dev/null || echo "N/A")
-            SIZE_BYTES=$(docker inspect --format='{{.Size}}' "$IMAGE" 2>/dev/null || echo "0")
             SIZE_MB=$(echo "scale=2; $SIZE_BYTES / 1048576" | bc)
             SIZE_GB=$(echo "scale=2; $SIZE_BYTES / 1073741824" | bc)
 
@@ -368,9 +369,40 @@ jobs:
               SIZE="${SIZE_MB} MB"
             fi
 
-            # Run vulnerability scan
-            echo "Scanning $SERVICE..."
-            grype "$IMAGE" -o json > "grype-${SERVICE}.json" || true
+            echo "Image size: $SIZE"
+
+            # Determine scanning strategy based on size
+            # For large images (>4 GB), use registry scanning to avoid disk space issues
+            USE_REGISTRY_SCAN=false
+            if (( $(echo "$SIZE_GB > 4" | bc -l) )); then
+              echo "Large image detected (>4 GB), using registry scanning mode"
+              USE_REGISTRY_SCAN=true
+            fi
+
+            # Get digest and run scan based on strategy
+            if [ "$USE_REGISTRY_SCAN" = true ]; then
+              # For registry scanning, get digest from manifest
+              DIGEST=$(docker manifest inspect "$IMAGE" 2>/dev/null | jq -r '.config.digest // "N/A"' || echo "N/A")
+
+              # Run vulnerability scan using registry mode (no pull required)
+              echo "Scanning $SERVICE from registry..."
+              grype "registry:$IMAGE" -o json > "grype-${SERVICE}.json" || true
+            else
+              # For smaller images, use traditional docker daemon scanning
+              # Try to pull the image
+              if ! docker pull "$IMAGE" 2>/dev/null; then
+                echo "Warning: Could not pull $IMAGE (may require authentication)"
+                echo "Skipping $SERVICE..."
+                continue
+              fi
+
+              # Get digest from local image
+              DIGEST=$(docker inspect --format='{{index .RepoDigests 0}}' "$IMAGE" 2>/dev/null || echo "N/A")
+
+              # Run vulnerability scan
+              echo "Scanning $SERVICE..."
+              grype "$IMAGE" -o json > "grype-${SERVICE}.json" || true
+            fi
 
             # Generate report
             OUTFILE="docs/security-scans/${SERVICE}.md"
@@ -452,9 +484,13 @@ jobs:
             echo "Generated report for $SERVICE"
 
             # Clean up to free disk space
-            docker rmi "$IMAGE" 2>/dev/null || true
+            if [ "$USE_REGISTRY_SCAN" = true ]; then
+              echo "Registry scan used - no local image to remove"
+            else
+              docker rmi "$IMAGE" 2>/dev/null || true
+              echo "Removed local image $IMAGE to free disk space"
+            fi
             rm -f "grype-${SERVICE}.json" 2>/dev/null || true
-            echo "Cleaned up $IMAGE to free disk space"
           done
 
       - name: Upload scan artifacts

@@ -354,10 +354,30 @@ jobs:
             MANIFEST=$(docker manifest inspect "$IMAGE" 2>/dev/null || echo "{}")
 
             if [ "$MANIFEST" != "{}" ]; then
-              SIZE_BYTES=$(echo "$MANIFEST" | jq '[.layers[].size] | add // 0')
+              # Check if this is a manifest list (multi-arch) or a single image manifest
+              IS_MANIFEST_LIST=$(echo "$MANIFEST" | jq -r '.manifests != null')
+
+              if [ "$IS_MANIFEST_LIST" = "true" ]; then
+                # For manifest lists, get the linux/amd64 platform manifest
+                echo "Multi-arch manifest detected, selecting linux/amd64 platform..."
+                PLATFORM_DIGEST=$(echo "$MANIFEST" | jq -r '.manifests[] | select(.platform.architecture == "amd64" and .platform.os == "linux") | .digest' | head -1)
+
+                if [ -n "$PLATFORM_DIGEST" ] && [ "$PLATFORM_DIGEST" != "null" ]; then
+                  # Get the specific platform manifest
+                  IMAGE_WITH_DIGEST="${IMAGE%:*}@${PLATFORM_DIGEST}"
+                  PLATFORM_MANIFEST=$(docker manifest inspect "$IMAGE_WITH_DIGEST" 2>/dev/null || echo "{}")
+                  SIZE_BYTES=$(echo "$PLATFORM_MANIFEST" | jq '[.layers[].size] | add // 0')
+                else
+                  # Fallback: sum all manifests (approximation)
+                  SIZE_BYTES=$(echo "$MANIFEST" | jq '[.manifests[].size] | add // 0')
+                fi
+              else
+                # Single image manifest, get layer sizes
+                SIZE_BYTES=$(echo "$MANIFEST" | jq '[.layers[].size] | add // 0')
+              fi
             else
-              # Fallback: try to get size from config
-              SIZE_BYTES=$(docker manifest inspect "$IMAGE" 2>/dev/null | jq '.config.size // 0' || echo "0")
+              # Fallback
+              SIZE_BYTES="0"
             fi
 
             SIZE_MB=$(echo "scale=2; $SIZE_BYTES / 1048576" | bc)

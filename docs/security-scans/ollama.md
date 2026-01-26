@@ -9,7 +9,7 @@
 | **Source Image** | `cgr.dev/mikeco.com/ollama:latest-dev` |
 | **Digest** | `N/A` |
 | **Size** | 4.75 GB |
-| **Scan Date** | 2026-01-26 20:31:57 UTC |
+| **Scan Date** | 2026-01-26 21:08:34 UTC |
 | **Scanner** | Grype |
 
 ## Vulnerability Summary

@@ -7,9 +7,9 @@ Container image for the **api-gateway** service.
 | Property | Value |
 |----------|-------|
 | **Image** | `ghcr.io/metalstormbass/mike-co/api-gateway` |
-| **Digest** | `sha256:af35b9c58f3d9c5fe1e8b3c6b0c8430da347411a7d9f56e4aaa85b17cc72c555` |
+| **Digest** | `sha256:11ebb04b02c99bd0f1397f92418ae2b90185ca2669b9414ffd4a485c4ae63151` |
 | **Size** | 291.84 MB |
-| **Scan Date** | 2026-01-26 13:43:59 UTC |
+| **Scan Date** | 2026-01-26 14:34:46 UTC |
 | **Scanner** | Grype |
 
 ## Vulnerability Summary

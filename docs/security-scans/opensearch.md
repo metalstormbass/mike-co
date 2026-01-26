@@ -1,16 +1,15 @@
 # opensearch
 
-Mirrored container image for the **opensearch** service.
+External container image for the **opensearch** service.
 
 ## Image Details
 
 | Property | Value |
 |----------|-------|
 | **Source Image** | `opensearchproject/opensearch:2.11.0` |
-| **GHCR Image** | `ghcr.io/metalstormbass/mike-co/opensearch` |
 | **Digest** | `opensearchproject/opensearch@sha256:2f49c399988df5c9a3b25a05ec78ea75ac4b39ae76e1d2609f94a653224bb24b` |
 | **Size** | 1.13 GB |
-| **Scan Date** | 2026-01-26 17:31:14 UTC |
+| **Scan Date** | 2026-01-26 17:49:28 UTC |
 | **Scanner** | Grype |
 
 ## Vulnerability Summary

@@ -541,10 +541,22 @@ jobs:
           echo "" >> "$OUTFILE"
           echo "| Service | Image Source | Scan Report |" >> "$OUTFILE"
           echo "|---------|--------------|-------------|" >> "$OUTFILE"
-          echo "| opensearch | Official | [opensearch.md](./opensearch.md) |" >> "$OUTFILE"
-          echo "| postgresql | Official | [postgresql.md](./postgresql.md) |" >> "$OUTFILE"
-          echo "| redis | Official | [redis.md](./redis.md) |" >> "$OUTFILE"
-          echo "| ollama | Official | [ollama.md](./ollama.md) |" >> "$OUTFILE"
+
+          # Dynamically add external images
+          for report in docs/security-scans/*.md; do
+            SERVICE=$(basename "$report" .md)
+            # Skip custom built images and README
+            if [[ ! " nginx frontend api-gateway document-processor embedding-service llm-service README " =~ " ${SERVICE} " ]]; then
+              # Check if it's a Chainguard image
+              if grep -q "Chainguard" "$report"; then
+                SOURCE="Chainguard Images"
+              else
+                SOURCE="Official"
+              fi
+              echo "| ${SERVICE} | ${SOURCE} | [${SERVICE}.md](./${SERVICE}.md) |" >> "$OUTFILE"
+            fi
+          done
+
           echo "" >> "$OUTFILE"
           echo "## Update Frequency" >> "$OUTFILE"
           echo "" >> "$OUTFILE"

@@ -244,6 +244,22 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Free up disk space
+        run: |
+          echo "Disk space before cleanup:"
+          df -h
+
+          # Remove unnecessary packages and files
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /usr/local/lib/android
+          sudo rm -rf /opt/ghc
+          sudo rm -rf /opt/hostedtoolcache/CodeQL
+          sudo apt-get clean
+          sudo docker system prune -af --volumes
+
+          echo "Disk space after cleanup:"
+          df -h
+
       - name: Install yq for YAML parsing
         run: |
           sudo wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
@@ -434,6 +450,11 @@ jobs:
             fi
 
             echo "Generated report for $SERVICE"
+
+            # Clean up to free disk space
+            docker rmi "$IMAGE" 2>/dev/null || true
+            rm -f "grype-${SERVICE}.json" 2>/dev/null || true
+            echo "Cleaned up $IMAGE to free disk space"
           done
 
       - name: Upload scan artifacts

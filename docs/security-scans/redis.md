@@ -9,7 +9,7 @@
 | **Source Image** | `cgr.dev/mikeco.com/redis:7` |
 | **Digest** | `cgr.dev/mikeco.com/redis@sha256:403c093acf4b3eff5ab830e8a3c762a2c1d6166fda696973af668871e50cc085` |
 | **Size** | 10.12 MB |
-| **Scan Date** | 2026-01-26 21:08:34 UTC |
+| **Scan Date** | 2026-01-26 21:27:23 UTC |
 | **Scanner** | Grype |
 
 ## Vulnerability Summary

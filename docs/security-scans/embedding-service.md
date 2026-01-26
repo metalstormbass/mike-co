@@ -7,74 +7,75 @@ Container image for the **embedding-service** service.
 | Property | Value |
 |----------|-------|
 | **Image** | `ghcr.io/metalstormbass/mike-co/embedding-service` |
-| **Digest** | `sha256:4d6895f1d39ba657425ed425774ca28ee9aff6cd89643101128afac2efaf4799` |
-| **Scan Date** | 2026-01-25 21:08:42 UTC |
+| **Digest** | `sha256:e6fd3957ccbbdc883dd7dc8bc374645853bf2fd373cb68b61b48d0d5981388dc` |
+| **Size** | 7.07 GB |
+| **Scan Date** | 2026-01-26 15:18:51 UTC |
 | **Scanner** | Grype |
 
 ## Vulnerability Summary
 
 | Severity | Count |
 |----------|-------|
-| $\color{red}{\textsf{Critical}}$ | 4 |
-| $\color{orange}{\textsf{High}}$ | 28 |
-| $\color{gold}{\textsf{Medium}}$ | 45 |
-| $\color{green}{\textsf{Low}}$ | 7 |
-| $\color{gray}{\textsf{Negligible}}$ | 416 |
-| **Total** | **501** |
+| $\color{red}{\textsf{Critical}}$ | 6 |
+| $\color{orange}{\textsf{High}}$ | 53 |
+| $\color{gold}{\textsf{Medium}}$ | 122 |
+| $\color{green}{\textsf{Low}}$ | 77 |
+| $\color{gray}{\textsf{Negligible}}$ | 6 |
+| **Total** | **264** |
 
 ## Detailed Findings
 
 | Severity | Package | Version | Vulnerability | Fixed In |
 |----------|---------|---------|---------------|----------|
+| 🔴 Critical | openssl | 3.0.11 | CVE-2024-5535 | 1.0.2zk |
+| 🔴 Critical | pillow | 10.0.1 | GHSA-3f63-hfp8-52jq | 10.2.0 |
 | 🔴 Critical | torch | 2.1.0 | GHSA-53q9-r3pm-6pq6 | 2.6.0 |
 | 🔴 Critical | transformers | 4.35.0 | GHSA-3863-2447-669p | 4.36.0 |
-| 🔴 Critical | python | 3.11.14 | CVE-2025-13836 | 3.13.11 |
-| 🔴 Critical | libsqlite3-0 | 3.40.1-2+deb12u2 | CVE-2025-7458 | N/A |
+| 🔴 Critical | python | 3.10.13 | CVE-2025-13836 | 3.13.11 |
+| 🔴 Critical | python | 3.10.13 | CVE-2025-4517 | 3.9.23 |
 | 🟠 High | transformers | 4.35.0 | GHSA-wrfc-pvp9-mr9g | 4.48.0 |
 | 🟠 High | transformers | 4.35.0 | GHSA-hxxf-235m-72v3 | 4.48.0 |
 | 🟠 High | transformers | 4.35.0 | GHSA-qxrp-vhvm-j765 | 4.48.0 |
+| 🟠 High | setuptools | 68.0.0 | GHSA-cx63-2mw6-8hw5 | 70.0.0 |
+| 🟠 High | openssl | 3.0.11 | CVE-2024-6119 | 3.0.15 |
+| 🟠 High | openssl | 3.0.11 | CVE-2023-5363 | 3.0.12 |
+| 🟠 High | python | 3.10.13 | CVE-2024-6232 | 3.8.20 |
 | 🟠 High | python-multipart | 0.0.6 | GHSA-2jv5-9r88-3w3p | 0.0.7 |
+| 🟠 High | python | 3.10.13 | CVE-2024-4032 | 3.8.20 |
+| 🟠 High | python | 3.10.13 | CVE-2024-7592 | 3.8.20 |
+| 🟠 High | urllib3 | 1.26.16 | GHSA-v845-jxx5-vc9f | 1.26.17 |
+| 🟠 High | cryptography | 41.0.3 | GHSA-3ww4-gg4f-jr7f | 42.0.0 |
+| 🟠 High | ffmpeg | 4.3 | CVE-2020-14212 | 4.3.1 |
+| 🟠 High | ffmpeg | 4.3 | CVE-2025-9951 | 7.1.2 |
+| 🟠 High | ffmpeg | 4.3 | CVE-2023-6603 | 5.0 |
+| 🟠 High | python | 3.10.13 | CVE-2024-0397 | 3.8.20 |
+| 🟠 High | cryptography | 41.0.3 | GHSA-6vqw-3v5j-54x4 | 42.0.4 |
+| 🟠 High | ffmpeg | 4.3 | CVE-2025-1594 | 7.1.2 |
+| 🟠 High | python | 3.10.13 | CVE-2024-8088 | 3.8.20 |
+| 🟠 High | ffmpeg | 4.3 | CVE-2021-38291 | 4.1.7 |
+| 🟠 High | ffmpeg | 4.3 | CVE-2023-49502 | 3.4.14 |
+| 🟠 High | ffmpeg | 4.3 | CVE-2022-48434 | 5.1.2 |
+| 🟠 High | ffmpeg | 4.3 | CVE-2020-36138 | N/A |
+| 🟠 High | pillow | 10.0.1 | GHSA-44wm-f244-xhp3 | 10.3.0 |
+| 🟠 High | openssl | 3.0.11 | CVE-2024-4741 | 1.1.1y |
 | 🟠 High | transformers | 4.35.0 | GHSA-v68g-wm8c-6x7j | 4.36.0 |
+| 🟠 High | ffmpeg | 4.3 | CVE-2024-7272 | 5.1.6 |
+| 🟠 High | ffmpeg | 4.3 | CVE-2022-3109 | 5.0.3 |
+| 🟠 High | ffmpeg | 4.3 | CVE-2023-6605 | 4.3.9 |
+| 🟠 High | setuptools | 68.0.0 | GHSA-5rjg-fvgr-3xxf | 78.1.1 |
+| 🟠 High | python | 3.10.13 | CVE-2025-8194 | 3.9.24 |
+| 🟠 High | ffmpeg | 4.3 | CVE-2024-7055 | 4.3.8 |
 | 🟠 High | python-multipart | 0.0.6 | GHSA-59g5-xgcq-4qw3 | 0.0.18 |
-| 🟠 High | dpkg | 1.21.22 | CVE-2025-6297 | N/A |
-| 🟠 High | dpkg-dev | 1.21.22 | CVE-2025-6297 | N/A |
-| 🟠 High | libdpkg-perl | 1.21.22 | CVE-2025-6297 | N/A |
+| 🟠 High | python | 3.10.13 | CVE-2023-36632 | N/A |
+| 🟠 High | python | 3.10.13 | CVE-2025-4330 | 3.9.23 |
+| 🟠 High | python | 3.10.13 | CVE-2025-4138 | 3.9.23 |
 | 🟠 High | starlette | 0.27.0 | GHSA-f96h-pmfr-66vw | 0.40.0 |
-| 🟠 High | libtasn1-6 | 4.19.0-2+deb12u1 | CVE-2025-13151 | N/A |
+| 🟠 High | ffmpeg | 4.3 | CVE-2023-51794 | 3.4.14 |
+| 🟠 High | xz | 5.4.2 | CVE-2025-31115 | 5.8.1 |
+| 🟠 High | python | 3.10.13 | CVE-2023-6597 | 3.8.19 |
+| 🟠 High | python | 3.10.13 | CVE-2025-4435 | 3.9.23 |
+| 🟠 High | python | 3.10.13 | CVE-2024-9287 | 3.9.21 |
 | 🟠 High | torch | 2.1.0 | GHSA-pg7h-5qx3-wjr3 | 2.2.0 |
-| 🟠 High | jaraco-context | 5.3.0 | GHSA-58pv-8j8x-9vj2 | 6.1.0 |
-| 🟠 High | libc-bin | 2.36-9+deb12u13 | CVE-2026-0915 | N/A |
-| 🟠 High | libc-dev-bin | 2.36-9+deb12u13 | CVE-2026-0915 | N/A |
-| 🟠 High | libc6 | 2.36-9+deb12u13 | CVE-2026-0915 | N/A |
-| 🟠 High | libc6-dev | 2.36-9+deb12u13 | CVE-2026-0915 | N/A |
-| 🟠 High | libc-bin | 2.36-9+deb12u13 | CVE-2025-15281 | N/A |
-| 🟠 High | libc-dev-bin | 2.36-9+deb12u13 | CVE-2025-15281 | N/A |
-| 🟠 High | libc6 | 2.36-9+deb12u13 | CVE-2025-15281 | N/A |
-| 🟠 High | libc6-dev | 2.36-9+deb12u13 | CVE-2025-15281 | N/A |
-| 🟠 High | torch | 2.1.0 | GHSA-5pcm-hx3q-hm94 | 2.2.0 |
-| 🟠 High | wheel | 0.45.1 | GHSA-8rrh-rw8j-w5fx | 0.46.2 |
-| 🟠 High | wheel | 0.45.1 | GHSA-8rrh-rw8j-w5fx | 0.46.2 |
-| 🟠 High | libc-bin | 2.36-9+deb12u13 | CVE-2026-0861 | N/A |
-| 🟠 High | libc-dev-bin | 2.36-9+deb12u13 | CVE-2026-0861 | N/A |
-| 🟠 High | libc6 | 2.36-9+deb12u13 | CVE-2026-0861 | N/A |
-| 🟠 High | libc6-dev | 2.36-9+deb12u13 | CVE-2026-0861 | N/A |
-| 🟡 Medium | transformers | 4.35.0 | GHSA-4w7r-h757-3r74 | 4.53.0 |
-| 🟡 Medium | transformers | 4.35.0 | GHSA-59p9-h35m-wg4g | 4.53.0 |
-| 🟡 Medium | transformers | 4.35.0 | GHSA-rcv9-qm8p-9p6j | 4.53.0 |
-| 🟡 Medium | transformers | 4.35.0 | GHSA-6rvg-6v2m-4j46 | 4.48.0 |
-| 🟡 Medium | transformers | 4.35.0 | GHSA-qq3j-4f4f-9583 | 4.50.0 |
-| 🟡 Medium | python | 3.11.14 | CVE-2025-12084 | 3.13.11 |
-| 🟡 Medium | transformers | 4.35.0 | GHSA-9356-575x-2w9m | 4.53.0 |
-| 🟡 Medium | transformers | 4.35.0 | GHSA-jjph-296x-mrcr | 4.51.0 |
-| 🟡 Medium | transformers | 4.35.0 | GHSA-q2wp-rjmx-x6x9 | 4.51.0 |
-| 🟡 Medium | transformers | 4.35.0 | GHSA-37mw-44qp-f5jm | 4.52.1 |
-| 🟡 Medium | starlette | 0.27.0 | GHSA-2c2j-9gv5-cj73 | 0.47.2 |
-| 🟡 Medium | libsqlite3-0 | 3.40.1-2+deb12u2 | CVE-2025-7709 | N/A |
-| 🟡 Medium | transformers | 4.35.0 | GHSA-fpwr-67px-3qhx | 4.50.0 |
-| 🟡 Medium | python | 3.11.14 | CVE-2026-0865 | 3.15.0 |
-| 🟡 Medium | libncursesw6 | 6.4-4 | CVE-2023-50495 | N/A |
-| 🟡 Medium | libtinfo6 | 6.4-4 | CVE-2023-50495 | N/A |
-| 🟡 Medium | ncurses-base | 6.4-4 | CVE-2023-50495 | N/A |
-| 🟡 Medium | ncurses-bin | 6.4-4 | CVE-2023-50495 | N/A |
+| 🟠 High | ffmpeg | 4.3 | CVE-2023-51798 | 3.4.14 |
 
-*Showing top 50 of 501 vulnerabilities (sorted by severity)*
+*Showing top 50 of 264 vulnerabilities (sorted by severity)*

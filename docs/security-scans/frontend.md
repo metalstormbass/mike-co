@@ -7,9 +7,9 @@ Container image for the **frontend** service.
 | Property | Value |
 |----------|-------|
 | **Image** | `ghcr.io/metalstormbass/mike-co/frontend` |
-| **Digest** | `sha256:5884c98a5c853af2a814bbf829ef0885a255215cdd2a58651ff532f760149f35` |
+| **Digest** | `sha256:f0a6e6026fdf9a9ad7d0d484d804b5573f2cfbeb9cb8054cdfe75e7b4548d39a` |
 | **Size** | 199.91 MB |
-| **Scan Date** | 2026-01-25 22:55:05 UTC |
+| **Scan Date** | 2026-01-26 15:12:00 UTC |
 | **Scanner** | Grype |
 
 ## Vulnerability Summary
@@ -62,6 +62,7 @@ Container image for the **frontend** service.
 | 🟡 Medium | libpam-runtime | 1.5.2-6+deb12u2 | CVE-2024-10041 | N/A |
 | 🟡 Medium | libpam0g | 1.5.2-6+deb12u2 | CVE-2024-10041 | N/A |
 | 🟡 Medium | gpgv | 2.2.40-1.1+deb12u2 | CVE-2025-30258 | N/A |
+| 🟡 Medium | libxslt1.1 | 1.1.35-1+deb12u3 | CVE-2025-10911 | N/A |
 | 🟡 Medium | curl | 7.88.1-10+deb12u14 | CVE-2025-14524 | N/A |
 | 🟡 Medium | libcurl4 | 7.88.1-10+deb12u14 | CVE-2025-14524 | N/A |
 | 🟡 Medium | bsdutils | 1:2.38.1-5+deb12u3 | CVE-2025-14104 | N/A |
@@ -75,7 +76,6 @@ Container image for the **frontend** service.
 | 🟡 Medium | libtinfo6 | 6.4-4 | CVE-2025-6141 | N/A |
 | 🟡 Medium | ncurses-base | 6.4-4 | CVE-2025-6141 | N/A |
 | 🟡 Medium | ncurses-bin | 6.4-4 | CVE-2025-6141 | N/A |
-| 🟡 Medium | libxslt1.1 | 1.1.35-1+deb12u3 | CVE-2025-10911 | N/A |
 | 🟡 Medium | libexpat1 | 2.5.0-1+deb12u2 | CVE-2025-66382 | N/A |
 
 *Showing top 50 of 160 vulnerabilities (sorted by severity)*

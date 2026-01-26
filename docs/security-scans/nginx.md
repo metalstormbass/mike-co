@@ -7,9 +7,9 @@ Container image for the **nginx** service.
 | Property | Value |
 |----------|-------|
 | **Image** | `ghcr.io/metalstormbass/mike-co/nginx` |
-| **Digest** | `sha256:c423792571c87bd78e0576811e8b000350a49738eb68443d3513b75a547c5d33` |
+| **Digest** | `sha256:1d8b0dcf4731946e2c81baae03a1f9858b5404fa50b01ef0687cd82ae19f8893` |
 | **Size** | 199.60 MB |
-| **Scan Date** | 2026-01-25 22:55:16 UTC |
+| **Scan Date** | 2026-01-26 15:11:22 UTC |
 | **Scanner** | Grype |
 
 ## Vulnerability Summary
@@ -62,6 +62,7 @@ Container image for the **nginx** service.
 | 🟡 Medium | libpam-runtime | 1.5.2-6+deb12u2 | CVE-2024-10041 | N/A |
 | 🟡 Medium | libpam0g | 1.5.2-6+deb12u2 | CVE-2024-10041 | N/A |
 | 🟡 Medium | gpgv | 2.2.40-1.1+deb12u2 | CVE-2025-30258 | N/A |
+| 🟡 Medium | libxslt1.1 | 1.1.35-1+deb12u3 | CVE-2025-10911 | N/A |
 | 🟡 Medium | curl | 7.88.1-10+deb12u14 | CVE-2025-14524 | N/A |
 | 🟡 Medium | libcurl4 | 7.88.1-10+deb12u14 | CVE-2025-14524 | N/A |
 | 🟡 Medium | bsdutils | 1:2.38.1-5+deb12u3 | CVE-2025-14104 | N/A |
@@ -75,7 +76,6 @@ Container image for the **nginx** service.
 | 🟡 Medium | libtinfo6 | 6.4-4 | CVE-2025-6141 | N/A |
 | 🟡 Medium | ncurses-base | 6.4-4 | CVE-2025-6141 | N/A |
 | 🟡 Medium | ncurses-bin | 6.4-4 | CVE-2025-6141 | N/A |
-| 🟡 Medium | libxslt1.1 | 1.1.35-1+deb12u3 | CVE-2025-10911 | N/A |
 | 🟡 Medium | libexpat1 | 2.5.0-1+deb12u2 | CVE-2025-66382 | N/A |
 
 *Showing top 50 of 160 vulnerabilities (sorted by severity)*

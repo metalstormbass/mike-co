@@ -7,9 +7,9 @@ Container image for the **document-processor** service.
 | Property | Value |
 |----------|-------|
 | **Image** | `ghcr.io/metalstormbass/mike-co/document-processor` |
-| **Digest** | `sha256:29276c8f0817787ee3597923c2b0b4df9717b76ed2ebf3559a9df387b3a0a2cf` |
+| **Digest** | `sha256:a9559ce179627b05199f4fcaa30435d5802ec02851a90b3cb61f8869081dcac1` |
 | **Size** | 495.02 MB |
-| **Scan Date** | 2026-01-26 16:15:58 UTC |
+| **Scan Date** | 2026-01-26 16:52:15 UTC |
 | **Scanner** | Grype |
 
 ## Vulnerability Summary

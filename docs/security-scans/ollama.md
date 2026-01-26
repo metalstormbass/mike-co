@@ -7,20 +7,24 @@
 | Property | Value |
 |----------|-------|
 | **Source Image** | `cgr.dev/mikeco.com/ollama:latest` |
-| **Digest** | `cgr.dev/mikeco.com/ollama@sha256:85ec52a59ad3f76b4167223bd8c2aa1b7ee19421a9cec8c4f3086616df016c66` |
-| **Size** | 7.74 GB |
-| **Scan Date** | 2026-01-26 17:51:38 UTC |
+| **Digest** | `N/A` |
+| **Size** | 4.73 GB |
+| **Scan Date** | 2026-01-26 18:50:13 UTC |
 | **Scanner** | Grype |
 
 ## Vulnerability Summary
 
 | Severity | Count |
 |----------|-------|
-| $\color{red}{\textsf{Critical}}$ |  |
-| $\color{orange}{\textsf{High}}$ |  |
-| $\color{gold}{\textsf{Medium}}$ |  |
-| $\color{green}{\textsf{Low}}$ |  |
-| $\color{gray}{\textsf{Negligible}}$ |  |
-| **Total** | **** |
+| $\color{red}{\textsf{Critical}}$ | 0 |
+| $\color{orange}{\textsf{High}}$ | 1 |
+| $\color{gold}{\textsf{Medium}}$ | 0 |
+| $\color{green}{\textsf{Low}}$ | 0 |
+| $\color{gray}{\textsf{Negligible}}$ | 0 |
+| **Total** | **1** |
 
-✅ No vulnerabilities found.
+## Detailed Findings
+
+| Severity | Package | Version | Vulnerability | Fixed In |
+|----------|---------|---------|---------------|----------|
+| 🟠 High | glibc | 2.42-r7 | CVE-2025-15281 | N/A |

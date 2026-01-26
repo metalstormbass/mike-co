@@ -8,8 +8,8 @@
 |----------|-------|
 | **Source Image** | `cgr.dev/mikeco.com/postgres:16` |
 | **Digest** | `cgr.dev/mikeco.com/postgres@sha256:27d1dafa20c26970c5214cebeb5284d5a3803443d3315e1e121af030da08b347` |
-| **Size** | 388.31 MB |
-| **Scan Date** | 2026-01-26 17:51:38 UTC |
+| **Size** | 141.66 MB |
+| **Scan Date** | 2026-01-26 18:50:13 UTC |
 | **Scanner** | Grype |
 
 ## Vulnerability Summary

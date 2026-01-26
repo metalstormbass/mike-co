@@ -121,11 +121,8 @@ environment:
 ## Prerequisites
 
 - Docker and Docker Compose
-- (Optional) Kubernetes cluster with Helm for production deployments
 
 ## Quick Start
-
-### Local Development with Docker Compose
 
 1. **Clone the repository**
    ```bash
@@ -165,23 +162,4 @@ make up            # Start all services
 make down          # Stop all services
 make logs          # View logs from all services
 make clean         # Stop services and remove volumes/images
-```
-
-## Kubernetes Deployment
-
-For Kubernetes deployments using Helm:
-
-```bash
-# Install Helm dependencies
-make helm-deps
-
-# Deploy to dev environment
-make dev
-
-# Deploy to prod environment
-make prod
-
-# Uninstall
-make uninstall-dev
-make uninstall-prod
 ```

@@ -262,7 +262,14 @@ jobs:
         run: |
           if [ -n "${CHAINGUARD_IDENTITY}" ]; then
             echo "Authenticating with Chainguard..."
-            chainctl auth login --identity="${CHAINGUARD_IDENTITY}" || echo "Chainguard auth failed, continuing..."
+            # Get token from chainctl and use it for docker login
+            TOKEN=$(chainctl auth token --identity="${CHAINGUARD_IDENTITY}" --audience=cgr.dev 2>/dev/null || echo "")
+            if [ -n "$TOKEN" ]; then
+              echo "$TOKEN" | docker login cgr.dev -u _token --password-stdin
+              echo "Successfully authenticated with Chainguard"
+            else
+              echo "Failed to obtain Chainguard token, continuing without authentication..."
+            fi
           else
             echo "CHAINGUARD_IDENTITY not set, skipping authentication"
           fi

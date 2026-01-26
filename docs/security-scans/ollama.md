@@ -9,7 +9,7 @@ External container image for the **ollama** service.
 | **Source Image** | `ollama/ollama:latest` |
 | **Digest** | `ollama/ollama@sha256:e0ae5354a9e4c85160df4698a45ae360cd0c12ef90e484b12fc870c28f491892` |
 | **Size** | 5.23 GB |
-| **Scan Date** | 2026-01-26 18:44:07 UTC |
+| **Scan Date** | 2026-01-26 19:16:07 UTC |
 | **Scanner** | Grype |
 
 ## Vulnerability Summary

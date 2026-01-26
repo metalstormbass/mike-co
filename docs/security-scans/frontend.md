@@ -7,9 +7,9 @@ Container image for the **frontend** service.
 | Property | Value |
 |----------|-------|
 | **Image** | `ghcr.io/metalstormbass/mike-co/frontend` |
-| **Digest** | `sha256:124a0beb6d5898a524c4b9210de5cd70288aba92dec27fb0ca2666fecf0175c8` |
+| **Digest** | `sha256:fcc0747a778f0193490c89f016e2849495380fb84e69f0d2cf8c9953a3bd3378` |
 | **Size** | 199.92 MB |
-| **Scan Date** | 2026-01-26 18:45:51 UTC |
+| **Scan Date** | 2026-01-26 19:18:12 UTC |
 | **Scanner** | Grype |
 
 ## Vulnerability Summary

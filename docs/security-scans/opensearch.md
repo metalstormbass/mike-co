@@ -7,9 +7,9 @@
 | Property | Value |
 |----------|-------|
 | **Source Image** | `cgr.dev/mikeco.com/opensearch:2` |
-| **Digest** | `cgr.dev/mikeco.com/opensearch@sha256:abfc040632cde1a59840d8cfd76add553587232ce8abad1feb5dfa706effa5d7` |
+| **Digest** | `cgr.dev/mikeco.com/opensearch@sha256:07a926b66cb1bbdaafc101d0266ec112b03dadac9cf130d74b19f70e9362d80e` |
 | **Size** | 816.71 MB |
-| **Scan Date** | 2026-01-26 19:17:18 UTC |
+| **Scan Date** | 2026-01-26 20:31:57 UTC |
 | **Scanner** | Grype |
 
 ## Vulnerability Summary
@@ -27,6 +27,6 @@
 
 | Severity | Package | Version | Vulnerability | Fixed In |
 |----------|---------|---------|---------------|----------|
-| 🟠 High | glibc | 2.42-r6 | CVE-2025-15281 | N/A |
+| 🟠 High | glibc | 2.42-r7 | CVE-2025-15281 | N/A |
 | 🟡 Medium | log4j-core | 2.21.0 | GHSA-vc5p-v9hr-52mj | 2.25.3 |
-| 🟡 Medium | busybox | 1.37.0-r51 | CVE-2025-60876 | N/A |
+| 🟡 Medium | busybox | 1.37.0-r52 | CVE-2025-60876 | N/A |

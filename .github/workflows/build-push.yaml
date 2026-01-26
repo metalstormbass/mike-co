@@ -571,5 +571,7 @@ jobs:
             echo "No changes to commit"
           else
             git commit -m "Update security scan results [skip ci]"
+            # Pull with rebase to avoid conflicts if remote has moved ahead
+            git pull --rebase origin ${{ github.ref_name }}
             git push
           fi

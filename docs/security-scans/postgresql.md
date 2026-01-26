@@ -10,7 +10,7 @@ Mirrored container image for the **postgresql** service.
 | **GHCR Image** | `ghcr.io/metalstormbass/mike-co/postgresql` |
 | **Digest** | `postgres@sha256:bb6a38138cb49ca6d4de376e06f0959db4e7906c0f5f3cfedb2cfe27d7472a0f` |
 | **Size** | 414.87 MB |
-| **Scan Date** | 2026-01-26 14:33:35 UTC |
+| **Scan Date** | 2026-01-26 15:41:34 UTC |
 | **Scanner** | Grype |
 
 ## Vulnerability Summary

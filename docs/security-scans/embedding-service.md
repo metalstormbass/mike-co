@@ -7,9 +7,9 @@ Container image for the **embedding-service** service.
 | Property | Value |
 |----------|-------|
 | **Image** | `ghcr.io/metalstormbass/mike-co/embedding-service` |
-| **Digest** | `sha256:e6fd3957ccbbdc883dd7dc8bc374645853bf2fd373cb68b61b48d0d5981388dc` |
+| **Digest** | `sha256:7d85b72af3cb6e93eb871e1f02f6fd640c534e72232de8223d6f34c25c5e158a` |
 | **Size** | 7.07 GB |
-| **Scan Date** | 2026-01-26 14:50:59 UTC |
+| **Scan Date** | 2026-01-26 15:50:32 UTC |
 | **Scanner** | Grype |
 
 ## Vulnerability Summary

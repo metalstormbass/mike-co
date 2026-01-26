@@ -9,7 +9,7 @@ External container image for the **redis** service.
 | **Source Image** | `redis:7-bookworm` |
 | **Digest** | `redis@sha256:ba125ee995db4c9cf937bb5a771722f443ac96176c7aa5cd03711485ab77c852` |
 | **Size** | 111.62 MB |
-| **Scan Date** | 2026-01-26 21:51:47 UTC |
+| **Scan Date** | 2026-01-26 22:25:08 UTC |
 | **Scanner** | Grype |
 
 ## Vulnerability Summary

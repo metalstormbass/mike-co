@@ -154,9 +154,32 @@ jobs:
         run: |
           curl -sSfL https://raw.githubusercontent.com/anchore/grype/main/install.sh | sh -s -- -b /usr/local/bin
 
-      - name: Run Grype vulnerability scan
+      - name: Free disk space before scan
         run: |
+          echo "Disk space before scan cleanup:"
+          df -h
+
+          # Remove all Docker build cache
+          docker builder prune -af
+
+          # Remove any dangling images and volumes
+          docker system prune -af --volumes
+
+          echo "Disk space after scan cleanup:"
+          df -h
+
+      - name: Run Grype vulnerability scan
+        env:
+          TMPDIR: ${{ github.workspace }}/tmp
+        run: |
+          # Create temp directory in workspace (has more space than /tmp)
+          mkdir -p ${{ github.workspace }}/tmp
+
+          # Run grype with custom temp directory
           grype ${{ matrix.service }}:scan -o json > grype-results.json || true
+
+          # Clean up temp directory after scan
+          rm -rf ${{ github.workspace }}/tmp
 
       - name: Generate scan report
         env:

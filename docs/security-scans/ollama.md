@@ -10,7 +10,7 @@ Mirrored container image for the **ollama** service.
 | **GHCR Image** | `ghcr.io/metalstormbass/mike-co/ollama` |
 | **Digest** | `ollama/ollama@sha256:e0ae5354a9e4c85160df4698a45ae360cd0c12ef90e484b12fc870c28f491892` |
 | **Size** | 5.23 GB |
-| **Scan Date** | 2026-01-26 15:44:27 UTC |
+| **Scan Date** | 2026-01-26 16:17:02 UTC |
 | **Scanner** | Grype |
 
 ## Vulnerability Summary

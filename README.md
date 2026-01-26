@@ -87,10 +87,10 @@ A Retrieval-Augmented Generation (RAG) knowledge base application that allows us
 
 | Service | Image | Version | Security |
 |---------|-------|---------|----------|
-| OpenSearch | `cgr.dev/chainguard-private/opensearch` | 2 | Chainguard hardened image |
-| PostgreSQL | `cgr.dev/chainguard-private/postgres` | 16 | Chainguard hardened image |
-| Redis | `cgr.dev/chainguard-private/redis` | 7 | Chainguard hardened image |
-| Ollama | `cgr.dev/chainguard-private/ollama` | latest | Chainguard hardened image |
+| OpenSearch | `cgr.dev/mikeco.com/opensearch` | 2 | Chainguard hardened image |
+| PostgreSQL | `cgr.dev/mikeco.com/postgres` | 16 | Chainguard hardened image |
+| Redis | `cgr.dev/mikeco.com/redis` | 7 | Chainguard hardened image |
+| Ollama | `cgr.dev/mikeco.com/ollama` | latest | Chainguard hardened image |
 
 ### Chainguard Images
 

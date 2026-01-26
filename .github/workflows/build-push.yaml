@@ -329,7 +329,7 @@ jobs:
             echo "Processing $SERVICE with image $IMAGE..."
 
             # Note if Chainguard image (authentication already handled above)
-            if [[ "$IMAGE" == cgr.dev/chainguard-private/* ]]; then
+            if [[ "$IMAGE" == cgr.dev/mikeco.com/* ]]; then
               echo "Chainguard private image detected (authentication handled via docker login)"
             fi
 
@@ -364,7 +364,7 @@ jobs:
             echo "" >> "$OUTFILE"
 
             # Check if this is a Chainguard image
-            if [[ "$IMAGE" == cgr.dev/chainguard-private/* ]]; then
+            if [[ "$IMAGE" == cgr.dev/mikeco.com/* ]]; then
               echo "**Chainguard hardened container image** for the **${SERVICE}** service." >> "$OUTFILE"
             elif [[ "$IMAGE" == cgr.dev/chainguard/* ]]; then
               echo "**Chainguard public container image** for the **${SERVICE}** service." >> "$OUTFILE"
@@ -586,7 +586,7 @@ jobs:
           done
 
           echo "" >> "$OUTFILE"
-          echo "> **Note**: OpenSearch, PostgreSQL, and Redis use [Chainguard Images](https://www.chainguard.dev/) (\`cgr.dev/chainguard-private/*\`), which are hardened, distroless containers with minimal to zero CVEs. These images significantly reduce the attack surface compared to standard images." >> "$OUTFILE"
+          echo "> **Note**: OpenSearch, PostgreSQL, and Redis use [Chainguard Images](https://www.chainguard.dev/) (\`cgr.dev/mikeco.com/*\`), which are hardened, distroless containers with minimal to zero CVEs. These images significantly reduce the attack surface compared to standard images." >> "$OUTFILE"
           echo "" >> "$OUTFILE"
           echo "## Update Frequency" >> "$OUTFILE"
           echo "" >> "$OUTFILE"

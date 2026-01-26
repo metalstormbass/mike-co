@@ -7,9 +7,9 @@ Container image for the **nginx** service.
 | Property | Value |
 |----------|-------|
 | **Image** | `ghcr.io/metalstormbass/mike-co/nginx` |
-| **Digest** | `sha256:4e18de115ff25df21daca27437842e8097f849759c8e80e8260479c91926044d` |
+| **Digest** | `sha256:98a5e5e17ab866f8dda5428f722263595b3c45c9d64c0f1c30d3cd62301e9077` |
 | **Size** | 199.60 MB |
-| **Scan Date** | 2026-01-26 17:17:47 UTC |
+| **Scan Date** | 2026-01-26 17:37:27 UTC |
 | **Scanner** | Grype |
 
 ## Vulnerability Summary

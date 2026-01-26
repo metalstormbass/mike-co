@@ -90,11 +90,11 @@ A Retrieval-Augmented Generation (RAG) knowledge base application that allows us
 | OpenSearch | `cgr.dev/chainguard-private/opensearch` | 2 | Chainguard hardened image |
 | PostgreSQL | `cgr.dev/chainguard-private/postgres` | 16 | Chainguard hardened image |
 | Redis | `cgr.dev/chainguard-private/redis` | 7 | Chainguard hardened image |
-| Ollama | `ollama/ollama` | latest | - |
+| Ollama | `cgr.dev/chainguard-private/ollama` | latest | Chainguard hardened image |
 
 ### Chainguard Images
 
-This project uses [Chainguard Images](https://www.chainguard.dev/) for OpenSearch, PostgreSQL, and Redis. Chainguard Images provide:
+This project uses [Chainguard Images](https://www.chainguard.dev/) for OpenSearch, PostgreSQL, Redis, and Ollama. Chainguard Images provide:
 
 - **Minimal attack surface**: Distroless containers with only essential components
 - **Zero CVEs**: Regularly rebuilt images with minimal to zero known vulnerabilities

@@ -1,12 +1,10 @@
-FROM python:3.11-slim-bookworm
-
+FROM cgr.dev/mikeco.com/python:3.11-dev
+USER root
 WORKDIR /app
 
 # Install system dependencies for document parsing
-RUN apt-get update && apt-get upgrade -y && apt-get install -y --no-install-recommends \
-    build-essential \
-    libmagic1 \
-    && rm -rf /var/lib/apt/lists/*
+RUN apk add --no-cache \
+    libmagic 
 
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
@@ -15,4 +13,4 @@ COPY src/ ./src/
 
 EXPOSE 8002
 
-CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8002"]
+CMD ["-m", "uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8002"]

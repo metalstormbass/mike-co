@@ -44,12 +44,15 @@ app.post('/chat', async (req, res) => {
       body: JSON.stringify({
         query: message,
         conversation_id: conversationId ? String(conversationId) : null,
-        max_results: 5
+        top_k: 5,
+        min_score: 0.3
       })
     });
 
     if (!response.ok) {
-      throw new Error(`LLM service error: ${response.statusText}`);
+      const error = await response.text();
+      console.error('LLM service error:', error);
+      return res.status(response.status).json({ error: 'Failed to get response' });
     }
 
     const data = await response.json();
@@ -60,58 +63,28 @@ app.post('/chat', async (req, res) => {
   }
 });
 
-// Document upload endpoint - routes to document processor
-app.post('/documents', upload.single('file'), async (req, res) => {
-  try {
-    if (!req.file) {
-      return res.status(400).json({ error: 'File is required' });
-    }
-
-    const formData = new FormData();
-    const fileBuffer = await fs.readFile(req.file.path);
-    const blob = new Blob([fileBuffer]);
-    formData.append('file', blob, req.file.originalname);
-
-    const response = await fetch(`${DOCUMENT_PROCESSOR_URL}/upload`, {
-      method: 'POST',
-      body: formData
-    });
-
-    // Clean up uploaded file
-    await fs.unlink(req.file.path).catch(() => {});
-
-    if (!response.ok) {
-      throw new Error(`Document processor error: ${response.statusText}`);
-    }
-
-    const data = await response.json();
-    res.json(data);
-  } catch (error) {
-    console.error('Upload error:', error);
-    if (req.file) {
-      await fs.unlink(req.file.path).catch(() => {});
-    }
-    res.status(500).json({ error: 'Internal server error' });
-  }
-});
-
-// Search documents endpoint
+// Search endpoint - semantic search without response generation
 app.post('/search', async (req, res) => {
   try {
-    const { query, limit = 5 } = req.body;
+    const { query, topK = 5, minScore = 0.3 } = req.body;
 
     if (!query) {
       return res.status(400).json({ error: 'Query is required' });
     }
 
-    const response = await fetch(`${DOCUMENT_PROCESSOR_URL}/search`, {
+    const response = await fetch(`${LLM_SERVICE_URL}/search`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ query, limit })
+      body: JSON.stringify({
+        query,
+        top_k: topK,
+        min_score: minScore
+      })
     });
 
     if (!response.ok) {
-      throw new Error(`Search error: ${response.statusText}`);
+      const error = await response.text();
+      return res.status(response.status).json({ error: 'Search failed' });
     }
 
     const data = await response.json();

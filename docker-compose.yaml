@@ -49,7 +49,7 @@ services:
 
   # Ollama (Local LLM)
   ollama:
-    image: cgr.dev/mikeco.com/ollama:latest
+    image: cgr.dev/mikeco.com/ollama:latest-dev
     volumes:
       - ollama-data:/root/.ollama
     ports:

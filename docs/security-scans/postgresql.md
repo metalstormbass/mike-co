@@ -10,7 +10,7 @@ Mirrored container image for the **postgresql** service.
 | **GHCR Image** | `ghcr.io/metalstormbass/mike-co/postgresql` |
 | **Digest** | `postgres@sha256:bb6a38138cb49ca6d4de376e06f0959db4e7906c0f5f3cfedb2cfe27d7472a0f` |
 | **Size** | 414.87 MB |
-| **Scan Date** | 2026-01-25 22:55:01 UTC |
+| **Scan Date** | 2026-01-26 13:42:21 UTC |
 | **Scanner** | Grype |
 
 ## Vulnerability Summary
@@ -75,8 +75,8 @@ Mirrored container image for the **postgresql** service.
 | 🟡 Medium | gpgconf | 2.2.40-1.1+deb12u2 | CVE-2025-30258 | N/A |
 | 🟡 Medium | gpgsm | 2.2.40-1.1+deb12u2 | CVE-2025-30258 | N/A |
 | 🟡 Medium | gpgv | 2.2.40-1.1+deb12u2 | CVE-2025-30258 | N/A |
+| 🟡 Medium | libxslt1.1 | 1.1.35-1+deb12u3 | CVE-2025-10911 | N/A |
 | 🟡 Medium | stdlib | go1.24.6 | CVE-2025-58189 | 1.24.8 |
 | 🟡 Medium | bsdutils | 1:2.38.1-5+deb12u3 | CVE-2025-14104 | N/A |
-| 🟡 Medium | libblkid1 | 2.38.1-5+deb12u3 | CVE-2025-14104 | N/A |
 
 *Showing top 50 of 181 vulnerabilities (sorted by severity)*

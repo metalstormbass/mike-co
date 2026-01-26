@@ -7,9 +7,9 @@ Container image for the **llm-service** service.
 | Property | Value |
 |----------|-------|
 | **Image** | `ghcr.io/metalstormbass/mike-co/llm-service` |
-| **Digest** | `sha256:1073a9fa1222236e6fdb147c56dac5ebbf7e104b785fa2188d0cfa0377866186` |
+| **Digest** | `sha256:c483feba97f1c0190bda85e14008cb6177e8bff5392b942bd938b4563f8d03e6` |
 | **Size** | 456.78 MB |
-| **Scan Date** | 2026-01-25 22:55:14 UTC |
+| **Scan Date** | 2026-01-26 13:44:07 UTC |
 | **Scanner** | Grype |
 
 ## Vulnerability Summary

@@ -10,7 +10,7 @@ Mirrored container image for the **opensearch** service.
 | **GHCR Image** | `ghcr.io/metalstormbass/mike-co/opensearch` |
 | **Digest** | `opensearchproject/opensearch@sha256:2f49c399988df5c9a3b25a05ec78ea75ac4b39ae76e1d2609f94a653224bb24b` |
 | **Size** | 1.13 GB |
-| **Scan Date** | 2026-01-25 22:55:17 UTC |
+| **Scan Date** | 2026-01-26 13:42:44 UTC |
 | **Scanner** | Grype |
 
 ## Vulnerability Summary
@@ -66,14 +66,14 @@ Mirrored container image for the **opensearch** service.
 | 🟠 High | python3 | 3.9.16-1.amzn2023.0.6 | ALAS2023-2025-1146 | 3.9.23-1.amzn2023.0.3 |
 | 🟠 High | python3-libs | 3.9.16-1.amzn2023.0.6 | ALAS2023-2025-1146 | 3.9.23-1.amzn2023.0.3 |
 | 🟠 High | openjdk | 17.0.8+7 | CVE-2025-21587 | 1.8.0_452 |
-| 🟠 High | python3 | 3.9.16-1.amzn2023.0.6 | ALAS2023-2025-1046 | 3.9.23-1.amzn2023.0.1 |
-| 🟠 High | python3-libs | 3.9.16-1.amzn2023.0.6 | ALAS2023-2025-1046 | 3.9.23-1.amzn2023.0.1 |
 | 🟠 High | sqlite-libs | 3.40.0-1.amzn2023.0.3 | ALAS2023-2024-490 | 3.40.0-1.amzn2023.0.4 |
 | 🟠 High | openjdk | 17.0.8+7 | CVE-2024-20932 | 17.0.10 |
 | 🟠 High | sqlite-libs | 3.40.0-1.amzn2023.0.3 | ALAS2023-2025-971 | 3.40.0-1.amzn2023.0.5 |
 | 🟠 High | netty-codec-http2 | 4.1.100.Final | GHSA-prj3-ccx8-p6x4 | 4.1.124.Final |
 | 🟠 High | netty-codec-http2 | 4.1.100.Final | GHSA-prj3-ccx8-p6x4 | 4.1.124.Final |
 | 🟠 High | glib2 | 2.74.7-689.amzn2023.0.2 | ALAS2023-2025-1069 | 2.82.2-766.amzn2023 |
+| 🟠 High | python3 | 3.9.16-1.amzn2023.0.6 | ALAS2023-2025-1046 | 3.9.23-1.amzn2023.0.1 |
+| 🟠 High | python3-libs | 3.9.16-1.amzn2023.0.6 | ALAS2023-2025-1046 | 3.9.23-1.amzn2023.0.1 |
 | 🟠 High | openjdk | 17.0.8+7 | CVE-2025-53066 | 1.8.0_472 |
 | 🟠 High | libarchive | 3.5.3-2.amzn2023.0.3 | ALAS2023-2024-742 | 3.7.4-2.amzn2023.0.2 |
 | 🟠 High | commons-beanutils | 1.9.4 | GHSA-wxr5-93ph-8wr9 | 1.11.0 |

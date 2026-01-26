@@ -10,7 +10,7 @@ Mirrored container image for the **redis** service.
 | **GHCR Image** | `ghcr.io/metalstormbass/mike-co/redis` |
 | **Digest** | `redis@sha256:ba125ee995db4c9cf937bb5a771722f443ac96176c7aa5cd03711485ab77c852` |
 | **Size** | 111.62 MB |
-| **Scan Date** | 2026-01-25 22:54:53 UTC |
+| **Scan Date** | 2026-01-26 13:42:15 UTC |
 | **Scanner** | Grype |
 
 ## Vulnerability Summary
@@ -44,11 +44,11 @@ Mirrored container image for the **redis** service.
 | 🟠 High | stdlib | go1.18.2 | CVE-2022-41723 | 1.19.6 |
 | 🟠 High | stdlib | go1.18.2 | CVE-2023-45287 | 1.20.0 |
 | 🟠 High | stdlib | go1.18.2 | CVE-2024-34158 | 1.22.7 |
+| 🟠 High | dpkg | 1.21.22 | CVE-2025-6297 | N/A |
 | 🟠 High | stdlib | go1.18.2 | CVE-2022-32189 | 1.17.13 |
 | 🟠 High | stdlib | go1.18.2 | CVE-2022-30632 | 1.17.12 |
 | 🟠 High | stdlib | go1.18.2 | CVE-2022-30633 | 1.17.12 |
 | 🟠 High | stdlib | go1.18.2 | CVE-2022-30635 | 1.17.12 |
-| 🟠 High | dpkg | 1.21.22 | CVE-2025-6297 | N/A |
 | 🟠 High | stdlib | go1.18.2 | CVE-2022-27664 | 1.18.6 |
 | 🟠 High | stdlib | go1.18.2 | CVE-2023-24536 | 1.19.8 |
 | 🟠 High | stdlib | go1.18.2 | CVE-2023-24539 | 1.19.9 |

@@ -7,9 +7,9 @@ Container image for the **document-processor** service.
 | Property | Value |
 |----------|-------|
 | **Image** | `ghcr.io/metalstormbass/mike-co/document-processor` |
-| **Digest** | `sha256:9e80f82ed7c651c515b411514ce46f7170776bb0acf407cf6e62ab090dd1f9e5` |
+| **Digest** | `sha256:25e1bfe8583378e4189363ae2f4d7c357c37745850a341a6c94c91d1effd6fe9` |
 | **Size** | 495.02 MB |
-| **Scan Date** | 2026-01-25 22:56:09 UTC |
+| **Scan Date** | 2026-01-26 13:44:03 UTC |
 | **Scanner** | Grype |
 
 ## Vulnerability Summary
@@ -32,10 +32,10 @@ Container image for the **document-processor** service.
 | 🟠 High | aiohttp | 3.9.0 | GHSA-5h86-8mv2-jq9f | 3.9.2 |
 | 🟠 High | python-multipart | 0.0.6 | GHSA-2jv5-9r88-3w3p | 0.0.7 |
 | 🟠 High | aiohttp | 3.9.0 | GHSA-5m98-qgg9-wh84 | 3.9.4 |
-| 🟠 High | python-multipart | 0.0.6 | GHSA-59g5-xgcq-4qw3 | 0.0.18 |
 | 🟠 High | dpkg | 1.21.22 | CVE-2025-6297 | N/A |
 | 🟠 High | dpkg-dev | 1.21.22 | CVE-2025-6297 | N/A |
 | 🟠 High | libdpkg-perl | 1.21.22 | CVE-2025-6297 | N/A |
+| 🟠 High | python-multipart | 0.0.6 | GHSA-59g5-xgcq-4qw3 | 0.0.18 |
 | 🟠 High | starlette | 0.27.0 | GHSA-f96h-pmfr-66vw | 0.40.0 |
 | 🟠 High | aiohttp | 3.9.0 | GHSA-6mq8-rvhq-8wgg | 3.13.3 |
 | 🟠 High | libtasn1-6 | 4.19.0-2+deb12u1 | CVE-2025-13151 | N/A |

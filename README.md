@@ -85,12 +85,26 @@ A Retrieval-Augmented Generation (RAG) knowledge base application that allows us
 
 ### Pre-built Images (External)
 
-| Service | Image | Version |
-|---------|-------|---------|
-| OpenSearch | `opensearchproject/opensearch` | 2.11.0 |
-| PostgreSQL | `postgres` | 16-bookworm |
-| Redis | `redis` | 7-bookworm |
-| Ollama | `ollama/ollama` | latest |
+| Service | Image | Version | Security |
+|---------|-------|---------|----------|
+| OpenSearch | `cgr.dev/chainguard-private/opensearch` | 2 | Chainguard hardened image |
+| PostgreSQL | `cgr.dev/chainguard-private/postgres` | 16 | Chainguard hardened image |
+| Redis | `cgr.dev/chainguard-private/redis` | 7 | Chainguard hardened image |
+| Ollama | `ollama/ollama` | latest | - |
+
+### Chainguard Images
+
+This project uses [Chainguard Images](https://www.chainguard.dev/) for OpenSearch, PostgreSQL, and Redis. Chainguard Images provide:
+
+- **Minimal attack surface**: Distroless containers with only essential components
+- **Zero CVEs**: Regularly rebuilt images with minimal to zero known vulnerabilities
+- **Enhanced security**: SLSA Level 3 compliance with signed SBOMs
+- **Up-to-date packages**: Latest security patches and updates
+
+To use Chainguard private images, authenticate with:
+```bash
+chainctl auth login
+```
 
 ## LLM Configuration
 

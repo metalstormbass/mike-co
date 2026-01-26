@@ -251,14 +251,14 @@ jobs:
           echo "Disk space after cleanup:"
           df -h
 
-      - name: Build and push multi-arch Docker image
+      - name: Build multi-arch Docker image
         if: github.event_name != 'pull_request'
         uses: docker/build-push-action@v5
         with:
           context: ${{ matrix.context }}
           file: ${{ matrix.dockerfile }}
           platforms: ${{ matrix.platforms }}
-          push: true
+          push: false
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha

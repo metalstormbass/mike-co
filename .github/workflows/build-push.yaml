@@ -59,11 +59,27 @@ jobs:
     steps:
       - name: Free up disk space
         run: |
+          echo "Disk space before cleanup:"
+          df -h
+
+          # Remove large unnecessary packages
           sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /usr/local/lib/android
           sudo rm -rf /opt/ghc
+          sudo rm -rf /opt/hostedtoolcache/CodeQL
           sudo rm -rf /usr/local/share/boost
           sudo rm -rf "$AGENT_TOOLSDIRECTORY"
+
+          # Clean apt cache
+          sudo apt-get clean
+
+          # Remove unnecessary packages
+          sudo apt-get autoremove -y
+
+          # Clean Docker
           docker system prune -af --volumes
+
+          echo "Disk space after cleanup:"
           df -h
 
       - name: Checkout repository
@@ -227,6 +243,13 @@ jobs:
           name: scan-${{ matrix.service }}
           path: docs/security-scans/${{ matrix.service }}.md
           retention-days: 90
+
+      - name: Clean up scan image to free disk space
+        run: |
+          docker rmi ${{ matrix.service }}:scan || true
+          docker system prune -f
+          echo "Disk space after cleanup:"
+          df -h
 
       - name: Build and push multi-arch Docker image
         if: github.event_name != 'pull_request'

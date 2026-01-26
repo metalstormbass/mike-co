@@ -10,7 +10,7 @@ Mirrored container image for the **redis** service.
 | **GHCR Image** | `ghcr.io/metalstormbass/mike-co/redis` |
 | **Digest** | `redis@sha256:ba125ee995db4c9cf937bb5a771722f443ac96176c7aa5cd03711485ab77c852` |
 | **Size** | 111.62 MB |
-| **Scan Date** | 2026-01-26 16:50:33 UTC |
+| **Scan Date** | 2026-01-26 17:30:41 UTC |
 | **Scanner** | Grype |
 
 ## Vulnerability Summary

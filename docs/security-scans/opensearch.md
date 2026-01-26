@@ -9,7 +9,7 @@
 | **Source Image** | `cgr.dev/mikeco.com/opensearch:2` |
 | **Digest** | `cgr.dev/mikeco.com/opensearch@sha256:07a926b66cb1bbdaafc101d0266ec112b03dadac9cf130d74b19f70e9362d80e` |
 | **Size** | 816.71 MB |
-| **Scan Date** | 2026-01-26 21:27:23 UTC |
+| **Scan Date** | 2026-01-26 21:52:38 UTC |
 | **Scanner** | Grype |
 
 ## Vulnerability Summary

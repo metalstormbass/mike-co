@@ -2,6 +2,7 @@ import { useState, useRef, useEffect, useCallback } from 'react'
 import Sidebar from './components/Sidebar'
 import ChatArea from './components/ChatArea'
 import WelcomeScreen from './components/WelcomeScreen'
+import SearchPanel from './components/SearchPanel'
 import UploadModal from './components/UploadModal'
 import SettingsModal from './components/SettingsModal'
 import ToolsModal from './components/ToolsModal'
@@ -13,6 +14,7 @@ function App() {
   const [messages, setMessages] = useState([])
   const [isLoading, setIsLoading] = useState(false)
   const [sidebarOpen, setSidebarOpen] = useState(true)
+  const [currentView, setCurrentView] = useState('chat') // 'chat' or 'search'
   const [uploadModalOpen, setUploadModalOpen] = useState(false)
   const [settingsModalOpen, setSettingsModalOpen] = useState(false)
   const [toolsModalOpen, setToolsModalOpen] = useState(false)
@@ -199,6 +201,8 @@ function App() {
       <Sidebar
         isOpen={sidebarOpen}
         onToggle={() => setSidebarOpen(!sidebarOpen)}
+        currentView={currentView}
+        onViewChange={setCurrentView}
         conversations={conversations}
         activeConversation={activeConversation}
         onSelectConversation={setActiveConversation}
@@ -211,16 +215,20 @@ function App() {
 
       {/* Main content */}
       <main className="flex-1 flex flex-col relative">
-        {messages.length === 0 ? (
-          <WelcomeScreen onSendMessage={sendMessage} />
+        {currentView === 'search' ? (
+          <SearchPanel />
         ) : (
-          <ChatArea 
-            messages={messages}
-            isLoading={isLoading}
-            onSendMessage={sendMessage}
-            sidebarOpen={sidebarOpen}
-            onToggleSidebar={() => setSidebarOpen(!sidebarOpen)}
-          />
+          messages.length === 0 ? (
+            <WelcomeScreen onSendMessage={sendMessage} />
+          ) : (
+            <ChatArea
+              messages={messages}
+              isLoading={isLoading}
+              onSendMessage={sendMessage}
+              sidebarOpen={sidebarOpen}
+              onToggleSidebar={() => setSidebarOpen(!sidebarOpen)}
+            />
+          )
         )}
       </main>
 

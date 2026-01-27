@@ -251,7 +251,7 @@ async def generate_response_ollama(prompt: str) -> str:
                     "num_predict": 1000
                 }
             },
-            timeout=aiohttp.ClientTimeout(total=120)  # Longer timeout for local inference
+            timeout=aiohttp.ClientTimeout(total=300)  # Longer timeout for local inference with phi model
         ) as response:
             if response.status != 200:
                 error = await response.text()

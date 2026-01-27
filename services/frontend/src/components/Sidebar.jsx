@@ -17,6 +17,8 @@ import {
 export default function Sidebar({
   isOpen,
   onToggle,
+  currentView,
+  onViewChange,
   conversations,
   activeConversation,
   onSelectConversation,
@@ -53,50 +55,114 @@ export default function Sidebar({
           </div>
         </div>
 
-        {/* New Chat Button */}
-        <div className="p-3">
-          <button 
-            onClick={onNewConversation}
-            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl
-              bg-gradient-to-r from-primary-600 to-primary-500
-              hover:from-primary-500 hover:to-primary-400
-              text-white font-medium
-              transition-all duration-200
-              shadow-lg shadow-primary-500/20
-              hover:shadow-primary-500/30
-              hover:scale-[1.02]
-              active:scale-[0.98]"
-          >
-            <MessageSquarePlus className="w-5 h-5" />
-            <span>New Conversation</span>
-          </button>
+        {/* View Switcher */}
+        <div className="p-3 space-y-2">
+          <div className="flex gap-2">
+            <button
+              onClick={() => onViewChange('chat')}
+              className={`flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg
+                font-medium text-sm
+                transition-all duration-200
+                ${currentView === 'chat'
+                  ? 'bg-gradient-to-r from-primary-600 to-primary-500 text-white shadow-lg shadow-primary-500/20'
+                  : 'bg-dark-800/50 text-dark-400 hover:text-dark-200 hover:bg-dark-800'
+                }`}
+            >
+              <MessageSquarePlus className="w-4 h-4" />
+              <span>Chat</span>
+            </button>
+            <button
+              onClick={() => onViewChange('search')}
+              className={`flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg
+                font-medium text-sm
+                transition-all duration-200
+                ${currentView === 'search'
+                  ? 'bg-gradient-to-r from-primary-600 to-primary-500 text-white shadow-lg shadow-primary-500/20'
+                  : 'bg-dark-800/50 text-dark-400 hover:text-dark-200 hover:bg-dark-800'
+                }`}
+            >
+              <Search className="w-4 h-4" />
+              <span>Search</span>
+            </button>
+          </div>
+
+          {currentView === 'chat' && (
+            <button
+              onClick={onNewConversation}
+              className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl
+                bg-dark-800/50 hover:bg-dark-700/50
+                text-dark-300 hover:text-dark-100
+                border border-dark-700/50
+                transition-all duration-200"
+            >
+              <MessageSquarePlus className="w-4 h-4" />
+              <span className="text-sm">New Conversation</span>
+            </button>
+          )}
         </div>
 
-        {/* Tabs */}
-        <div className="flex px-3 gap-1">
-          <button
-            onClick={() => setActiveTab('chats')}
-            className={`flex-1 py-2 px-3 text-sm font-medium rounded-lg transition-colors
-              ${activeTab === 'chats' 
-                ? 'bg-dark-700/50 text-dark-50' 
-                : 'text-dark-400 hover:text-dark-200 hover:bg-dark-800/50'}`}
-          >
-            Chats
-          </button>
-          <button
-            onClick={() => setActiveTab('documents')}
-            className={`flex-1 py-2 px-3 text-sm font-medium rounded-lg transition-colors
-              ${activeTab === 'documents' 
-                ? 'bg-dark-700/50 text-dark-50' 
-                : 'text-dark-400 hover:text-dark-200 hover:bg-dark-800/50'}`}
-          >
-            Documents
-          </button>
-        </div>
+        {/* Tabs (only show in chat view) */}
+        {currentView === 'chat' && (
+          <div className="flex px-3 gap-1">
+            <button
+              onClick={() => setActiveTab('chats')}
+              className={`flex-1 py-2 px-3 text-sm font-medium rounded-lg transition-colors
+                ${activeTab === 'chats'
+                  ? 'bg-dark-700/50 text-dark-50'
+                  : 'text-dark-400 hover:text-dark-200 hover:bg-dark-800/50'}`}
+            >
+              Chats
+            </button>
+            <button
+              onClick={() => setActiveTab('documents')}
+              className={`flex-1 py-2 px-3 text-sm font-medium rounded-lg transition-colors
+                ${activeTab === 'documents'
+                  ? 'bg-dark-700/50 text-dark-50'
+                  : 'text-dark-400 hover:text-dark-200 hover:bg-dark-800/50'}`}
+            >
+              Documents
+            </button>
+          </div>
+        )}
 
         {/* Content */}
         <div className="flex-1 overflow-y-auto p-3 space-y-1">
-          {activeTab === 'chats' ? (
+          {currentView === 'search' ? (
+            <>
+              {/* Documents list in search view */}
+              <div className="px-2 py-1 text-xs text-dark-500 uppercase tracking-wider">
+                Available Documents
+              </div>
+              {documents.length === 0 ? (
+                <div className="text-center py-8 text-dark-500">
+                  <FolderOpen className="w-12 h-12 mx-auto mb-3 opacity-50" />
+                  <p className="text-sm">No documents yet</p>
+                  <p className="text-xs mt-1">Upload files to search</p>
+                </div>
+              ) : (
+                documents.map(doc => (
+                  <div
+                    key={doc.id}
+                    className="flex items-center gap-3 px-3 py-2.5 rounded-lg
+                      bg-dark-800/30 hover:bg-dark-800/50
+                      transition-all duration-150"
+                  >
+                    <FileText className={`w-4 h-4 flex-shrink-0 ${
+                      doc.status === 'indexed' ? 'text-green-400' :
+                      doc.status === 'error' ? 'text-red-400' :
+                      'text-yellow-400'
+                    }`} />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm text-dark-200 truncate">{doc.name}</p>
+                      <p className="text-xs text-dark-500">
+                        {doc.status === 'indexed' && `${doc.chunkCount || 0} chunks`}
+                      </p>
+                    </div>
+                  </div>
+                ))
+              )}
+            </>
+          ) : activeTab === 'chats' ? (
             <>
               {conversations.map(conv => (
                 <button

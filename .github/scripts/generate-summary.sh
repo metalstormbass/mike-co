@@ -158,9 +158,11 @@ cat > "$OUTPUT_HTML" << 'ENDHTML'
 </html>
 ENDHTML
 
-# Replace placeholders
-sed -i "s|BRANCH_LABEL_PH|${BRANCH_LABEL}|g" "$OUTPUT_HTML"
-sed -i "s|BRANCH_DESC_PH|${BRANCH_DESCRIPTION}|g" "$OUTPUT_HTML"
-sed -i "s|BADGE_COLOR_PH|${BADGE_COLOR}|g" "$OUTPUT_HTML"
-sed -i "s|SCAN_DATE_PH|${SCAN_DATE}|g" "$OUTPUT_HTML"
-sed -i "s|SCAN_DATA_JSON_PH|${SCAN_DATA_JSON}|g" "$OUTPUT_HTML"
+# Replace placeholders - use @ as delimiter to avoid conflicts with / in JSON
+sed -i "s@BRANCH_LABEL_PH@${BRANCH_LABEL}@g" "$OUTPUT_HTML"
+sed -i "s@BRANCH_DESC_PH@${BRANCH_DESCRIPTION}@g" "$OUTPUT_HTML"
+sed -i "s@BADGE_COLOR_PH@${BADGE_COLOR}@g" "$OUTPUT_HTML"
+sed -i "s@SCAN_DATE_PH@${SCAN_DATE}@g" "$OUTPUT_HTML"
+
+# For JSON data, use awk to avoid sed delimiter issues
+awk -v json="$SCAN_DATA_JSON" '{gsub(/SCAN_DATA_JSON_PH/, json); print}' "$OUTPUT_HTML" > "${OUTPUT_HTML}.tmp" && mv "${OUTPUT_HTML}.tmp" "$OUTPUT_HTML"

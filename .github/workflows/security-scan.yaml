@@ -27,18 +27,42 @@ jobs:
           sudo wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
           sudo chmod +x /usr/local/bin/yq
 
-      - name: Extract images from docker-compose
-        id: images
+      - name: Extract services from docker-compose
+        id: services
         run: |
-          # Extract all image names from docker-compose.yaml
-          IMAGES=$(yq eval '.services.*.image' docker-compose.yaml | sort -u)
+          # Get list of all services
+          SERVICES=$(yq eval '.services | keys | .[]' docker-compose.yaml)
 
-          # Convert to JSON array
-          IMAGE_ARRAY=$(echo "$IMAGES" | jq -R -s -c 'split("\n") | map(select(length > 0))')
+          # Arrays to track services that need building vs pre-built images
+          BUILD_SERVICES=()
+          PREBUILT_IMAGES=()
 
-          echo "images=$IMAGE_ARRAY" >> $GITHUB_OUTPUT
-          echo "Found images:"
-          echo "$IMAGES"
+          for SERVICE in $SERVICES; do
+            # Check if service has build directive
+            HAS_BUILD=$(yq eval ".services.${SERVICE} | has(\"build\")" docker-compose.yaml)
+
+            if [ "$HAS_BUILD" = "true" ]; then
+              BUILD_SERVICES+=("$SERVICE")
+              echo "Service '$SERVICE' needs building"
+            else
+              # Get the image name
+              IMAGE=$(yq eval ".services.${SERVICE}.image" docker-compose.yaml)
+              if [ "$IMAGE" != "null" ]; then
+                PREBUILT_IMAGES+=("$IMAGE")
+                echo "Service '$SERVICE' uses pre-built image: $IMAGE"
+              fi
+            fi
+          done
+
+          # Convert to JSON arrays
+          BUILD_SERVICES_JSON=$(printf '%s\n' "${BUILD_SERVICES[@]}" | jq -R -s -c 'split("\n") | map(select(length > 0))')
+          PREBUILT_IMAGES_JSON=$(printf '%s\n' "${PREBUILT_IMAGES[@]}" | jq -R -s -c 'split("\n") | map(select(length > 0))')
+
+          echo "build_services=$BUILD_SERVICES_JSON" >> $GITHUB_OUTPUT
+          echo "prebuilt_images=$PREBUILT_IMAGES_JSON" >> $GITHUB_OUTPUT
+
+          echo "Services to build: ${BUILD_SERVICES[@]}"
+          echo "Pre-built images: ${PREBUILT_IMAGES[@]}"
 
       - name: Free up disk space
         run: |
@@ -84,25 +108,104 @@ jobs:
         run: |
           chmod +x .github/scripts/*.sh
 
+      - name: Build custom images
+        env:
+          BUILD_SERVICES: ${{ steps.services.outputs.build_services }}
+        run: |
+          # Parse JSON array of services to build
+          SERVICES_TO_BUILD=$(echo "$BUILD_SERVICES" | jq -r '.[]')
+
+          for SERVICE in $SERVICES_TO_BUILD; do
+            echo "=================================================="
+            echo "Building service: $SERVICE"
+            echo "=================================================="
+
+            # Get build context and dockerfile if specified
+            BUILD_CONTEXT=$(yq eval ".services.${SERVICE}.build.context // .services.${SERVICE}.build" docker-compose.yaml)
+            DOCKERFILE=$(yq eval ".services.${SERVICE}.build.dockerfile // \"Dockerfile\"" docker-compose.yaml)
+
+            # Handle relative paths
+            if [ "$BUILD_CONTEXT" = "null" ]; then
+              BUILD_CONTEXT="./services/${SERVICE}"
+            fi
+
+            # Build the image and tag it as the service name for scanning
+            echo "Building from context: $BUILD_CONTEXT with dockerfile: $DOCKERFILE"
+
+            if [ "$DOCKERFILE" != "null" ] && [ "$DOCKERFILE" != "Dockerfile" ]; then
+              docker build -t "${SERVICE}:scan" -f "${BUILD_CONTEXT}/${DOCKERFILE}" "$BUILD_CONTEXT"
+            else
+              docker build -t "${SERVICE}:scan" "$BUILD_CONTEXT"
+            fi
+
+            echo "Successfully built ${SERVICE}:scan"
+            echo ""
+          done
+
       - name: Scan images
         env:
-          IMAGES: ${{ steps.images.outputs.images }}
+          BUILD_SERVICES: ${{ steps.services.outputs.build_services }}
+          PREBUILT_IMAGES: ${{ steps.services.outputs.prebuilt_images }}
           BRANCH_NAME: ${{ github.ref_name }}
           WORKFLOW_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
           mkdir -p scan-results
           mkdir -p scan-results/scans
 
-          # Parse JSON array
-          IMAGE_LIST=$(echo "$IMAGES" | jq -r '.[]')
-
           # Track scan data
           SCAN_DATA_FILE="scan-results/summary-data.txt"
           > "$SCAN_DATA_FILE"
 
-          for IMAGE in $IMAGE_LIST; do
+          # Scan built images first
+          SERVICES_TO_SCAN=$(echo "$BUILD_SERVICES" | jq -r '.[]')
+          for SERVICE in $SERVICES_TO_SCAN; do
+            IMAGE="${SERVICE}:scan"
             echo "=================================================="
-            echo "Scanning: $IMAGE"
+            echo "Scanning built image: $IMAGE"
+            echo "=================================================="
+
+            # Get image details
+            IMAGE_SIZE=$(docker images "$IMAGE" --format "{{.Size}}" | head -1)
+
+            # Generate safe filename
+            SAFE_NAME=$(echo "$SERVICE" | sed 's/[^a-zA-Z0-9._-]/_/g')
+
+            # Run Grype scan
+            echo "Running Grype scan..."
+            TMPDIR="${GITHUB_WORKSPACE}/tmp"
+            mkdir -p "$TMPDIR"
+
+            grype "$IMAGE" -o json > "scan-results/${SAFE_NAME}.json" || true
+
+            rm -rf "$TMPDIR"
+
+            # Generate HTML report and get scan data
+            SCAN_DATE=$(date -u '+%Y-%m-%d %H:%M:%S UTC')
+            SCAN_DATA=$(.github/scripts/generate-scan-report.sh \
+              "scan-results/${SAFE_NAME}.json" \
+              "scan-results/scans/${SAFE_NAME}.html" \
+              "$SERVICE" \
+              "$IMAGE_SIZE" \
+              "$SCAN_DATE" \
+              "$WORKFLOW_URL")
+
+            echo "$SCAN_DATA" >> "$SCAN_DATA_FILE"
+
+            # Aggressive cleanup
+            echo "Cleaning up..."
+            docker rmi "$IMAGE" || true
+            docker system prune -af --volumes
+
+            echo "Disk space after cleanup:"
+            df -h
+            echo ""
+          done
+
+          # Scan pre-built images
+          PREBUILT_TO_SCAN=$(echo "$PREBUILT_IMAGES" | jq -r '.[]')
+          for IMAGE in $PREBUILT_TO_SCAN; do
+            echo "=================================================="
+            echo "Scanning pre-built image: $IMAGE"
             echo "=================================================="
 
             # Pull image
@@ -113,7 +216,6 @@ jobs:
 
             # Get image details
             IMAGE_SIZE=$(docker images "$IMAGE" --format "{{.Size}}" | head -1)
-            IMAGE_ID=$(docker images "$IMAGE" --format "{{.ID}}" | head -1)
 
             # Generate safe filename
             SAFE_NAME=$(echo "$IMAGE" | sed 's/[^a-zA-Z0-9._-]/_/g')

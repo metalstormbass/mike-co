@@ -10,6 +10,12 @@ These branches represent separate parallel development tracks that must remain i
 
 Merging these branches into each other will cause conflicts and break the intended separation of concerns.
 
+## Critical: Keep .claudemd in Sync
+
+**ALWAYS KEEP THIS FILE (.claudemd) IDENTICAL ACROSS BOTH BRANCHES.**
+
+Any updates to project-wide instructions in this file must be applied to both `original` and `chainguard` branches. This file contains rules that apply to the entire project, not just one implementation.
+
 ## Documentation Maintenance
 
 **Always check what was changed and update the README accordingly.**

@@ -5,7 +5,8 @@ WORKDIR /app
 # Install system dependencies and Python packages, then clean up
 
 COPY requirements-cpu.txt .
-RUN pip install --no-cache-dir -r requirements-cpu.txt && rm -rf /root/.cache/pip
+RUN pip install --no-cache-dir -r requirements-cpu.txt \
+    && rm -rf /root/.cache/pip
 
 COPY src/ ./src/
 

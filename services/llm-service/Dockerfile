@@ -3,7 +3,8 @@ USER root
 WORKDIR /app
 
 COPY requirements-cpu.txt .
-RUN pip install --no-cache-dir -r requirements-cpu.txt && rm -rf /root/.cache/pip
+RUN pip install --no-cache-dir -r requirements-cpu.txt \
+    && rm -rf /root/.cache/pip
 
 COPY src/ ./src/
 

@@ -57,10 +57,12 @@ cat > "$OUTPUT_HTML" << 'MAINHTML'
         .per-image-content.expanded { max-height: 5000px; transition: max-height 0.6s ease-in; }
         .image-comparison-table { width: 100%; background: #09090b; border-radius: 16px; overflow: hidden; margin-top: 20px; }
         .image-comparison-table th { background: #27272a; color: #fafafa; font-weight: 600; text-transform: uppercase; font-size: 0.75em; letter-spacing: 0.5px; padding: 12px 8px; }
+        .image-comparison-table th.cg-header { background: linear-gradient(135deg, #0e7490, #0891b2); color: white; }
         .image-comparison-table td { border-bottom: 1px solid #27272a; font-size: 0.9em; padding: 12px 8px; text-align: center; }
         .image-comparison-table tr:last-child td { border-bottom: none; }
         .image-comparison-table .image-name { text-align: left; font-weight: 600; color: #e4e4e7; font-size: 0.85em; max-width: 300px; word-break: break-word; }
         .severity-cell { font-weight: 600; }
+        .severity-cell.cg-cell { background: #0e7490; background: rgba(8, 145, 178, 0.1); }
         .improvement-cell { font-weight: 700; color: #4ade80; }
         .improvement-negative { color: #f87171; }
         .small-winner { background: linear-gradient(135deg, #065f46, #047857); color: white !important; font-weight: 700 !important; padding: 4px 8px !important; border-radius: 6px; }
@@ -71,10 +73,6 @@ cat > "$OUTPUT_HTML" << 'MAINHTML'
         <div class="header">
             <h1>Security Scan Results</h1>
             <p class="subtitle">Container Image Vulnerability Comparison</p>
-            <p class="description">
-                Automated security scans comparing Chainguard hardened images against standard base images.
-                Scans run on every push and weekly using Grype vulnerability scanner.
-            </p>
         </div>
 
         <div class="comparison">
@@ -140,15 +138,15 @@ cat > "$OUTPUT_HTML" << 'MAINHTML'
                         <tr>
                             <th class="image-name">Image</th>
                             <th>Orig<br>Critical</th>
-                            <th>CG<br>Critical</th>
+                            <th class="cg-header">CG<br>Critical</th>
                             <th>Orig<br>High</th>
-                            <th>CG<br>High</th>
+                            <th class="cg-header">CG<br>High</th>
                             <th>Orig<br>Medium</th>
-                            <th>CG<br>Medium</th>
+                            <th class="cg-header">CG<br>Medium</th>
                             <th>Orig<br>Low</th>
-                            <th>CG<br>Low</th>
+                            <th class="cg-header">CG<br>Low</th>
                             <th>Orig<br>Total</th>
-                            <th>CG<br>Total</th>
+                            <th class="cg-header">CG<br>Total</th>
                             <th>Improvement</th>
                         </tr>
                     </thead>
@@ -278,6 +276,20 @@ cat > "$OUTPUT_HTML" << 'MAINHTML'
 
         function loadPerImageComparison(origData, cgData) {
             try {
+                // Image mapping between original and chainguard branches
+                const imageMapping = {
+                    'ollama/ollama:latest': 'cgr.dev/mikeco.com/ollama:latest-dev',
+                    'opensearchproject/opensearch:2.11.0': 'cgr.dev/mikeco.com/opensearch:2',
+                    'postgres:16-bookworm': 'cgr.dev/mikeco.com/postgres:16',
+                    'redis:7-bookworm': 'cgr.dev/mikeco.com/redis:7'
+                };
+
+                // Reverse mapping for looking up
+                const reverseMapping = {};
+                Object.entries(imageMapping).forEach(([orig, cg]) => {
+                    reverseMapping[cg] = orig;
+                });
+
                 // Parse image data from both branches
                 const parseImageData = (data) => {
                     const imageMap = {};
@@ -298,19 +310,42 @@ cat > "$OUTPUT_HTML" << 'MAINHTML'
                 const origImages = parseImageData(origData);
                 const cgImages = parseImageData(cgData);
 
-                // Get all unique image names
-                const allImageNames = new Set([...Object.keys(origImages), ...Object.keys(cgImages)]);
+                // Create unified comparison list
+                const comparisons = [];
 
-                // Sort image names
-                const sortedImageNames = Array.from(allImageNames).sort();
+                // Process all original images
+                Object.keys(origImages).forEach(origName => {
+                    const cgName = imageMapping[origName] || origName;
+                    const displayName = origName.includes('cgr.dev') ? origName : origName;
+
+                    comparisons.push({
+                        displayName: displayName,
+                        orig: origImages[origName],
+                        cg: cgImages[cgName] || { critical: 0, high: 0, medium: 0, low: 0, total: 0 }
+                    });
+                });
+
+                // Add any CG-only images that weren't mapped
+                Object.keys(cgImages).forEach(cgName => {
+                    const origName = reverseMapping[cgName] || cgName;
+                    if (!origImages[origName] && !origImages[cgName]) {
+                        comparisons.push({
+                            displayName: cgName,
+                            orig: { critical: 0, high: 0, medium: 0, low: 0, total: 0 },
+                            cg: cgImages[cgName]
+                        });
+                    }
+                });
+
+                // Sort by display name
+                comparisons.sort((a, b) => a.displayName.localeCompare(b.displayName));
 
                 // Generate table rows
                 const tbody = document.getElementById('per-image-tbody');
                 tbody.innerHTML = '';
 
-                sortedImageNames.forEach(imageName => {
-                    const orig = origImages[imageName] || { critical: 0, high: 0, medium: 0, low: 0, total: 0 };
-                    const cg = cgImages[imageName] || { critical: 0, high: 0, medium: 0, low: 0, total: 0 };
+                comparisons.forEach(comp => {
+                    const { displayName, orig, cg } = comp;
 
                     const improvement = orig.total === 0
                         ? (cg.total === 0 ? 0 : -100)
@@ -318,23 +353,26 @@ cat > "$OUTPUT_HTML" << 'MAINHTML'
 
                     const row = document.createElement('tr');
 
-                    // Apply winner class to better performing cells
-                    const getCellClass = (origVal, cgVal) => {
-                        return cgVal < origVal ? 'severity-cell small-winner' : 'severity-cell';
+                    // Apply winner class and cg-cell class to better performing cells
+                    const getCellClass = (origVal, cgVal, isCg) => {
+                        const base = isCg ? 'severity-cell cg-cell' : 'severity-cell';
+                        const winner = cgVal < origVal ? ' small-winner' : '';
+                        const col = isCg ? ' chainguard-col' : ' original-col';
+                        return base + winner + col;
                     };
 
                     row.innerHTML = `
-                        <td class="image-name">${imageName}</td>
+                        <td class="image-name">${displayName}</td>
                         <td class="severity-cell original-col">${orig.critical}</td>
-                        <td class="${getCellClass(orig.critical, cg.critical)} chainguard-col">${cg.critical}</td>
+                        <td class="${getCellClass(orig.critical, cg.critical, true)}">${cg.critical}</td>
                         <td class="severity-cell original-col">${orig.high}</td>
-                        <td class="${getCellClass(orig.high, cg.high)} chainguard-col">${cg.high}</td>
+                        <td class="${getCellClass(orig.high, cg.high, true)}">${cg.high}</td>
                         <td class="severity-cell original-col">${orig.medium}</td>
-                        <td class="${getCellClass(orig.medium, cg.medium)} chainguard-col">${cg.medium}</td>
+                        <td class="${getCellClass(orig.medium, cg.medium, true)}">${cg.medium}</td>
                         <td class="severity-cell original-col">${orig.low}</td>
-                        <td class="${getCellClass(orig.low, cg.low)} chainguard-col">${cg.low}</td>
+                        <td class="${getCellClass(orig.low, cg.low, true)}">${cg.low}</td>
                         <td class="severity-cell original-col"><strong>${orig.total}</strong></td>
-                        <td class="${getCellClass(orig.total, cg.total)} chainguard-col"><strong>${cg.total}</strong></td>
+                        <td class="${getCellClass(orig.total, cg.total, true)}"><strong>${cg.total}</strong></td>
                         <td class="${improvement > 0 ? 'improvement-cell' : (improvement < 0 ? 'improvement-negative' : '')}">
                             ${improvement > 0 ? '↓ ' + improvement.toFixed(1) + '%' : (improvement < 0 ? '↑ ' + Math.abs(improvement).toFixed(1) + '%' : '=')}
                         </td>

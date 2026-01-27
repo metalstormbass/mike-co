@@ -529,8 +529,12 @@ jobs:
 
       - name: Fetch both branches for git diff
         run: |
-          git fetch origin original:original
-          git fetch origin chainguard:chainguard
+          # Fetch both branches into remote tracking branches
+          git fetch origin original
+          git fetch origin chainguard
+
+          # List all branches to verify
+          echo "=== Available branches ==="
           git branch -a
 
       - name: Download original scan results

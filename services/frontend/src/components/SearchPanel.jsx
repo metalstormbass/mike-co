@@ -29,7 +29,8 @@ function SearchPanel() {
 
       if (response.ok) {
         const data = await response.json()
-        setResults(data.results || [])
+        // API returns array directly, not {results: [...]}
+        setResults(Array.isArray(data) ? data : [])
       } else {
         setError('Failed to search. Please try again.')
       }

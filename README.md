@@ -55,6 +55,35 @@ Automated vulnerability scans run on every push and weekly, comparing Chainguard
 
 2. **Query/Chat**: User asks question → nginx → api-gateway → llm-service → embedding-service (query embedding) → OpenSearch (k-NN search) → Ollama (response generation) → User
 
+## Features
+
+### 💬 Conversational AI Chat
+- Ask questions about your uploaded documents
+- Get intelligent answers powered by RAG (Retrieval-Augmented Generation)
+- Automatic source citations with relevance scores
+- Context-aware responses using semantic search
+
+### 🔍 Semantic Search
+- Search your knowledge base without LLM processing
+- View raw document chunks matching your query
+- Relevance scoring (0-100%) for each result
+- Fast exploration of document contents
+- Filter results by document and metadata
+
+### 📄 Document Management
+- Support for PDF, DOCX, TXT, MD, and HTML files
+- Automatic text extraction and chunking
+- Real-time processing status tracking
+- Vector embeddings for semantic search (384-dimensional)
+- Metadata storage for filtering and organization
+
+### 🎯 Key Capabilities
+- **Two Search Modes**: Chat with LLM or direct semantic search
+- **Source Transparency**: See exactly which documents informed each answer
+- **Flexible LLM Backends**: Choose between local (Ollama) or cloud (OpenAI)
+- **Real-time Updates**: Track document processing status
+- **Modern UI**: Dark mode interface with gradient accents
+
 ## Services
 
 | Service | Description | Port |
@@ -122,14 +151,14 @@ chainctl auth login
 The RAG system supports multiple LLM backends:
 
 ### Ollama (Default - Local)
-Runs locally using the Mistral model. No API key required.
+Runs locally using the Phi model (smaller/faster). No API key required.
 
 ```yaml
 # docker-compose.yaml
 environment:
   - USE_OLLAMA=true
   - OLLAMA_URL=http://ollama:11434
-  - OLLAMA_MODEL=mistral  # or llama3, codellama, etc.
+  - OLLAMA_MODEL=phi  # or mistral, tinyllama, llama3, etc.
 ```
 
 ### OpenAI (Cloud)

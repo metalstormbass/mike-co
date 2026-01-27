@@ -14,13 +14,13 @@ generate_diff_html() {
     git diff origin/original:${file_path} origin/chainguard:${file_path} 2>/dev/null || echo "# Files are identical or don't exist in both branches"
 }
 
-# Get list of all Dockerfiles (CPU versions only, GPU removed)
+# Get list of all Dockerfiles
 DOCKERFILES=(
     "services/api-gateway/Dockerfile"
     "services/document-processor/Dockerfile"
-    "services/embedding-service/Dockerfile.cpu"
+    "services/embedding-service/Dockerfile"
     "services/frontend/Dockerfile"
-    "services/llm-service/Dockerfile.cpu"
+    "services/llm-service/Dockerfile"
     "services/nginx/Dockerfile"
 )
 
@@ -418,10 +418,8 @@ cat >> "$OUTPUT_HTML" << 'HTMLEND'
             'services_api-gateway_Dockerfile': 'api-gateway',
             'services_document-processor_Dockerfile': 'document-processor',
             'services_embedding-service_Dockerfile': 'embedding-service',
-            'services_embedding-service_Dockerfile_cpu': 'embedding-service',
             'services_frontend_Dockerfile': 'frontend',
             'services_llm-service_Dockerfile': 'llm-service',
-            'services_llm-service_Dockerfile_cpu': 'llm-service',
             'services_nginx_Dockerfile': 'nginx'
         };
 
@@ -564,14 +562,14 @@ import json
 import sys
 import os
 
-# File paths to compare (CPU versions only, GPU removed)
+# File paths to compare
 files_to_compare = {
     "compose": "docker-compose.yaml",
     "services_api-gateway_Dockerfile": "services/api-gateway/Dockerfile",
     "services_document-processor_Dockerfile": "services/document-processor/Dockerfile",
-    "services_embedding-service_Dockerfile_cpu": "services/embedding-service/Dockerfile.cpu",
+    "services_embedding-service_Dockerfile": "services/embedding-service/Dockerfile",
     "services_frontend_Dockerfile": "services/frontend/Dockerfile",
-    "services_llm-service_Dockerfile_cpu": "services/llm-service/Dockerfile.cpu",
+    "services_llm-service_Dockerfile": "services/llm-service/Dockerfile",
     "services_nginx_Dockerfile": "services/nginx/Dockerfile"
 }
 

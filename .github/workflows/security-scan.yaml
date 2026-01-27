@@ -244,12 +244,43 @@ jobs:
             echo ""
           done
 
-      - name: Generate summary page
+      - name: Generate summary page and JSON
         run: |
           .github/scripts/generate-summary.sh \
             "scan-results/summary-data.txt" \
             "scan-results/index.html" \
             "original"
+
+          # Convert summary data to JSON for easier consumption
+          python3 << 'PYTHON_JSON'
+          import json
+          import sys
+
+          scans = []
+          with open('scan-results/summary-data.txt', 'r') as f:
+              for line in f:
+                  line = line.strip()
+                  if not line:
+                      continue
+                  parts = line.split('|')
+                  if len(parts) >= 9:
+                      scans.append({
+                          'image': parts[0],
+                          'size': parts[1],
+                          'scanDate': parts[2],
+                          'critical': int(parts[3]),
+                          'high': int(parts[4]),
+                          'medium': int(parts[5]),
+                          'low': int(parts[6]),
+                          'negligible': int(parts[7]),
+                          'total': int(parts[8])
+                      })
+
+          with open('scan-results/scan-results.json', 'w') as f:
+              json.dump(scans, f, indent=2)
+
+          print(f"Generated JSON with {len(scans)} scans", file=sys.stderr)
+          PYTHON_JSON
 
       - name: Upload scan results
         uses: actions/upload-artifact@v4
@@ -500,12 +531,43 @@ jobs:
             echo ""
           done
 
-      - name: Generate summary page
+      - name: Generate summary page and JSON
         run: |
           .github/scripts/generate-summary.sh \
             "scan-results/summary-data.txt" \
             "scan-results/index.html" \
             "chainguard"
+
+          # Convert summary data to JSON for easier consumption
+          python3 << 'PYTHON_JSON'
+          import json
+          import sys
+
+          scans = []
+          with open('scan-results/summary-data.txt', 'r') as f:
+              for line in f:
+                  line = line.strip()
+                  if not line:
+                      continue
+                  parts = line.split('|')
+                  if len(parts) >= 9:
+                      scans.append({
+                          'image': parts[0],
+                          'size': parts[1],
+                          'scanDate': parts[2],
+                          'critical': int(parts[3]),
+                          'high': int(parts[4]),
+                          'medium': int(parts[5]),
+                          'low': int(parts[6]),
+                          'negligible': int(parts[7]),
+                          'total': int(parts[8])
+                      })
+
+          with open('scan-results/scan-results.json', 'w') as f:
+              json.dump(scans, f, indent=2)
+
+          print(f"Generated JSON with {len(scans)} scans", file=sys.stderr)
+          PYTHON_JSON
 
       - name: Upload scan results
         uses: actions/upload-artifact@v4
@@ -580,18 +642,22 @@ jobs:
           mkdir -p gh-pages/chainguard
           mkdir -p gh-pages/chainguard/scans
           mkdir -p gh-pages/migration
+          mkdir -p gh-pages/data
 
           # Copy original branch results
           cp scan-results-original/index.html gh-pages/original/
           cp scan-results-original/scans/*.html gh-pages/original/scans/ 2>/dev/null || true
+          cp scan-results-original/scan-results.json gh-pages/data/original.json
 
           # Copy chainguard branch results
           cp scan-results-chainguard/index.html gh-pages/chainguard/
           cp scan-results-chainguard/scans/*.html gh-pages/chainguard/scans/ 2>/dev/null || true
+          cp scan-results-chainguard/scan-results.json gh-pages/data/chainguard.json
 
           echo "=== Verify files copied ==="
           ls -la gh-pages/original/
           ls -la gh-pages/chainguard/
+          ls -la gh-pages/data/
 
       - name: Generate main index page
         run: |

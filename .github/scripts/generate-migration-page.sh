@@ -433,38 +433,19 @@ cat >> "$OUTPUT_HTML" << 'HTMLEND'
 
         async function loadVulnerabilityStats() {
             try {
-                // Add cache-busting timestamp
-                const cacheBuster = new Date().getTime();
-
-                // Fetch both index pages with cache-busting
+                // Fetch JSON data files directly
                 const [origResponse, cgResponse] = await Promise.all([
-                    fetch(`../original/index.html?v=${cacheBuster}`, {
-                        cache: 'no-cache',
-                        headers: { 'Cache-Control': 'no-cache, no-store, must-revalidate' }
-                    }),
-                    fetch(`../chainguard/index.html?v=${cacheBuster}`, {
-                        cache: 'no-cache',
-                        headers: { 'Cache-Control': 'no-cache, no-store, must-revalidate' }
-                    })
+                    fetch('../data/original.json'),
+                    fetch('../data/chainguard.json')
                 ]);
 
-                const origText = await origResponse.text();
-                const cgText = await cgResponse.text();
+                if (!origResponse.ok || !cgResponse.ok) {
+                    console.error('Failed to fetch scan data');
+                    return;
+                }
 
-                // Extract scan data
-                const extractData = (html) => {
-                    const match = html.match(/const scanData = (\[[\s\S]*?\]);/);
-                    if (!match) return null;
-                    try {
-                        return JSON.parse(match[1]);
-                    } catch (e) {
-                        console.error('Failed to parse scanData:', e);
-                        return null;
-                    }
-                };
-
-                const origData = extractData(origText);
-                const cgData = extractData(cgText);
+                const origData = await origResponse.json();
+                const cgData = await cgResponse.json();
 
                 if (!origData || !cgData) return;
 
@@ -472,13 +453,12 @@ cat >> "$OUTPUT_HTML" << 'HTMLEND'
                 const parseScans = (data) => {
                     const map = {};
                     data.forEach(scan => {
-                        const parts = scan.split('|');
-                        map[parts[0]] = {
-                            critical: parseInt(parts[3]) || 0,
-                            high: parseInt(parts[4]) || 0,
-                            medium: parseInt(parts[5]) || 0,
-                            low: parseInt(parts[6]) || 0,
-                            total: parseInt(parts[8]) || 0
+                        map[scan.image] = {
+                            critical: scan.critical || 0,
+                            high: scan.high || 0,
+                            medium: scan.medium || 0,
+                            low: scan.low || 0,
+                            total: scan.total || 0
                         };
                     });
                     return map;

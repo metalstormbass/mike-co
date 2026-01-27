@@ -551,9 +551,8 @@ echo "Generating diffs..."
 # Start building the JavaScript object
 DIFF_JS="{"
 
-# Ensure we have the latest remote refs
-git fetch origin original 2>/dev/null || true
-git fetch origin chainguard 2>/dev/null || true
+# Remote refs are already fetched by the workflow
+# No need to fetch again here
 
 # Use Python to generate diffs and create the JavaScript object
 python3 << PYTHON_DIFF_SCRIPT

@@ -15,12 +15,259 @@ permissions:
   id-token: write
 
 jobs:
-  scan-images:
+  # Scan original branch images
+  scan-original:
+    name: Scan Original Branch
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
+      - name: Checkout original branch
         uses: actions/checkout@v4
+        with:
+          ref: original
+
+      - name: Install yq
+        run: |
+          sudo wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
+          sudo chmod +x /usr/local/bin/yq
+
+      - name: Extract services from docker-compose
+        id: services
+        run: |
+          # Get list of all services
+          SERVICES=$(yq eval '.services | keys | .[]' docker-compose.yaml)
+
+          # Arrays to track services that need building vs pre-built images
+          BUILD_SERVICES=()
+          PREBUILT_IMAGES=()
+
+          for SERVICE in $SERVICES; do
+            # Check if service has build directive
+            HAS_BUILD=$(yq eval ".services.${SERVICE} | has(\"build\")" docker-compose.yaml)
+
+            if [ "$HAS_BUILD" = "true" ]; then
+              BUILD_SERVICES+=("$SERVICE")
+              echo "Service '$SERVICE' needs building"
+            else
+              # Get the image name
+              IMAGE=$(yq eval ".services.${SERVICE}.image" docker-compose.yaml)
+              if [ "$IMAGE" != "null" ]; then
+                PREBUILT_IMAGES+=("$IMAGE")
+                echo "Service '$SERVICE' uses pre-built image: $IMAGE"
+              fi
+            fi
+          done
+
+          # Convert to JSON arrays
+          BUILD_SERVICES_JSON=$(printf '%s\n' "${BUILD_SERVICES[@]}" | jq -R -s -c 'split("\n") | map(select(length > 0))')
+          PREBUILT_IMAGES_JSON=$(printf '%s\n' "${PREBUILT_IMAGES[@]}" | jq -R -s -c 'split("\n") | map(select(length > 0))')
+
+          echo "build_services=$BUILD_SERVICES_JSON" >> $GITHUB_OUTPUT
+          echo "prebuilt_images=$PREBUILT_IMAGES_JSON" >> $GITHUB_OUTPUT
+
+          echo "Services to build: ${BUILD_SERVICES[@]}"
+          echo "Pre-built images: ${PREBUILT_IMAGES[@]}"
+
+      - name: Free up disk space
+        run: |
+          echo "Disk space before cleanup:"
+          df -h
+
+          # Remove large unnecessary packages
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /usr/local/lib/android
+          sudo rm -rf /opt/ghc
+          sudo rm -rf /opt/hostedtoolcache/CodeQL
+          sudo rm -rf /usr/local/share/boost
+          sudo rm -rf "$AGENT_TOOLSDIRECTORY"
+
+          # Clean apt cache
+          sudo apt-get clean
+          sudo apt-get autoremove -y
+
+          # Clean Docker
+          docker system prune -af --volumes
+
+          echo "Disk space after cleanup:"
+          df -h
+
+      - name: Install Grype
+        run: |
+          curl -sSfL https://raw.githubusercontent.com/anchore/grype/main/install.sh | sh -s -- -b /usr/local/bin
+
+      - name: Make scripts executable
+        run: |
+          chmod +x .github/scripts/*.sh
+
+      - name: Build custom images
+        env:
+          BUILD_SERVICES: ${{ steps.services.outputs.build_services }}
+        run: |
+          # Parse JSON array of services to build
+          SERVICES_TO_BUILD=$(echo "$BUILD_SERVICES" | jq -r '.[]')
+
+          for SERVICE in $SERVICES_TO_BUILD; do
+            echo "=================================================="
+            echo "Building service: $SERVICE"
+            echo "=================================================="
+
+            # Get build context and dockerfile if specified
+            BUILD_CONTEXT=$(yq eval ".services.${SERVICE}.build.context // .services.${SERVICE}.build" docker-compose.yaml)
+            DOCKERFILE=$(yq eval ".services.${SERVICE}.build.dockerfile // \"Dockerfile\"" docker-compose.yaml)
+
+            # Handle relative paths
+            if [ "$BUILD_CONTEXT" = "null" ]; then
+              BUILD_CONTEXT="./services/${SERVICE}"
+            fi
+
+            # Build the image and tag it as the service name for scanning
+            echo "Building from context: $BUILD_CONTEXT with dockerfile: $DOCKERFILE"
+
+            if [ "$DOCKERFILE" != "null" ] && [ "$DOCKERFILE" != "Dockerfile" ]; then
+              docker build -t "${SERVICE}:scan" -f "${BUILD_CONTEXT}/${DOCKERFILE}" "$BUILD_CONTEXT"
+            else
+              docker build -t "${SERVICE}:scan" "$BUILD_CONTEXT"
+            fi
+
+            echo "Successfully built ${SERVICE}:scan"
+            echo ""
+          done
+
+      - name: Scan images
+        env:
+          BUILD_SERVICES: ${{ steps.services.outputs.build_services }}
+          PREBUILT_IMAGES: ${{ steps.services.outputs.prebuilt_images }}
+          WORKFLOW_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          mkdir -p scan-results
+          mkdir -p scan-results/scans
+
+          # Track scan data
+          SCAN_DATA_FILE="scan-results/summary-data.txt"
+          > "$SCAN_DATA_FILE"
+
+          # Scan built images first
+          SERVICES_TO_SCAN=$(echo "$BUILD_SERVICES" | jq -r '.[]')
+          for SERVICE in $SERVICES_TO_SCAN; do
+            IMAGE="${SERVICE}:scan"
+            echo "=================================================="
+            echo "Scanning built image: $IMAGE"
+            echo "=================================================="
+
+            # Get image details
+            IMAGE_SIZE=$(docker images "$IMAGE" --format "{{.Size}}" | head -1)
+
+            # Generate safe filename
+            SAFE_NAME=$(echo "$SERVICE" | sed 's/[^a-zA-Z0-9._-]/_/g')
+
+            # Run Grype scan
+            echo "Running Grype scan..."
+            TMPDIR="${GITHUB_WORKSPACE}/tmp"
+            mkdir -p "$TMPDIR"
+
+            grype "$IMAGE" -o json > "scan-results/${SAFE_NAME}.json" || true
+
+            rm -rf "$TMPDIR"
+
+            # Generate HTML report and get scan data
+            SCAN_DATE=$(date -u '+%Y-%m-%d %H:%M:%S UTC')
+            SCAN_DATA=$(.github/scripts/generate-scan-report.sh \
+              "scan-results/${SAFE_NAME}.json" \
+              "scan-results/scans/${SAFE_NAME}.html" \
+              "$SERVICE" \
+              "$IMAGE_SIZE" \
+              "$SCAN_DATE" \
+              "$WORKFLOW_URL")
+
+            echo "$SCAN_DATA" >> "$SCAN_DATA_FILE"
+
+            # Cleanup - only remove the scanned image, don't prune yet
+            echo "Cleaning up scanned image..."
+            docker rmi "$IMAGE" || true
+
+            echo "Disk space after scan:"
+            df -h
+            echo ""
+          done
+
+          # Run system prune after all built images are scanned
+          echo "Running cleanup after built images..."
+          docker system prune -af --volumes
+
+          # Scan pre-built images
+          PREBUILT_TO_SCAN=$(echo "$PREBUILT_IMAGES" | jq -r '.[]')
+          for IMAGE in $PREBUILT_TO_SCAN; do
+            echo "=================================================="
+            echo "Scanning pre-built image: $IMAGE"
+            echo "=================================================="
+
+            # Pull image
+            if ! docker pull "$IMAGE" 2>&1; then
+              echo "Failed to pull $IMAGE, skipping..."
+              continue
+            fi
+
+            # Get image details
+            IMAGE_SIZE=$(docker images "$IMAGE" --format "{{.Size}}" | head -1)
+
+            # Generate safe filename
+            SAFE_NAME=$(echo "$IMAGE" | sed 's/[^a-zA-Z0-9._-]/_/g')
+
+            # Run Grype scan
+            echo "Running Grype scan..."
+            TMPDIR="${GITHUB_WORKSPACE}/tmp"
+            mkdir -p "$TMPDIR"
+
+            grype "$IMAGE" -o json > "scan-results/${SAFE_NAME}.json" || true
+
+            rm -rf "$TMPDIR"
+
+            # Generate HTML report and get scan data
+            SCAN_DATE=$(date -u '+%Y-%m-%d %H:%M:%S UTC')
+            SCAN_DATA=$(.github/scripts/generate-scan-report.sh \
+              "scan-results/${SAFE_NAME}.json" \
+              "scan-results/scans/${SAFE_NAME}.html" \
+              "$IMAGE" \
+              "$IMAGE_SIZE" \
+              "$SCAN_DATE" \
+              "$WORKFLOW_URL")
+
+            echo "$SCAN_DATA" >> "$SCAN_DATA_FILE"
+
+            # Cleanup after each prebuilt image
+            echo "Cleaning up..."
+            docker rmi "$IMAGE" || true
+            docker system prune -af --volumes
+
+            echo "Disk space after cleanup:"
+            df -h
+            echo ""
+          done
+
+      - name: Generate summary page
+        run: |
+          .github/scripts/generate-summary.sh \
+            "scan-results/summary-data.txt" \
+            "scan-results/index.html" \
+            "original"
+
+      - name: Upload scan results
+        uses: actions/upload-artifact@v4
+        with:
+          name: scan-results-original
+          path: scan-results/
+          retention-days: 7
+
+  # Scan chainguard branch images
+  scan-chainguard:
+    name: Scan Chainguard Branch
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout chainguard branch
+        uses: actions/checkout@v4
+        with:
+          ref: chainguard
 
       - name: Install yq
         run: |
@@ -146,7 +393,6 @@ jobs:
         env:
           BUILD_SERVICES: ${{ steps.services.outputs.build_services }}
           PREBUILT_IMAGES: ${{ steps.services.outputs.prebuilt_images }}
-          BRANCH_NAME: ${{ github.ref_name }}
           WORKFLOW_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
           mkdir -p scan-results
@@ -255,38 +501,74 @@ jobs:
           done
 
       - name: Generate summary page
-        env:
-          BRANCH_NAME: ${{ github.ref_name }}
         run: |
           .github/scripts/generate-summary.sh \
             "scan-results/summary-data.txt" \
             "scan-results/index.html" \
-            "$BRANCH_NAME"
+            "chainguard"
+
+      - name: Upload scan results
+        uses: actions/upload-artifact@v4
+        with:
+          name: scan-results-chainguard
+          path: scan-results/
+          retention-days: 7
+
+  # Deploy to GitHub Pages only after both scans complete
+  deploy:
+    name: Deploy to GitHub Pages
+    needs: [scan-original, scan-chainguard]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/original' || github.ref == 'refs/heads/chainguard'
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download original scan results
+        uses: actions/download-artifact@v4
+        with:
+          name: scan-results-original
+          path: scan-results-original/
+
+      - name: Download chainguard scan results
+        uses: actions/download-artifact@v4
+        with:
+          name: scan-results-chainguard
+          path: scan-results-chainguard/
+
+      - name: Make scripts executable
+        run: |
+          chmod +x .github/scripts/*.sh
+
+      - name: Prepare GitHub Pages structure
+        run: |
+          mkdir -p gh-pages/original
+          mkdir -p gh-pages/original/scans
+          mkdir -p gh-pages/chainguard
+          mkdir -p gh-pages/chainguard/scans
+          mkdir -p gh-pages/migration
+
+          # Copy original branch results
+          cp scan-results-original/index.html gh-pages/original/
+          cp scan-results-original/scans/*.html gh-pages/original/scans/ 2>/dev/null || true
+
+          # Copy chainguard branch results
+          cp scan-results-chainguard/index.html gh-pages/chainguard/
+          cp scan-results-chainguard/scans/*.html gh-pages/chainguard/scans/ 2>/dev/null || true
+
+      - name: Generate main index page
+        run: |
+          .github/scripts/generate-main-index.sh gh-pages/index.html
 
       - name: Generate migration page
         run: |
-          mkdir -p gh-pages/migration
           .github/scripts/generate-migration-page.sh gh-pages/migration/index.html
-
-      - name: Prepare GitHub Pages deployment
-        run: |
-          mkdir -p gh-pages/${{ github.ref_name }}
-          mkdir -p gh-pages/${{ github.ref_name }}/scans
-
-          # Copy HTML files
-          cp scan-results/index.html gh-pages/${{ github.ref_name }}/
-          cp scan-results/scans/*.html gh-pages/${{ github.ref_name }}/scans/ 2>/dev/null || true
-
-          # Create main index if it doesn't exist
-          if [ ! -f gh-pages/index.html ]; then
-            .github/scripts/generate-main-index.sh gh-pages/index.html
-          fi
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
-        if: github.ref == 'refs/heads/original' || github.ref == 'refs/heads/chainguard'
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./gh-pages
-          keep_files: true
+          keep_files: false
           destination_dir: .

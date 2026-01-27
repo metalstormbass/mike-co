@@ -7,7 +7,7 @@ RUN apk add --no-cache \
     libmagic 
 
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt && rm -rf /root/.cache/pip
 
 COPY src/ ./src/
 

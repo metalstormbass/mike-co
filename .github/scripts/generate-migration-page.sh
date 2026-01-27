@@ -405,47 +405,72 @@ echo "Generating diffs..."
 # Start building the JavaScript object
 DIFF_JS="{"
 
-# Generate compose diff
-echo "  - docker-compose.yaml"
-COMPOSE_DIFF=$(git diff origin/original:docker-compose.yaml origin/chainguard:docker-compose.yaml 2>/dev/null | sed 's/\\/\\\\/g' | sed 's/"/\\"/g' | awk '{printf "%s\\n", $0}')
-DIFF_JS="${DIFF_JS}\"compose\": \"${COMPOSE_DIFF}\","
+# Ensure we have the latest remote refs
+git fetch origin original 2>/dev/null || true
+git fetch origin chainguard 2>/dev/null || true
 
-# Generate diffs for each Dockerfile
-for dockerfile in "${DOCKERFILES[@]}"; do
-    echo "  - $dockerfile"
-    safe_id=$(echo "$dockerfile" | sed 's/[\/.]/_/g')
-
-    DOCKERFILE_DIFF=$(git diff origin/original:${dockerfile} origin/chainguard:${dockerfile} 2>/dev/null | sed 's/\\/\\\\/g' | sed 's/"/\\"/g' | awk '{printf "%s\\n", $0}')
-    DIFF_JS="${DIFF_JS}\"${safe_id}\": \"${DOCKERFILE_DIFF}\","
-done
-
-# Remove trailing comma and close object
-DIFF_JS="${DIFF_JS%,}}"
-
-# Write the diff data to a temporary file
-TEMP_FILE=$(mktemp)
-echo "const diffs = ${DIFF_JS};" > "$TEMP_FILE"
-
-# Replace placeholder by reading from file
-python3 << PYTHON_SCRIPT
+# Use Python to generate diffs and create the JavaScript object
+python3 << PYTHON_DIFF_SCRIPT
+import subprocess
+import json
 import sys
+import os
 
-# Read the HTML file
+# File paths to compare
+files_to_compare = {
+    "compose": "docker-compose.yaml",
+    "services_api-gateway_Dockerfile": "services/api-gateway/Dockerfile",
+    "services_document-processor_Dockerfile": "services/document-processor/Dockerfile",
+    "services_embedding-service_Dockerfile": "services/embedding-service/Dockerfile",
+    "services_embedding-service_Dockerfile_cpu": "services/embedding-service/Dockerfile.cpu",
+    "services_frontend_Dockerfile": "services/frontend/Dockerfile",
+    "services_llm-service_Dockerfile": "services/llm-service/Dockerfile",
+    "services_llm-service_Dockerfile_cpu": "services/llm-service/Dockerfile.cpu",
+    "services_nginx_Dockerfile": "services/nginx/Dockerfile"
+}
+
+diffs = {}
+
+for key, filepath in files_to_compare.items():
+    print(f"  - {filepath}", file=sys.stderr)
+    try:
+        # Try with origin/ first
+        result = subprocess.run(
+            ['git', 'diff', f'origin/original:{filepath}', f'origin/chainguard:{filepath}'],
+            capture_output=True,
+            text=True
+        )
+        diff_text = result.stdout
+
+        # If that fails, try without origin/
+        if not diff_text or result.returncode != 0:
+            result = subprocess.run(
+                ['git', 'diff', f'original:{filepath}', f'chainguard:{filepath}'],
+                capture_output=True,
+                text=True
+            )
+            diff_text = result.stdout
+
+        diffs[key] = diff_text
+    except Exception as e:
+        print(f"Error getting diff for {filepath}: {e}", file=sys.stderr)
+        diffs[key] = ""
+
+# Read the HTML template
 with open('$OUTPUT_HTML', 'r') as f:
     html_content = f.read()
 
-# Read the JavaScript data
-with open('$TEMP_FILE', 'r') as f:
-    js_data = f.read().strip()
+# Create JavaScript object
+js_obj = 'const diffs = ' + json.dumps(diffs) + ';'
 
-# Replace the placeholder
-html_content = html_content.replace('const diffs = DIFF_DATA_PLACEHOLDER;', js_data)
+# Replace placeholder
+html_content = html_content.replace('const diffs = DIFF_DATA_PLACEHOLDER;', js_obj)
 
 # Write back
 with open('$OUTPUT_HTML', 'w') as f:
     f.write(html_content)
-PYTHON_SCRIPT
 
-rm -f "$TEMP_FILE"
+print("Diffs generated successfully", file=sys.stderr)
+PYTHON_DIFF_SCRIPT
 
 echo "Migration page generated: $OUTPUT_HTML"

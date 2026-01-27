@@ -191,16 +191,6 @@ cat > "$OUTPUT_HTML" << 'MAINHTML'
 
         async function loadComparisonData() {
             try {
-                // Show loading state
-                document.getElementById('comparison-body').innerHTML = `
-                    <tr><td colspan="4" style="text-align: center; padding: 20px; color: #a1a1aa;">
-                        <div style="display: flex; align-items: center; justify-content: center; gap: 10px;">
-                            <div style="width: 20px; height: 20px; border: 3px solid #27272a; border-top-color: #60a5fa; border-radius: 50%; animation: spin 1s linear infinite;"></div>
-                            Loading scan data...
-                        </div>
-                    </td></tr>
-                `;
-
                 // Fetch JSON data files directly
                 const [origResponse, cgResponse] = await Promise.all([
                     fetch('data/original.json'),
@@ -243,9 +233,11 @@ cat > "$OUTPUT_HTML" << 'MAINHTML'
                 // Update table
                 const updateCell = (id, value, isWinner = false) => {
                     const cell = document.getElementById(id);
-                    cell.textContent = value;
-                    cell.classList.remove('loading');
-                    if (isWinner) cell.classList.add('winner');
+                    if (cell) {
+                        cell.textContent = value;
+                        cell.classList.remove('loading');
+                        if (isWinner) cell.classList.add('winner');
+                    }
                 };
 
                 const calcImprovement = (origVal, cgVal) => {

@@ -522,8 +522,16 @@ jobs:
     if: github.ref == 'refs/heads/original' || github.ref == 'refs/heads/chainguard'
 
     steps:
-      - name: Checkout repository
+      - name: Checkout repository with full history
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Fetch both branches for git diff
+        run: |
+          git fetch origin original:original
+          git fetch origin chainguard:chainguard
+          git branch -a
 
       - name: Download original scan results
         uses: actions/download-artifact@v4
@@ -536,6 +544,26 @@ jobs:
         with:
           name: scan-results-chainguard
           path: scan-results-chainguard/
+
+      - name: Verify downloaded artifacts
+        run: |
+          echo "=== Original scan results ==="
+          ls -la scan-results-original/
+          echo ""
+          echo "=== Chainguard scan results ==="
+          ls -la scan-results-chainguard/
+          echo ""
+          echo "=== Checking for index files ==="
+          if [ -f scan-results-original/index.html ]; then
+            echo "✓ Original index.html found"
+          else
+            echo "✗ Original index.html NOT found"
+          fi
+          if [ -f scan-results-chainguard/index.html ]; then
+            echo "✓ Chainguard index.html found"
+          else
+            echo "✗ Chainguard index.html NOT found"
+          fi
 
       - name: Make scripts executable
         run: |
@@ -556,6 +584,10 @@ jobs:
           # Copy chainguard branch results
           cp scan-results-chainguard/index.html gh-pages/chainguard/
           cp scan-results-chainguard/scans/*.html gh-pages/chainguard/scans/ 2>/dev/null || true
+
+          echo "=== Verify files copied ==="
+          ls -la gh-pages/original/
+          ls -la gh-pages/chainguard/
 
       - name: Generate main index page
         run: |

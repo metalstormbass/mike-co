@@ -14,14 +14,12 @@ generate_diff_html() {
     git diff origin/original:${file_path} origin/chainguard:${file_path} 2>/dev/null || echo "# Files are identical or don't exist in both branches"
 }
 
-# Get list of all Dockerfiles
+# Get list of all Dockerfiles (CPU versions only, GPU removed)
 DOCKERFILES=(
     "services/api-gateway/Dockerfile"
     "services/document-processor/Dockerfile"
-    "services/embedding-service/Dockerfile"
     "services/embedding-service/Dockerfile.cpu"
     "services/frontend/Dockerfile"
-    "services/llm-service/Dockerfile"
     "services/llm-service/Dockerfile.cpu"
     "services/nginx/Dockerfile"
 )
@@ -125,11 +123,44 @@ cat > "$OUTPUT_HTML" << 'HTMLSTART'
             display: flex;
             align-items: center;
             gap: 12px;
+            flex: 1;
         }
 
         .file-icon {
             color: #60a5fa;
             font-size: 1.2em;
+        }
+
+        .vuln-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 12px;
+            border-radius: 6px;
+            font-size: 0.85em;
+            font-weight: 600;
+            margin-left: auto;
+            margin-right: 12px;
+        }
+
+        .vuln-badge.positive {
+            background: linear-gradient(135deg, #065f46, #047857);
+            color: white;
+        }
+
+        .vuln-badge.negative {
+            background: linear-gradient(135deg, #7f1d1d, #991b1b);
+            color: white;
+        }
+
+        .vuln-badge.neutral {
+            background: #3f3f46;
+            color: #a1a1aa;
+        }
+
+        .vuln-badge.loading {
+            background: #27272a;
+            color: #71717a;
         }
 
         .expand-icon {
@@ -296,6 +327,7 @@ cat > "$OUTPUT_HTML" << 'HTMLSTART'
                 <div class="diff-title">
                     <span class="file-icon">📄</span>
                     <span>docker-compose.yaml</span>
+                    <span class="vuln-badge loading" id="vuln-compose">Loading...</span>
                 </div>
                 <span class="expand-icon">▼</span>
             </div>
@@ -323,6 +355,7 @@ for dockerfile in "${DOCKERFILES[@]}"; do
                 <div class="diff-title">
                     <span class="file-icon">🐳</span>
                     <span>${display_name}</span>
+                    <span class="vuln-badge loading" id="vuln-${safe_id}">Loading...</span>
                 </div>
                 <span class="expand-icon">▼</span>
             </div>
@@ -380,6 +413,118 @@ cat >> "$OUTPUT_HTML" << 'HTMLEND'
             }).join('\n');
         }
 
+        // Service name mapping from dockerfile paths
+        const serviceMapping = {
+            'services_api-gateway_Dockerfile': 'api-gateway',
+            'services_document-processor_Dockerfile': 'document-processor',
+            'services_embedding-service_Dockerfile': 'embedding-service',
+            'services_embedding-service_Dockerfile_cpu': 'embedding-service',
+            'services_frontend_Dockerfile': 'frontend',
+            'services_llm-service_Dockerfile': 'llm-service',
+            'services_llm-service_Dockerfile_cpu': 'llm-service',
+            'services_nginx_Dockerfile': 'nginx'
+        };
+
+        // Infrastructure images affected by docker-compose changes
+        const composeAffectedImages = [
+            'ollama/ollama:latest',
+            'opensearchproject/opensearch:2.11.0',
+            'postgres:16-bookworm',
+            'redis:7-bookworm'
+        ];
+
+        async function loadVulnerabilityStats() {
+            try {
+                // Fetch both index pages
+                const [origResponse, cgResponse] = await Promise.all([
+                    fetch('../original/index.html'),
+                    fetch('../chainguard/index.html')
+                ]);
+
+                const origText = await origResponse.text();
+                const cgText = await cgResponse.text();
+
+                // Extract scan data
+                const extractData = (html) => {
+                    const match = html.match(/const scanData = (\[.*?\]);/s);
+                    if (!match) return null;
+                    return JSON.parse(match[1]);
+                };
+
+                const origData = extractData(origText);
+                const cgData = extractData(cgText);
+
+                if (!origData || !cgData) return;
+
+                // Parse scan data into maps
+                const parseScans = (data) => {
+                    const map = {};
+                    data.forEach(scan => {
+                        const parts = scan.split('|');
+                        map[parts[0]] = {
+                            critical: parseInt(parts[3]) || 0,
+                            high: parseInt(parts[4]) || 0,
+                            medium: parseInt(parts[5]) || 0,
+                            low: parseInt(parts[6]) || 0,
+                            total: parseInt(parts[8]) || 0
+                        };
+                    });
+                    return map;
+                };
+
+                const origScans = parseScans(origData);
+                const cgScans = parseScans(cgData);
+
+                // Image name mapping
+                const imageMapping = {
+                    'ollama/ollama:latest': 'cgr.dev/mikeco.com/ollama:latest-dev',
+                    'opensearchproject/opensearch:2.11.0': 'cgr.dev/mikeco.com/opensearch:2',
+                    'postgres:16-bookworm': 'cgr.dev/mikeco.com/postgres:16',
+                    'redis:7-bookworm': 'cgr.dev/mikeco.com/redis:7'
+                };
+
+                // Update docker-compose badge (sum of infrastructure images)
+                let composeTotalOrig = 0;
+                let composeTotalCg = 0;
+                composeAffectedImages.forEach(img => {
+                    composeTotalOrig += (origScans[img]?.total || 0);
+                    composeTotalCg += (cgScans[imageMapping[img] || img]?.total || 0);
+                });
+                updateVulnBadge('compose', composeTotalOrig, composeTotalCg);
+
+                // Update service badges
+                Object.entries(serviceMapping).forEach(([key, serviceName]) => {
+                    const origTotal = origScans[serviceName]?.total || 0;
+                    const cgTotal = cgScans[serviceName]?.total || 0;
+                    updateVulnBadge(key, origTotal, cgTotal);
+                });
+
+            } catch (error) {
+                console.error('Error loading vulnerability stats:', error);
+            }
+        }
+
+        function updateVulnBadge(id, origTotal, cgTotal) {
+            const badge = document.getElementById('vuln-' + id);
+            if (!badge) return;
+
+            const reduction = origTotal - cgTotal;
+            const reductionPercent = origTotal > 0 ? ((reduction / origTotal) * 100).toFixed(1) : 0;
+
+            badge.classList.remove('loading', 'positive', 'negative', 'neutral');
+
+            if (reduction > 0) {
+                badge.classList.add('positive');
+                badge.innerHTML = `↓ ${reduction} vulns (-${reductionPercent}%)`;
+            } else if (reduction < 0) {
+                badge.classList.add('negative');
+                badge.innerHTML = `↑ ${Math.abs(reduction)} vulns (+${Math.abs(reductionPercent)}%)`;
+            } else {
+                badge.classList.add('neutral');
+                badge.innerHTML = 'No change';
+            }
+        }
+
         // Load diff data
         const diffs = DIFF_DATA_PLACEHOLDER;
 
@@ -394,6 +539,9 @@ cat >> "$OUTPUT_HTML" << 'HTMLEND'
         // Update stats
         const dockerfileCount = Object.keys(diffs).filter(k => k !== 'compose').length;
         document.getElementById('dockerfile-count').textContent = dockerfileCount;
+
+        // Load vulnerability stats
+        loadVulnerabilityStats();
     </script>
 </body>
 </html>
@@ -416,15 +564,13 @@ import json
 import sys
 import os
 
-# File paths to compare
+# File paths to compare (CPU versions only, GPU removed)
 files_to_compare = {
     "compose": "docker-compose.yaml",
     "services_api-gateway_Dockerfile": "services/api-gateway/Dockerfile",
     "services_document-processor_Dockerfile": "services/document-processor/Dockerfile",
-    "services_embedding-service_Dockerfile": "services/embedding-service/Dockerfile",
     "services_embedding-service_Dockerfile_cpu": "services/embedding-service/Dockerfile.cpu",
     "services_frontend_Dockerfile": "services/frontend/Dockerfile",
-    "services_llm-service_Dockerfile": "services/llm-service/Dockerfile",
     "services_llm-service_Dockerfile_cpu": "services/llm-service/Dockerfile.cpu",
     "services_nginx_Dockerfile": "services/nginx/Dockerfile"
 }

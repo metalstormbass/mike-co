@@ -6,25 +6,22 @@ Container image for the **frontend** service.
 
 | Property | Value |
 |----------|-------|
-| **Image** | `ghcr.io/metalstormbass/mike-co/frontend` |
-| **Digest** | `sha256:9563ec7295b2412fee0042e4ae71255d98f88c9a8dfe982d36166cf0732d7c69` |
+| **Image** | `frontend:scan` |
+| **Digest** | `sha256:f84bfc58e08fb80afc691c63499e12d97f90a7a30d694499645d608798b4d6e2` |
 | **Size** | 16.50 MB |
-| **Scan Date** | 2026-01-26 21:54:36 UTC |
+| **Scan Date** | 2026-01-26 22:27:14 UTC |
 | **Scanner** | Grype |
+| **Workflow** | [View Run](https://github.com/metalstormbass/mike-co/actions/runs/21376333083) |
 
 ## Vulnerability Summary
 
 | Severity | Count |
 |----------|-------|
-| $\color{red}{\textsf{Critical}}$ | 0 |
-| $\color{orange}{\textsf{High}}$ | 1 |
-| $\color{gold}{\textsf{Medium}}$ | 0 |
-| $\color{green}{\textsf{Low}}$ | 0 |
-| $\color{gray}{\textsf{Negligible}}$ | 0 |
-| **Total** | **1** |
+| $\color{red}{\textsf{Critical}}$ |  |
+| $\color{orange}{\textsf{High}}$ |  |
+| $\color{gold}{\textsf{Medium}}$ |  |
+| $\color{green}{\textsf{Low}}$ |  |
+| $\color{gray}{\textsf{Negligible}}$ |  |
+| **Total** | **** |
 
-## Detailed Findings
-
-| Severity | Package | Version | Vulnerability | Fixed In |
-|----------|---------|---------|---------------|----------|
-| 🟠 High | glibc | 2.42-r6 | CVE-2025-15281 | N/A |
+✅ No vulnerabilities found.

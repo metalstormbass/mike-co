@@ -6,22 +6,101 @@
     <title>Security Scan Results</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Inter', sans-serif; background: #09090b; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; color: #e4e4e7; }
-        .container { background: #18181b; padding: 70px; border-radius: 24px; box-shadow: 0 10px 50px rgba(0,0,0,0.5); text-align: center; max-width: 700px; border: 1px solid #27272a; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Inter', sans-serif; background: #09090b; min-height: 100vh; padding: 40px 20px; color: #e4e4e7; }
+        .container { max-width: 1400px; margin: 0 auto; background: #18181b; padding: 60px; border-radius: 24px; box-shadow: 0 10px 50px rgba(0,0,0,0.5); border: 1px solid #27272a; }
+        .header { text-align: center; margin-bottom: 50px; }
         h1 { color: #fafafa; font-size: 3.5em; margin-bottom: 20px; font-weight: 900; background: linear-gradient(135deg, #60a5fa, #a78bfa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .subtitle { color: #a1a1aa; font-size: 1.3em; margin-bottom: 50px; font-weight: 500; }
-        .branches { display: flex; gap: 30px; justify-content: center; flex-wrap: wrap; }
+        .subtitle { color: #a1a1aa; font-size: 1.3em; margin-bottom: 20px; font-weight: 500; }
+        .description { color: #71717a; font-size: 1em; max-width: 700px; margin: 0 auto; line-height: 1.8; }
+
+        .comparison { margin: 50px 0; }
+        .comparison h2 { color: #fafafa; font-size: 2em; margin-bottom: 30px; text-align: center; font-weight: 700; }
+        .comparison-table { width: 100%; background: #09090b; border-radius: 16px; overflow: hidden; margin-bottom: 50px; }
+        .comparison-table th, .comparison-table td { padding: 20px; text-align: center; }
+        .comparison-table th { background: #27272a; color: #fafafa; font-weight: 600; text-transform: uppercase; font-size: 0.85em; letter-spacing: 0.5px; }
+        .comparison-table td { border-bottom: 1px solid #27272a; font-size: 1.1em; }
+        .comparison-table tr:last-child td { border-bottom: none; }
+        .comparison-table .metric-name { text-align: left; font-weight: 600; color: #e4e4e7; }
+        .original-col { color: #a78bfa; font-weight: 700; }
+        .chainguard-col { color: #06b6d4; font-weight: 700; }
+        .winner { background: linear-gradient(135deg, #065f46, #047857); color: white !important; font-weight: 800 !important; padding: 8px 16px !important; border-radius: 8px; }
+        .loading { color: #71717a; font-style: italic; }
+
+        .branches { display: flex; gap: 30px; justify-content: center; flex-wrap: wrap; margin-top: 40px; }
         .branch-link { display: block; padding: 35px 60px; background: linear-gradient(135deg, #1e3a8a, #1e40af); color: white; text-decoration: none; border-radius: 16px; font-size: 1.4em; font-weight: 700; transition: all 0.3s; border: 2px solid #1e40af; box-shadow: 0 4px 20px rgba(30,58,138,0.4); text-transform: uppercase; letter-spacing: 1px; }
         .branch-link:hover { transform: translateY(-8px); box-shadow: 0 8px 30px rgba(30,58,138,0.6); background: linear-gradient(135deg, #1e40af, #2563eb); }
         .chainguard { background: linear-gradient(135deg, #0e7490, #0891b2); border-color: #0891b2; box-shadow: 0 4px 20px rgba(8,145,178,0.4); }
         .chainguard:hover { background: linear-gradient(135deg, #0891b2, #06b6d4); box-shadow: 0 8px 30px rgba(8,145,178,0.6); }
         .icon { font-size: 1.2em; margin-right: 10px; }
+
+        .footer { text-align: center; margin-top: 50px; padding-top: 30px; border-top: 2px solid #27272a; color: #71717a; font-size: 0.95em; }
+        .footer a { color: #60a5fa; text-decoration: none; }
+        .footer a:hover { color: #93c5fd; }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Security Scan Results</h1>
-        <p class="subtitle">Container Image Vulnerability Scans</p>
+        <div class="header">
+            <h1>Security Scan Results</h1>
+            <p class="subtitle">Container Image Vulnerability Comparison</p>
+            <p class="description">
+                Automated security scans comparing Chainguard hardened images against standard base images.
+                Scans run on every push and weekly using Grype vulnerability scanner.
+            </p>
+        </div>
+
+        <div class="comparison">
+            <h2>📊 Vulnerability Comparison</h2>
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th class="metric-name">Metric</th>
+                        <th class="original-col">Original Images</th>
+                        <th class="chainguard-col">Chainguard Images</th>
+                        <th>Improvement</th>
+                    </tr>
+                </thead>
+                <tbody id="comparison-body">
+                    <tr>
+                        <td class="metric-name">Images Scanned</td>
+                        <td class="original-col loading" id="orig-images">Loading...</td>
+                        <td class="chainguard-col loading" id="cg-images">Loading...</td>
+                        <td id="diff-images">-</td>
+                    </tr>
+                    <tr>
+                        <td class="metric-name">🔴 Critical Vulnerabilities</td>
+                        <td class="original-col loading" id="orig-critical">Loading...</td>
+                        <td class="chainguard-col loading" id="cg-critical">Loading...</td>
+                        <td id="diff-critical">-</td>
+                    </tr>
+                    <tr>
+                        <td class="metric-name">🟠 High Vulnerabilities</td>
+                        <td class="original-col loading" id="orig-high">Loading...</td>
+                        <td class="chainguard-col loading" id="cg-high">Loading...</td>
+                        <td id="diff-high">-</td>
+                    </tr>
+                    <tr>
+                        <td class="metric-name">🟡 Medium Vulnerabilities</td>
+                        <td class="original-col loading" id="orig-medium">Loading...</td>
+                        <td class="chainguard-col loading" id="cg-medium">Loading...</td>
+                        <td id="diff-medium">-</td>
+                    </tr>
+                    <tr>
+                        <td class="metric-name">🟣 Low Vulnerabilities</td>
+                        <td class="original-col loading" id="orig-low">Loading...</td>
+                        <td class="chainguard-col loading" id="cg-low">Loading...</td>
+                        <td id="diff-low">-</td>
+                    </tr>
+                    <tr>
+                        <td class="metric-name"><strong>Total Vulnerabilities</strong></td>
+                        <td class="original-col loading" id="orig-total"><strong>Loading...</strong></td>
+                        <td class="chainguard-col loading" id="cg-total"><strong>Loading...</strong></td>
+                        <td id="diff-total"><strong>-</strong></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
         <div class="branches">
             <a href="original/" class="branch-link">
                 <span class="icon">🐳</span> Original Branch
@@ -30,6 +109,102 @@
                 <span class="icon">🔒</span> Chainguard Branch
             </a>
         </div>
+
+        <div class="footer">
+            <p>Scanned with <a href="https://github.com/anchore/grype" target="_blank">Grype</a> |
+               Powered by <a href="https://github.com/features/actions" target="_blank">GitHub Actions</a></p>
+        </div>
     </div>
+
+    <script>
+        async function loadComparisonData() {
+            try {
+                // Fetch both index pages
+                const [origResponse, cgResponse] = await Promise.all([
+                    fetch('original/index.html'),
+                    fetch('chainguard/index.html')
+                ]);
+
+                const origText = await origResponse.text();
+                const cgText = await cgResponse.text();
+
+                // Extract scan data from script tags using regex
+                const extractData = (html) => {
+                    const match = html.match(/const scanData = (\[.*?\]);/s);
+                    if (!match) return null;
+                    return JSON.parse(match[1]);
+                };
+
+                const origData = extractData(origText);
+                const cgData = extractData(cgText);
+
+                if (!origData || !cgData) {
+                    console.error('Failed to extract scan data');
+                    return;
+                }
+
+                // Calculate totals
+                const calculateTotals = (data) => {
+                    let critical = 0, high = 0, medium = 0, low = 0, total = 0;
+                    data.forEach(scan => {
+                        const parts = scan.split('|');
+                        critical += parseInt(parts[3]) || 0;
+                        high += parseInt(parts[4]) || 0;
+                        medium += parseInt(parts[5]) || 0;
+                        low += parseInt(parts[6]) || 0;
+                        total += parseInt(parts[8]) || 0;
+                    });
+                    return { images: data.length, critical, high, medium, low, total };
+                };
+
+                const orig = calculateTotals(origData);
+                const cg = calculateTotals(cgData);
+
+                // Update table
+                const updateCell = (id, value, isWinner = false) => {
+                    const cell = document.getElementById(id);
+                    cell.textContent = value;
+                    cell.classList.remove('loading');
+                    if (isWinner) cell.classList.add('winner');
+                };
+
+                const calcImprovement = (origVal, cgVal) => {
+                    if (origVal === 0) return cgVal === 0 ? '=' : '↑';
+                    const reduction = ((origVal - cgVal) / origVal * 100).toFixed(1);
+                    return reduction > 0 ? `↓ ${reduction}%` : reduction < 0 ? `↑ ${Math.abs(reduction)}%` : '=';
+                };
+
+                updateCell('orig-images', orig.images);
+                updateCell('cg-images', cg.images);
+                updateCell('diff-images', orig.images === cg.images ? '=' : `${cg.images - orig.images}`);
+
+                updateCell('orig-critical', orig.critical);
+                updateCell('cg-critical', cg.critical, cg.critical < orig.critical);
+                updateCell('diff-critical', calcImprovement(orig.critical, cg.critical));
+
+                updateCell('orig-high', orig.high);
+                updateCell('cg-high', cg.high, cg.high < orig.high);
+                updateCell('diff-high', calcImprovement(orig.high, cg.high));
+
+                updateCell('orig-medium', orig.medium);
+                updateCell('cg-medium', cg.medium, cg.medium < orig.medium);
+                updateCell('diff-medium', calcImprovement(orig.medium, cg.medium));
+
+                updateCell('orig-low', orig.low);
+                updateCell('cg-low', cg.low, cg.low < orig.low);
+                updateCell('diff-low', calcImprovement(orig.low, cg.low));
+
+                updateCell('orig-total', orig.total);
+                updateCell('cg-total', cg.total, cg.total < orig.total);
+                updateCell('diff-total', calcImprovement(orig.total, cg.total));
+
+            } catch (error) {
+                console.error('Error loading comparison data:', error);
+            }
+        }
+
+        // Load data when page loads
+        loadComparisonData();
+    </script>
 </body>
 </html>

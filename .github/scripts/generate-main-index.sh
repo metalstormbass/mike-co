@@ -45,6 +45,25 @@ cat > "$OUTPUT_HTML" << 'MAINHTML'
         .footer { text-align: center; margin-top: 50px; padding-top: 30px; border-top: 2px solid #27272a; color: #71717a; font-size: 0.95em; }
         .footer a { color: #60a5fa; text-decoration: none; }
         .footer a:hover { color: #93c5fd; }
+
+        /* Per-image comparison styles */
+        .per-image-section { margin: 50px 0; }
+        .per-image-header { cursor: pointer; padding: 20px; background: #27272a; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; transition: all 0.3s; margin-bottom: 20px; }
+        .per-image-header:hover { background: #3f3f46; }
+        .per-image-header h2 { color: #fafafa; font-size: 2em; font-weight: 700; margin: 0; }
+        .toggle-icon { color: #71717a; transition: transform 0.3s; font-size: 1.5em; }
+        .per-image-header.expanded .toggle-icon { transform: rotate(180deg); }
+        .per-image-content { max-height: 0; overflow: hidden; transition: max-height 0.4s ease-out; }
+        .per-image-content.expanded { max-height: 5000px; transition: max-height 0.6s ease-in; }
+        .image-comparison-table { width: 100%; background: #09090b; border-radius: 16px; overflow: hidden; margin-top: 20px; }
+        .image-comparison-table th { background: #27272a; color: #fafafa; font-weight: 600; text-transform: uppercase; font-size: 0.75em; letter-spacing: 0.5px; padding: 12px 8px; }
+        .image-comparison-table td { border-bottom: 1px solid #27272a; font-size: 0.9em; padding: 12px 8px; text-align: center; }
+        .image-comparison-table tr:last-child td { border-bottom: none; }
+        .image-comparison-table .image-name { text-align: left; font-weight: 600; color: #e4e4e7; font-size: 0.85em; max-width: 300px; word-break: break-word; }
+        .severity-cell { font-weight: 600; }
+        .improvement-cell { font-weight: 700; color: #4ade80; }
+        .improvement-negative { color: #f87171; }
+        .small-winner { background: linear-gradient(135deg, #065f46, #047857); color: white !important; font-weight: 700 !important; padding: 4px 8px !important; border-radius: 6px; }
     </style>
 </head>
 <body>
@@ -108,6 +127,38 @@ cat > "$OUTPUT_HTML" << 'MAINHTML'
                     </tr>
                 </tbody>
             </table>
+        </div>
+
+        <div class="per-image-section">
+            <div class="per-image-header" onclick="togglePerImageSection()">
+                <h2>📦 Per-Image Vulnerability Comparison</h2>
+                <span class="toggle-icon">▼</span>
+            </div>
+            <div class="per-image-content" id="per-image-content">
+                <table class="image-comparison-table">
+                    <thead>
+                        <tr>
+                            <th class="image-name">Image</th>
+                            <th>Orig<br>Critical</th>
+                            <th>CG<br>Critical</th>
+                            <th>Orig<br>High</th>
+                            <th>CG<br>High</th>
+                            <th>Orig<br>Medium</th>
+                            <th>CG<br>Medium</th>
+                            <th>Orig<br>Low</th>
+                            <th>CG<br>Low</th>
+                            <th>Orig<br>Total</th>
+                            <th>CG<br>Total</th>
+                            <th>Improvement</th>
+                        </tr>
+                    </thead>
+                    <tbody id="per-image-tbody">
+                        <tr>
+                            <td colspan="12" class="loading" style="text-align: center; padding: 30px;">Loading per-image data...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
 
         <div class="branches">
@@ -210,8 +261,92 @@ cat > "$OUTPUT_HTML" << 'MAINHTML'
                 updateCell('cg-total', cg.total, cg.total < orig.total);
                 updateCell('diff-total', calcImprovement(orig.total, cg.total));
 
+                // Load per-image comparison
+                loadPerImageComparison(origData, cgData);
+
             } catch (error) {
                 console.error('Error loading comparison data:', error);
+            }
+        }
+
+        function togglePerImageSection() {
+            const content = document.getElementById('per-image-content');
+            const header = content.previousElementSibling;
+            content.classList.toggle('expanded');
+            header.classList.toggle('expanded');
+        }
+
+        function loadPerImageComparison(origData, cgData) {
+            try {
+                // Parse image data from both branches
+                const parseImageData = (data) => {
+                    const imageMap = {};
+                    data.forEach(scan => {
+                        const parts = scan.split('|');
+                        const imageName = parts[0];
+                        imageMap[imageName] = {
+                            critical: parseInt(parts[3]) || 0,
+                            high: parseInt(parts[4]) || 0,
+                            medium: parseInt(parts[5]) || 0,
+                            low: parseInt(parts[6]) || 0,
+                            total: parseInt(parts[8]) || 0
+                        };
+                    });
+                    return imageMap;
+                };
+
+                const origImages = parseImageData(origData);
+                const cgImages = parseImageData(cgData);
+
+                // Get all unique image names
+                const allImageNames = new Set([...Object.keys(origImages), ...Object.keys(cgImages)]);
+
+                // Sort image names
+                const sortedImageNames = Array.from(allImageNames).sort();
+
+                // Generate table rows
+                const tbody = document.getElementById('per-image-tbody');
+                tbody.innerHTML = '';
+
+                sortedImageNames.forEach(imageName => {
+                    const orig = origImages[imageName] || { critical: 0, high: 0, medium: 0, low: 0, total: 0 };
+                    const cg = cgImages[imageName] || { critical: 0, high: 0, medium: 0, low: 0, total: 0 };
+
+                    const improvement = orig.total === 0
+                        ? (cg.total === 0 ? 0 : -100)
+                        : ((orig.total - cg.total) / orig.total * 100);
+
+                    const row = document.createElement('tr');
+
+                    // Apply winner class to better performing cells
+                    const getCellClass = (origVal, cgVal) => {
+                        return cgVal < origVal ? 'severity-cell small-winner' : 'severity-cell';
+                    };
+
+                    row.innerHTML = `
+                        <td class="image-name">${imageName}</td>
+                        <td class="severity-cell original-col">${orig.critical}</td>
+                        <td class="${getCellClass(orig.critical, cg.critical)} chainguard-col">${cg.critical}</td>
+                        <td class="severity-cell original-col">${orig.high}</td>
+                        <td class="${getCellClass(orig.high, cg.high)} chainguard-col">${cg.high}</td>
+                        <td class="severity-cell original-col">${orig.medium}</td>
+                        <td class="${getCellClass(orig.medium, cg.medium)} chainguard-col">${cg.medium}</td>
+                        <td class="severity-cell original-col">${orig.low}</td>
+                        <td class="${getCellClass(orig.low, cg.low)} chainguard-col">${cg.low}</td>
+                        <td class="severity-cell original-col"><strong>${orig.total}</strong></td>
+                        <td class="${getCellClass(orig.total, cg.total)} chainguard-col"><strong>${cg.total}</strong></td>
+                        <td class="${improvement > 0 ? 'improvement-cell' : (improvement < 0 ? 'improvement-negative' : '')}">
+                            ${improvement > 0 ? '↓ ' + improvement.toFixed(1) + '%' : (improvement < 0 ? '↑ ' + Math.abs(improvement).toFixed(1) + '%' : '=')}
+                        </td>
+                    `;
+
+                    tbody.appendChild(row);
+                });
+
+            } catch (error) {
+                console.error('Error loading per-image comparison:', error);
+                const tbody = document.getElementById('per-image-tbody');
+                tbody.innerHTML = '<tr><td colspan="12" style="text-align: center; padding: 30px; color: #f87171;">Error loading per-image data</td></tr>';
             }
         }
 

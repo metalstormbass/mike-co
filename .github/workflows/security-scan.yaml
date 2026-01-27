@@ -263,6 +263,11 @@ jobs:
             "scan-results/index.html" \
             "$BRANCH_NAME"
 
+      - name: Generate migration page
+        run: |
+          mkdir -p gh-pages/migration
+          .github/scripts/generate-migration-page.sh gh-pages/migration/index.html
+
       - name: Prepare GitHub Pages deployment
         run: |
           mkdir -p gh-pages/${{ github.ref_name }}

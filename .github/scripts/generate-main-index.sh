@@ -38,6 +38,8 @@ cat > "$OUTPUT_HTML" << 'MAINHTML'
         .branch-link:hover { transform: translateY(-8px); box-shadow: 0 8px 30px rgba(30,58,138,0.6); background: linear-gradient(135deg, #1e40af, #2563eb); }
         .chainguard { background: linear-gradient(135deg, #0e7490, #0891b2); border-color: #0891b2; box-shadow: 0 4px 20px rgba(8,145,178,0.4); }
         .chainguard:hover { background: linear-gradient(135deg, #0891b2, #06b6d4); box-shadow: 0 8px 30px rgba(8,145,178,0.6); }
+        .migration { background: linear-gradient(135deg, #7c3aed, #8b5cf6); border-color: #8b5cf6; box-shadow: 0 4px 20px rgba(139,92,246,0.4); }
+        .migration:hover { background: linear-gradient(135deg, #8b5cf6, #a78bfa); box-shadow: 0 8px 30px rgba(139,92,246,0.6); }
         .icon { font-size: 1.2em; margin-right: 10px; }
 
         .footer { text-align: center; margin-top: 50px; padding-top: 30px; border-top: 2px solid #27272a; color: #71717a; font-size: 0.95em; }
@@ -114,6 +116,9 @@ cat > "$OUTPUT_HTML" << 'MAINHTML'
             </a>
             <a href="chainguard/" class="branch-link chainguard">
                 <span class="icon">🔒</span> Chainguard Branch
+            </a>
+            <a href="migration/" class="branch-link migration">
+                <span class="icon">🔄</span> Migration Guide
             </a>
         </div>
 

@@ -109,15 +109,64 @@ async def startup():
         # Test connection
         info = await opensearch_client.info()
         print(f"Connected to OpenSearch: {info.get('cluster_name', 'unknown')}")
+
+        # Ensure documents index exists with proper k-NN mapping
+        await ensure_documents_index()
     except Exception as e:
         print(f"Warning: Could not connect to OpenSearch: {e}")
+
+
+async def ensure_documents_index():
+    """Ensure the documents index exists with proper k-NN vector mapping"""
+    if not opensearch_client:
+        return
+
+    try:
+        # Check if index exists
+        exists = await opensearch_client.indices.exists(index="documents")
+
+        if not exists:
+            print("Creating 'documents' index with k-NN vector mapping...")
+            index_body = {
+                "settings": {
+                    "index": {
+                        "knn": True,
+                        "knn.space_type": "cosinesimil"
+                    }
+                },
+                "mappings": {
+                    "properties": {
+                        "document_id": {"type": "keyword"},
+                        "chunk_id": {"type": "keyword"},
+                        "chunk_index": {"type": "integer"},
+                        "content": {"type": "text"},
+                        "embedding": {
+                            "type": "knn_vector",
+                            "dimension": 384,
+                            "method": {
+                                "name": "hnsw",
+                                "space_type": "cosinesimil",
+                                "engine": "nmslib"
+                            }
+                        },
+                        "metadata": {"type": "object"},
+                        "created_at": {"type": "date"}
+                    }
+                }
+            }
+            await opensearch_client.indices.create(index="documents", body=index_body)
+            print("Successfully created 'documents' index")
+        else:
+            print("Documents index already exists")
+    except Exception as e:
+        print(f"Warning: Could not create documents index: {e}")
 
 
 @app.on_event("shutdown")
 async def shutdown():
     """Close database connections"""
     global pg_pool, opensearch_client
-    
+
     if pg_pool:
         await pg_pool.close()
     if opensearch_client:

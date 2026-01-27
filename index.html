@@ -194,53 +194,25 @@
                     </td></tr>
                 `;
 
-                // Add cache-busting timestamp to force fresh data
-                const cacheBuster = new Date().getTime();
-
-                // Fetch both index pages with cache-busting and proper headers
+                // Fetch JSON data files directly
                 const [origResponse, cgResponse] = await Promise.all([
-                    fetch(`original/index.html?v=${cacheBuster}`, {
-                        cache: 'no-cache',
-                        headers: { 'Cache-Control': 'no-cache, no-store, must-revalidate' }
-                    }),
-                    fetch(`chainguard/index.html?v=${cacheBuster}`, {
-                        cache: 'no-cache',
-                        headers: { 'Cache-Control': 'no-cache, no-store, must-revalidate' }
-                    })
+                    fetch('data/original.json'),
+                    fetch('data/chainguard.json')
                 ]);
 
                 // Verify both responses are OK
                 if (!origResponse.ok || !cgResponse.ok) {
-                    throw new Error(`Failed to fetch scan results: Original=${origResponse.status}, Chainguard=${cgResponse.status}`);
+                    throw new Error(`Failed to fetch scan data: Original=${origResponse.status}, Chainguard=${cgResponse.status}`);
                 }
 
-                const origText = await origResponse.text();
-                const cgText = await cgResponse.text();
-
-                // Extract scan data from script tags using regex
-                const extractData = (html) => {
-                    // Use greedy match to capture entire array
-                    const match = html.match(/const scanData = (\[[\s\S]*?\]);/);
-                    if (!match) {
-                        console.error('Failed to match scanData in HTML');
-                        return null;
-                    }
-                    try {
-                        return JSON.parse(match[1]);
-                    } catch (e) {
-                        console.error('Failed to parse scanData JSON:', e);
-                        return null;
-                    }
-                };
-
-                const origData = extractData(origText);
-                const cgData = extractData(cgText);
-
-                if (!origData || !cgData) {
-                    throw new Error('Failed to extract scan data from HTML');
-                }
+                const origData = await origResponse.json();
+                const cgData = await cgResponse.json();
 
                 // Verify both datasets have data
+                if (!Array.isArray(origData) || !Array.isArray(cgData)) {
+                    throw new Error('Scan data is not in expected format');
+                }
+
                 if (origData.length === 0 || cgData.length === 0) {
                     throw new Error('Scan data is empty for one or both branches');
                 }
@@ -249,12 +221,11 @@
                 const calculateTotals = (data) => {
                     let critical = 0, high = 0, medium = 0, low = 0, total = 0;
                     data.forEach(scan => {
-                        const parts = scan.split('|');
-                        critical += parseInt(parts[3]) || 0;
-                        high += parseInt(parts[4]) || 0;
-                        medium += parseInt(parts[5]) || 0;
-                        low += parseInt(parts[6]) || 0;
-                        total += parseInt(parts[8]) || 0;
+                        critical += scan.critical || 0;
+                        high += scan.high || 0;
+                        medium += scan.medium || 0;
+                        low += scan.low || 0;
+                        total += scan.total || 0;
                     });
                     return { images: data.length, critical, high, medium, low, total };
                 };
@@ -351,14 +322,12 @@
                 const parseImageData = (data) => {
                     const imageMap = {};
                     data.forEach(scan => {
-                        const parts = scan.split('|');
-                        const imageName = parts[0];
-                        imageMap[imageName] = {
-                            critical: parseInt(parts[3]) || 0,
-                            high: parseInt(parts[4]) || 0,
-                            medium: parseInt(parts[5]) || 0,
-                            low: parseInt(parts[6]) || 0,
-                            total: parseInt(parts[8]) || 0
+                        imageMap[scan.image] = {
+                            critical: scan.critical || 0,
+                            high: scan.high || 0,
+                            medium: scan.medium || 0,
+                            low: scan.low || 0,
+                            total: scan.total || 0
                         };
                     });
                     return imageMap;

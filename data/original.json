@@ -1,0 +1,112 @@
+[
+  {
+    "image": "nginx",
+    "size": "209MB",
+    "scanDate": "2026-01-27 21:59:41 UTC",
+    "critical": 1,
+    "high": 16,
+    "medium": 35,
+    "low": 10,
+    "negligible": 98,
+    "total": 160
+  },
+  {
+    "image": "frontend",
+    "size": "210MB",
+    "scanDate": "2026-01-27 21:59:47 UTC",
+    "critical": 1,
+    "high": 16,
+    "medium": 35,
+    "low": 10,
+    "negligible": 98,
+    "total": 160
+  },
+  {
+    "image": "api-gateway",
+    "size": "306MB",
+    "scanDate": "2026-01-27 21:59:56 UTC",
+    "critical": 0,
+    "high": 16,
+    "medium": 21,
+    "low": 5,
+    "negligible": 46,
+    "total": 88
+  },
+  {
+    "image": "embedding-service",
+    "size": "7.6GB",
+    "scanDate": "2026-01-27 22:01:21 UTC",
+    "critical": 6,
+    "high": 54,
+    "medium": 122,
+    "low": 77,
+    "negligible": 6,
+    "total": 265
+  },
+  {
+    "image": "llm-service",
+    "size": "486MB",
+    "scanDate": "2026-01-27 22:01:35 UTC",
+    "critical": 2,
+    "high": 23,
+    "medium": 41,
+    "low": 9,
+    "negligible": 416,
+    "total": 491
+  },
+  {
+    "image": "document-processor",
+    "size": "526MB",
+    "scanDate": "2026-01-27 22:01:46 UTC",
+    "critical": 2,
+    "high": 26,
+    "medium": 42,
+    "low": 9,
+    "negligible": 416,
+    "total": 495
+  },
+  {
+    "image": "ollama/ollama:latest",
+    "size": "5.62GB",
+    "scanDate": "2026-01-27 22:03:30 UTC",
+    "critical": 1,
+    "high": 8,
+    "medium": 29,
+    "low": 15,
+    "negligible": 0,
+    "total": 53
+  },
+  {
+    "image": "opensearchproject/opensearch:2.11.0",
+    "size": "1.22GB",
+    "scanDate": "2026-01-27 22:04:02 UTC",
+    "critical": 1,
+    "high": 66,
+    "medium": 153,
+    "low": 31,
+    "negligible": 0,
+    "total": 251
+  },
+  {
+    "image": "postgres:16-bookworm",
+    "size": "435MB",
+    "scanDate": "2026-01-27 22:04:15 UTC",
+    "critical": 1,
+    "high": 21,
+    "medium": 53,
+    "low": 7,
+    "negligible": 99,
+    "total": 181
+  },
+  {
+    "image": "redis:7-bookworm",
+    "size": "117MB",
+    "scanDate": "2026-01-27 22:04:22 UTC",
+    "critical": 8,
+    "high": 45,
+    "medium": 50,
+    "low": 6,
+    "negligible": 47,
+    "total": 156
+  }
+]

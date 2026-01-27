@@ -1,0 +1,17 @@
+# Branch Management Rules
+
+## Critical: Branch Isolation
+
+**NEVER merge the `original` and `chainguard` branches into each other.**
+
+These branches represent separate parallel development tracks that must remain independent:
+- `original` branch - Original implementation
+- `chainguard` branch - Chainguard-specific implementation
+
+Merging these branches into each other will cause conflicts and break the intended separation of concerns.
+
+## Documentation Maintenance
+
+**Always check what was changed and update the README accordingly.**
+
+After making any significant changes to the codebase, review the modifications and ensure the README.md file is updated to reflect those changes. This keeps documentation in sync with the actual implementation.

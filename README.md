@@ -108,7 +108,9 @@ This project uses [Chainguard Images](https://www.chainguard.dev/) across the en
 - **Significantly reduced vulnerabilities**: Up to 90% fewer CVEs compared to standard base images (Debian, Ubuntu, Alpine)
 - **Up-to-date packages**: Latest security patches and updates
 
-View detailed vulnerability scan results in [docs/security-scans/](./docs/security-scans/README.md).
+📊 **[View Live Security Scan Results →](https://metalstormbass.github.io/mike-co/)**
+
+Automated vulnerability scans run on every push and weekly, comparing Chainguard images against standard base images.
 
 To use Chainguard private images, authenticate with:
 ```bash

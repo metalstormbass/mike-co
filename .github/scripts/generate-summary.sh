@@ -14,7 +14,7 @@ if [ "$BRANCH_NAME" = "chainguard" ]; then
   BADGE_COLOR="#00B4D8"
 else
   BRANCH_DESCRIPTION="Original Images"
-  BADGE_COLOR="#6C757D"
+  BADGE_COLOR="#8b5cf6"
 fi
 
 # Read scan data and convert to JSON array
@@ -24,7 +24,7 @@ else
   SCAN_DATA_JSON="[]"
 fi
 
-# Generate HTML
+# Generate HTML with modern dark mode
 cat > "$OUTPUT_HTML" << 'ENDHTML'
 <!DOCTYPE html>
 <html lang="en">
@@ -34,32 +34,35 @@ cat > "$OUTPUT_HTML" << 'ENDHTML'
     <title>Security Scans - BRANCH_LABEL_PH</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 40px 20px; }
-        .container { max-width: 1400px; margin: 0 auto; background: white; padding: 40px; border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); }
-        .header { text-align: center; margin-bottom: 40px; }
-        h1 { color: #2c3e50; font-size: 2.5em; margin-bottom: 10px; }
-        .branch-badge { display: inline-block; padding: 8px 20px; border-radius: 20px; color: white; font-weight: 600; margin: 10px 0; }
-        .subtitle { color: #7f8c8d; font-size: 1.1em; }
-        table { width: 100%; border-collapse: collapse; margin: 30px 0; }
-        th, td { padding: 15px; text-align: left; }
-        th { background: #34495e; color: white; font-weight: 600; border-bottom: 3px solid #2c3e50; }
-        td { border-bottom: 1px solid #ecf0f1; }
-        tr:hover { background: #f8f9fa; }
-        .badge { display: inline-block; padding: 4px 10px; border-radius: 12px; font-size: 0.85em; font-weight: 600; min-width: 30px; text-align: center; }
-        .badge-critical { background: #e74c3c; color: white; }
-        .badge-high { background: #e67e22; color: white; }
-        .badge-medium { background: #f39c12; color: white; }
-        .badge-low { background: #95a5a6; color: white; }
-        .badge-negligible { background: #bdc3c7; color: #333; }
-        .badge-total { background: #3498db; color: white; }
-        a { color: #3498db; text-decoration: none; font-weight: 500; }
-        a:hover { text-decoration: underline; }
-        code { background: #f8f9fa; padding: 2px 8px; border-radius: 4px; font-family: 'Courier New', monospace; font-size: 0.9em; }
-        .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 20px; margin: 30px 0; }
-        .stat-card { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 8px; text-align: center; }
-        .stat-value { font-size: 2.5em; font-weight: 700; }
-        .stat-label { font-size: 0.9em; opacity: 0.9; margin-top: 5px; }
-        .footer { text-align: center; margin-top: 40px; padding-top: 20px; border-top: 2px solid #ecf0f1; color: #7f8c8d; font-size: 0.9em; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Inter', sans-serif; line-height: 1.6; color: #e4e4e7; background: #09090b; min-height: 100vh; padding: 40px 20px; }
+        .container { max-width: 1600px; margin: 0 auto; background: #18181b; padding: 50px; border-radius: 20px; box-shadow: 0 8px 32px rgba(0,0,0,0.5); border: 1px solid #27272a; }
+        .header { text-align: center; margin-bottom: 50px; }
+        h1 { color: #fafafa; font-size: 3em; margin-bottom: 15px; font-weight: 800; background: linear-gradient(135deg, #60a5fa, #a78bfa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .branch-badge { display: inline-block; padding: 12px 30px; border-radius: 9999px; color: white; font-weight: 700; margin: 15px 0; text-transform: uppercase; letter-spacing: 1px; font-size: 0.9em; box-shadow: 0 4px 16px rgba(0,0,0,0.3); }
+        .subtitle { color: #a1a1aa; font-size: 1.1em; margin-top: 10px; }
+        table { width: 100%; border-collapse: collapse; margin: 30px 0; background: #09090b; border-radius: 16px; overflow: hidden; }
+        th, td { padding: 18px; text-align: left; }
+        th { background: #27272a; color: #fafafa; font-weight: 600; text-transform: uppercase; font-size: 0.85em; letter-spacing: 0.5px; }
+        td { border-bottom: 1px solid #27272a; }
+        tr:hover { background: #1e293b; transition: background 0.2s; }
+        tr:last-child td { border-bottom: none; }
+        .badge { display: inline-block; padding: 6px 12px; border-radius: 9999px; font-size: 0.85em; font-weight: 700; min-width: 45px; text-align: center; text-transform: uppercase; letter-spacing: 0.3px; }
+        .badge-critical { background: linear-gradient(135deg, #ef4444, #dc2626); color: white; box-shadow: 0 2px 8px rgba(239,68,68,0.4); }
+        .badge-high { background: linear-gradient(135deg, #f97316, #ea580c); color: white; box-shadow: 0 2px 8px rgba(249,115,22,0.4); }
+        .badge-medium { background: linear-gradient(135deg, #eab308, #ca8a04); color: white; box-shadow: 0 2px 8px rgba(234,179,8,0.4); }
+        .badge-low { background: linear-gradient(135deg, #8b5cf6, #7c3aed); color: white; box-shadow: 0 2px 8px rgba(139,92,246,0.4); }
+        .badge-negligible { background: #3f3f46; color: #d4d4d8; }
+        .badge-total { background: linear-gradient(135deg, #3b82f6, #2563eb); color: white; box-shadow: 0 2px 8px rgba(59,130,246,0.4); }
+        a { color: #60a5fa; text-decoration: none; font-weight: 600; transition: color 0.2s; }
+        a:hover { color: #93c5fd; }
+        code { background: #27272a; padding: 6px 12px; border-radius: 8px; font-family: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace; font-size: 0.9em; color: #60a5fa; border: 1px solid #3f3f46; }
+        .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 25px; margin: 40px 0; }
+        .stat-card { background: linear-gradient(135deg, #1e3a8a, #1e40af); color: white; padding: 30px; border-radius: 16px; text-align: center; border: 1px solid #1e40af; box-shadow: 0 4px 16px rgba(30,58,138,0.3); transition: transform 0.2s; }
+        .stat-card:hover { transform: translateY(-4px); }
+        .stat-value { font-size: 3em; font-weight: 800; }
+        .stat-label { font-size: 0.9em; opacity: 0.9; margin-top: 8px; text-transform: uppercase; letter-spacing: 1px; }
+        .footer { text-align: center; margin-top: 50px; padding-top: 30px; border-top: 2px solid #27272a; color: #71717a; font-size: 0.95em; }
+        .footer a { color: #60a5fa; }
     </style>
 </head>
 <body>
@@ -75,19 +78,19 @@ cat > "$OUTPUT_HTML" << 'ENDHTML'
                 <div class="stat-value" id="total-images">0</div>
                 <div class="stat-label">Images Scanned</div>
             </div>
-            <div class="stat-card">
+            <div class="stat-card" style="background: linear-gradient(135deg, #7f1d1d, #991b1b);">
                 <div class="stat-value" id="total-critical">0</div>
                 <div class="stat-label">Critical</div>
             </div>
-            <div class="stat-card">
+            <div class="stat-card" style="background: linear-gradient(135deg, #7c2d12, #9a3412);">
                 <div class="stat-value" id="total-high">0</div>
                 <div class="stat-label">High</div>
             </div>
-            <div class="stat-card">
+            <div class="stat-card" style="background: linear-gradient(135deg, #713f12, #854d0e);">
                 <div class="stat-value" id="total-medium">0</div>
                 <div class="stat-label">Medium</div>
             </div>
-            <div class="stat-card">
+            <div class="stat-card" style="background: linear-gradient(135deg, #581c87, #6b21a8);">
                 <div class="stat-value" id="total-low">0</div>
                 <div class="stat-label">Low</div>
             </div>

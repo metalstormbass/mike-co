@@ -191,15 +191,18 @@ jobs:
 
             echo "$SCAN_DATA" >> "$SCAN_DATA_FILE"
 
-            # Aggressive cleanup
-            echo "Cleaning up..."
+            # Cleanup - only remove the scanned image, don't prune yet
+            echo "Cleaning up scanned image..."
             docker rmi "$IMAGE" || true
-            docker system prune -af --volumes
 
-            echo "Disk space after cleanup:"
+            echo "Disk space after scan:"
             df -h
             echo ""
           done
+
+          # Run system prune after all built images are scanned
+          echo "Running cleanup after built images..."
+          docker system prune -af --volumes
 
           # Scan pre-built images
           PREBUILT_TO_SCAN=$(echo "$PREBUILT_IMAGES" | jq -r '.[]')
@@ -241,7 +244,7 @@ jobs:
 
             echo "$SCAN_DATA" >> "$SCAN_DATA_FILE"
 
-            # Aggressive cleanup
+            # Cleanup after each prebuilt image
             echo "Cleaning up..."
             docker rmi "$IMAGE" || true
             docker system prune -af --volumes

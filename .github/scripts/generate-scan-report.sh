@@ -17,7 +17,7 @@ LOW=$(jq '[.matches[] | select(.vulnerability.severity == "Low")] | length' "$JS
 NEGLIGIBLE=$(jq '[.matches[] | select(.vulnerability.severity == "Negligible")] | length' "$JSON_FILE")
 TOTAL=$((CRITICAL + HIGH + MEDIUM + LOW + NEGLIGIBLE))
 
-# Generate HTML
+# Generate HTML with modern dark mode
 cat > "$OUTPUT_HTML" << 'HTMLEOF'
 <!DOCTYPE html>
 <html lang="en">
@@ -27,28 +27,33 @@ cat > "$OUTPUT_HTML" << 'HTMLEOF'
     <title>Security Scan: IMAGE_PLACEHOLDER</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; background: #f5f5f5; padding: 20px; }
-        .container { max-width: 1400px; margin: 0 auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        h1 { color: #2c3e50; margin-bottom: 10px; font-size: 2em; }
-        h2 { color: #34495e; margin: 30px 0 15px; padding-bottom: 10px; border-bottom: 2px solid #3498db; }
-        .badge { display: inline-block; padding: 4px 12px; border-radius: 12px; font-size: 0.85em; font-weight: 600; margin: 0 4px; }
-        .badge-critical { background: #e74c3c; color: white; }
-        .badge-high { background: #e67e22; color: white; }
-        .badge-medium { background: #f39c12; color: white; }
-        .badge-low { background: #95a5a6; color: white; }
-        .badge-negligible { background: #bdc3c7; color: #333; }
-        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
-        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
-        th { background: #34495e; color: white; font-weight: 600; }
-        tr:hover { background: #f8f9fa; }
-        .back-link { display: inline-block; margin-bottom: 20px; color: #3498db; text-decoration: none; }
-        .back-link:hover { text-decoration: underline; }
-        .info-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin: 20px 0; }
-        .info-item { background: #ecf0f1; padding: 15px; border-radius: 6px; }
-        .info-label { font-weight: 600; color: #7f8c8d; font-size: 0.9em; }
-        .info-value { color: #2c3e50; font-size: 1.1em; margin-top: 5px; }
-        .summary-box { background: #ecf0f1; padding: 20px; border-radius: 6px; margin: 20px 0; }
-        code { background: #f8f9fa; padding: 2px 6px; border-radius: 3px; font-family: 'Courier New', monospace; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Inter', sans-serif; line-height: 1.6; color: #e4e4e7; background: #09090b; padding: 20px; }
+        .container { max-width: 1400px; margin: 0 auto; background: #18181b; padding: 40px; border-radius: 16px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.3); border: 1px solid #27272a; }
+        h1 { color: #fafafa; margin-bottom: 10px; font-size: 2em; font-weight: 700; }
+        h2 { color: #fafafa; margin: 30px 0 15px; padding-bottom: 10px; border-bottom: 2px solid #3b82f6; font-weight: 600; }
+        .badge { display: inline-block; padding: 6px 14px; border-radius: 9999px; font-size: 0.85em; font-weight: 600; margin: 0 4px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .badge-critical { background: linear-gradient(135deg, #ef4444, #dc2626); color: white; box-shadow: 0 2px 8px rgba(239,68,68,0.4); }
+        .badge-high { background: linear-gradient(135deg, #f97316, #ea580c); color: white; box-shadow: 0 2px 8px rgba(249,115,22,0.4); }
+        .badge-medium { background: linear-gradient(135deg, #eab308, #ca8a04); color: white; box-shadow: 0 2px 8px rgba(234,179,8,0.4); }
+        .badge-low { background: linear-gradient(135deg, #8b5cf6, #7c3aed); color: white; box-shadow: 0 2px 8px rgba(139,92,246,0.4); }
+        .badge-negligible { background: #3f3f46; color: #d4d4d8; }
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; background: #09090b; border-radius: 12px; overflow: hidden; }
+        th, td { padding: 16px; text-align: left; }
+        th { background: #27272a; color: #fafafa; font-weight: 600; text-transform: uppercase; font-size: 0.85em; letter-spacing: 0.5px; }
+        td { border-bottom: 1px solid #27272a; }
+        tr:hover { background: #27272a; }
+        tr:last-child td { border-bottom: none; }
+        .back-link { display: inline-block; margin-bottom: 20px; color: #3b82f6; text-decoration: none; font-weight: 500; padding: 8px 16px; border-radius: 8px; background: #1e3a8a; transition: all 0.2s; }
+        .back-link:hover { background: #1e40af; transform: translateX(-4px); }
+        .info-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin: 20px 0; }
+        .info-item { background: linear-gradient(135deg, #1e3a8a, #1e40af); padding: 20px; border-radius: 12px; border: 1px solid #1e40af; }
+        .info-label { font-weight: 600; color: #93c5fd; font-size: 0.85em; text-transform: uppercase; letter-spacing: 0.5px; }
+        .info-value { color: #fafafa; font-size: 1.1em; margin-top: 8px; font-weight: 500; }
+        .summary-box { background: linear-gradient(135deg, #18181b, #27272a); padding: 24px; border-radius: 12px; margin: 20px 0; border: 1px solid #3f3f46; }
+        code { background: #27272a; padding: 4px 8px; border-radius: 6px; font-family: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace; font-size: 0.9em; color: #60a5fa; border: 1px solid #3f3f46; }
+        a { color: #60a5fa; text-decoration: none; }
+        a:hover { color: #93c5fd; text-decoration: underline; }
+        .success-message { color: #22c55e; font-size: 1.2em; margin: 20px 0; padding: 20px; background: #14532d; border-radius: 12px; border: 1px solid #166534; }
     </style>
 </head>
 <body>
@@ -56,7 +61,7 @@ cat > "$OUTPUT_HTML" << 'HTMLEOF'
         <a href="../index.html" class="back-link">← Back to Summary</a>
 
         <h1>Security Scan Report</h1>
-        <p style="color: #7f8c8d; margin-bottom: 30px;">IMAGE_PLACEHOLDER</p>
+        <p style="color: #a1a1aa; margin-bottom: 30px; font-size: 1.1em;">IMAGE_PLACEHOLDER</p>
 
         <div class="info-grid">
             <div class="info-item">
@@ -83,9 +88,9 @@ cat > "$OUTPUT_HTML" << 'HTMLEOF'
                 <span class="badge badge-critical">🔴 Critical: CRITICAL_PLACEHOLDER</span>
                 <span class="badge badge-high">🟠 High: HIGH_PLACEHOLDER</span>
                 <span class="badge badge-medium">🟡 Medium: MEDIUM_PLACEHOLDER</span>
-                <span class="badge badge-low">🟢 Low: LOW_PLACEHOLDER</span>
+                <span class="badge badge-low">🟣 Low: LOW_PLACEHOLDER</span>
                 <span class="badge badge-negligible">⚪ Negligible: NEGLIGIBLE_PLACEHOLDER</span>
-                <span class="badge" style="background: #3498db; color: white;">Total: TOTAL_PLACEHOLDER</span>
+                <span class="badge" style="background: linear-gradient(135deg, #3b82f6, #2563eb); color: white; box-shadow: 0 2px 8px rgba(59,130,246,0.4);">Total: TOTAL_PLACEHOLDER</span>
             </div>
         </div>
 
@@ -114,14 +119,14 @@ if [ "$TOTAL" -gt 0 ]; then
 
     echo '</tbody></table>' >> "$OUTPUT_HTML"
 else
-    echo '<p style="color: #27ae60; font-size: 1.2em; margin: 20px 0;">✅ No vulnerabilities found!</p>' >> "$OUTPUT_HTML"
+    echo '<div class="success-message">✅ No vulnerabilities found!</div>' >> "$OUTPUT_HTML"
 fi
 
 # Close HTML
 cat >> "$OUTPUT_HTML" << 'HTMLEOF2'
 
-        <p style="margin-top: 30px; color: #7f8c8d; font-size: 0.9em;">
-            <a href="WORKFLOW_URL_PLACEHOLDER" target="_blank">View Workflow Run →</a>
+        <p style="margin-top: 30px; color: #71717a; font-size: 0.9em;">
+            <a href="WORKFLOW_URL_PLACEHOLDER" target="_blank" style="color: #60a5fa;">View Workflow Run →</a>
         </p>
     </div>
 </body>

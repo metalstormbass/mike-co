@@ -423,6 +423,16 @@ cat >> "$OUTPUT_HTML" << 'HTMLEND'
             'services_nginx_Dockerfile': 'nginx'
         };
 
+        // CG versions have -cg suffix
+        const serviceMappingCG = {
+            'services_api-gateway_Dockerfile': 'api-gateway-cg',
+            'services_document-processor_Dockerfile': 'document-processor-cg',
+            'services_embedding-service_Dockerfile': 'embedding-service-cg',
+            'services_frontend_Dockerfile': 'frontend-cg',
+            'services_llm-service_Dockerfile': 'llm-service-cg',
+            'services_nginx_Dockerfile': 'nginx-cg'
+        };
+
         // Infrastructure images affected by docker-compose changes
         const composeAffectedImages = [
             'ollama/ollama:latest',
@@ -469,10 +479,10 @@ cat >> "$OUTPUT_HTML" << 'HTMLEND'
 
                 // Image name mapping
                 const imageMapping = {
-                    'ollama/ollama:latest': 'cgr.dev/mikeco.com/ollama:latest-dev',
-                    'opensearchproject/opensearch:2.11.0': 'cgr.dev/mikeco.com/opensearch:2',
-                    'postgres:16-bookworm': 'cgr.dev/mikeco.com/postgres:16',
-                    'redis:7-bookworm': 'cgr.dev/mikeco.com/redis:7'
+                    'ollama/ollama:latest': 'cgr.dev/mikeco.com/ollama:latest-dev-cg',
+                    'opensearchproject/opensearch:2.11.0': 'cgr.dev/mikeco.com/opensearch:2-cg',
+                    'postgres:16-bookworm': 'cgr.dev/mikeco.com/postgres:16-cg',
+                    'redis:7-bookworm': 'cgr.dev/mikeco.com/redis:7-cg'
                 };
 
                 // Update docker-compose badge (sum of infrastructure images)
@@ -487,7 +497,8 @@ cat >> "$OUTPUT_HTML" << 'HTMLEND'
                 // Update service badges
                 Object.entries(serviceMapping).forEach(([key, serviceName]) => {
                     const origTotal = origScans[serviceName]?.total || 0;
-                    const cgTotal = cgScans[serviceName]?.total || 0;
+                    const cgServiceName = serviceMappingCG[key];
+                    const cgTotal = cgScans[cgServiceName]?.total || 0;
                     updateVulnBadge(key, origTotal, cgTotal);
                 });
 

@@ -66,6 +66,15 @@ cat > "$OUTPUT_HTML" << 'MAINHTML'
         .improvement-cell { font-weight: 700; color: #4ade80; }
         .improvement-negative { color: #f87171; }
         .small-winner { background: linear-gradient(135deg, #065f46, #047857); color: white !important; font-weight: 700 !important; padding: 4px 8px !important; border-radius: 6px; }
+
+        /* Loading spinner animation */
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error-state { color: #f87171; text-align: center; padding: 30px; }
+        .error-icon { font-size: 2em; margin-bottom: 10px; }
     </style>
 </head>
 <body>
@@ -178,13 +187,30 @@ cat > "$OUTPUT_HTML" << 'MAINHTML'
     </div>
 
     <script>
+        let scanDataLoaded = false;
+
         async function loadComparisonData() {
             try {
+                // Show loading state
+                document.getElementById('comparison-body').innerHTML = `
+                    <tr><td colspan="4" style="text-align: center; padding: 20px; color: #a1a1aa;">
+                        <div style="display: flex; align-items: center; justify-content: center; gap: 10px;">
+                            <div style="width: 20px; height: 20px; border: 3px solid #27272a; border-top-color: #60a5fa; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+                            Loading scan data...
+                        </div>
+                    </td></tr>
+                `;
+
                 // Fetch both index pages
                 const [origResponse, cgResponse] = await Promise.all([
                     fetch('original/index.html'),
                     fetch('chainguard/index.html')
                 ]);
+
+                // Verify both responses are OK
+                if (!origResponse.ok || !cgResponse.ok) {
+                    throw new Error('Failed to fetch scan results from both branches');
+                }
 
                 const origText = await origResponse.text();
                 const cgText = await cgResponse.text();
@@ -200,8 +226,12 @@ cat > "$OUTPUT_HTML" << 'MAINHTML'
                 const cgData = extractData(cgText);
 
                 if (!origData || !cgData) {
-                    console.error('Failed to extract scan data');
-                    return;
+                    throw new Error('Failed to extract scan data from HTML');
+                }
+
+                // Verify both datasets have data
+                if (origData.length === 0 || cgData.length === 0) {
+                    throw new Error('Scan data is empty for one or both branches');
                 }
 
                 // Calculate totals
@@ -264,6 +294,22 @@ cat > "$OUTPUT_HTML" << 'MAINHTML'
 
             } catch (error) {
                 console.error('Error loading comparison data:', error);
+                // Show error state to user
+                document.getElementById('comparison-body').innerHTML = `
+                    <tr><td colspan="4" class="error-state">
+                        <div class="error-icon">⚠️</div>
+                        <div><strong>Failed to load scan data</strong></div>
+                        <div style="font-size: 0.9em; margin-top: 10px; color: #a1a1aa;">
+                            ${error.message || 'Unable to fetch scan results. Please try again later.'}
+                        </div>
+                    </td></tr>
+                `;
+
+                // Also show error in per-image section
+                const tbody = document.getElementById('per-image-tbody');
+                tbody.innerHTML = `<tr><td colspan="12" class="error-state">
+                    Unable to load per-image comparison data
+                </td></tr>`;
             }
         }
 

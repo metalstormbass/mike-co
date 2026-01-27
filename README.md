@@ -1,4 +1,4 @@
-# RAG Knowledge Base
+# Chainguard RAG Knowledge Base
 
 A Retrieval-Augmented Generation (RAG) knowledge base application that allows users to upload documents, process them into embeddings, and query them using a large language model.
 
@@ -72,25 +72,50 @@ A Retrieval-Augmented Generation (RAG) knowledge base application that allows us
 
 ## Container Images
 
-### Custom Images (Built from Source)
+**All services use [Chainguard](https://www.chainguard.dev/) hardened base images** for enhanced security with minimal attack surface and zero known CVEs.
 
-| Service | Base Image | Version | GHCR Image |
-|---------|------------|---------|------------|
-| nginx | `nginx:bookworm` | Debian Bookworm | `ghcr.io/metalstormbass/mike-co/nginx` |
-| frontend | `node:20-bookworm-slim` / `nginx:bookworm` | Node 20 / Debian Bookworm | `ghcr.io/metalstormbass/mike-co/frontend` |
-| api-gateway | `node:20-bookworm-slim` | Node 20 | `ghcr.io/metalstormbass/mike-co/api-gateway` |
-| document-processor | `python:3.11-slim-bookworm` | Python 3.11 | `ghcr.io/metalstormbass/mike-co/document-processor` |
-| embedding-service | `pytorch/pytorch:2.1.0-cuda12.1-cudnn8-runtime` | PyTorch 2.1.0 / CUDA 12.1 | `ghcr.io/metalstormbass/mike-co/embedding-service` |
-| llm-service | `pytorch/pytorch:2.1.0-cuda12.1-cudnn8-runtime` | PyTorch 2.1.0 / CUDA 12.1 | `ghcr.io/metalstormbass/mike-co/llm-service` |
+### Application Services (Built on Chainguard Base Images)
 
-### Pre-built Images (External)
+Custom-built services using Chainguard base images:
 
-| Service | Image | Version |
-|---------|-------|---------|
-| OpenSearch | `opensearchproject/opensearch` | 2.11.0 |
-| PostgreSQL | `postgres` | 16-bookworm |
-| Redis | `redis` | 7-bookworm |
-| Ollama | `ollama/ollama` | latest |
+| Service | Chainguard Base Image | GHCR Image |
+|---------|----------------------|------------|
+| nginx | `cgr.dev/mikeco.com/nginx:latest` | `ghcr.io/metalstormbass/mike-co/nginx` |
+| frontend | `cgr.dev/mikeco.com/node:20-dev` + `cgr.dev/mikeco.com/nginx:latest` | `ghcr.io/metalstormbass/mike-co/frontend` |
+| api-gateway | `cgr.dev/mikeco.com/node:20-dev` | `ghcr.io/metalstormbass/mike-co/api-gateway` |
+| document-processor | `cgr.dev/mikeco.com/python:3.11-dev` | `ghcr.io/metalstormbass/mike-co/document-processor` |
+| embedding-service | `cgr.dev/mikeco.com/pytorch:2.8-py3.11` | `ghcr.io/metalstormbass/mike-co/embedding-service` |
+| llm-service | `cgr.dev/mikeco.com/python:3.11-dev` | `ghcr.io/metalstormbass/mike-co/llm-service` |
+
+### Infrastructure Services (Chainguard Images)
+
+Pre-built Chainguard images used directly:
+
+| Service | Chainguard Image | Version |
+|---------|------------------|---------|
+| OpenSearch | `cgr.dev/mikeco.com/opensearch` | 2 |
+| PostgreSQL | `cgr.dev/mikeco.com/postgres` | 16 |
+| Redis | `cgr.dev/mikeco.com/redis` | 7 |
+| Ollama | `cgr.dev/mikeco.com/ollama` | latest-dev |
+
+### Why Chainguard Images?
+
+This project uses [Chainguard Images](https://www.chainguard.dev/) across the entire stack. Chainguard Images provide:
+
+- **Zero known CVEs**: Daily automated patching and minimal vulnerabilities
+- **Minimal attack surface**: Distroless design with no shell, package manager, or unnecessary tools
+- **SLSA Build Level 3**: Supply chain security with signed provenance
+- **Significantly reduced vulnerabilities**: Up to 90% fewer CVEs compared to standard base images (Debian, Ubuntu, Alpine)
+- **Up-to-date packages**: Latest security patches and updates
+
+📊 **[View Live Security Scan Results →](https://metalstormbass.github.io/mike-co/)**
+
+Automated vulnerability scans run on every push and weekly, comparing Chainguard images against standard base images.
+
+To use Chainguard private images, authenticate with:
+```bash
+chainctl auth login
+```
 
 ## LLM Configuration
 

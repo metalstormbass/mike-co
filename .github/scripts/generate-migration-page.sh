@@ -433,10 +433,19 @@ cat >> "$OUTPUT_HTML" << 'HTMLEND'
 
         async function loadVulnerabilityStats() {
             try {
-                // Fetch both index pages
+                // Add cache-busting timestamp
+                const cacheBuster = new Date().getTime();
+
+                // Fetch both index pages with cache-busting
                 const [origResponse, cgResponse] = await Promise.all([
-                    fetch('../original/index.html'),
-                    fetch('../chainguard/index.html')
+                    fetch(`../original/index.html?v=${cacheBuster}`, {
+                        cache: 'no-cache',
+                        headers: { 'Cache-Control': 'no-cache, no-store, must-revalidate' }
+                    }),
+                    fetch(`../chainguard/index.html?v=${cacheBuster}`, {
+                        cache: 'no-cache',
+                        headers: { 'Cache-Control': 'no-cache, no-store, must-revalidate' }
+                    })
                 ]);
 
                 const origText = await origResponse.text();
@@ -444,9 +453,14 @@ cat >> "$OUTPUT_HTML" << 'HTMLEND'
 
                 // Extract scan data
                 const extractData = (html) => {
-                    const match = html.match(/const scanData = (\[.*?\]);/s);
+                    const match = html.match(/const scanData = (\[[\s\S]*?\]);/);
                     if (!match) return null;
-                    return JSON.parse(match[1]);
+                    try {
+                        return JSON.parse(match[1]);
+                    } catch (e) {
+                        console.error('Failed to parse scanData:', e);
+                        return null;
+                    }
                 };
 
                 const origData = extractData(origText);

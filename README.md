@@ -2,9 +2,9 @@
 
 A Retrieval-Augmented Generation (RAG) knowledge base application that allows users to upload documents, process them into embeddings, and query them using a large language model.
 
-[![Security Scans](https://img.shields.io/badge/Security%20Scans-View%20Results-blue)](./docs/security-scans/README.md)
+📊 **[View Live Security Scan Results →](https://metalstormbass.github.io/mike-co/)**
 
-> 📋 **Security Scan Results**: View vulnerability scan reports for all container images in [docs/security-scans/](./docs/security-scans/README.md)
+Automated vulnerability scans run on every push and weekly, comparing Chainguard images against standard base images.
 
 ## Architecture
 

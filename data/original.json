@@ -2,7 +2,7 @@
   {
     "image": "nginx",
     "size": "209MB",
-    "scanDate": "2026-01-27 21:59:41 UTC",
+    "scanDate": "2026-01-27 22:27:22 UTC",
     "critical": 1,
     "high": 16,
     "medium": 35,
@@ -13,7 +13,7 @@
   {
     "image": "frontend",
     "size": "210MB",
-    "scanDate": "2026-01-27 21:59:47 UTC",
+    "scanDate": "2026-01-27 22:27:28 UTC",
     "critical": 1,
     "high": 16,
     "medium": 35,
@@ -24,7 +24,7 @@
   {
     "image": "api-gateway",
     "size": "306MB",
-    "scanDate": "2026-01-27 21:59:56 UTC",
+    "scanDate": "2026-01-27 22:27:37 UTC",
     "critical": 0,
     "high": 16,
     "medium": 21,
@@ -35,7 +35,7 @@
   {
     "image": "embedding-service",
     "size": "7.6GB",
-    "scanDate": "2026-01-27 22:01:21 UTC",
+    "scanDate": "2026-01-27 22:29:06 UTC",
     "critical": 6,
     "high": 54,
     "medium": 122,
@@ -46,7 +46,7 @@
   {
     "image": "llm-service",
     "size": "486MB",
-    "scanDate": "2026-01-27 22:01:35 UTC",
+    "scanDate": "2026-01-27 22:29:19 UTC",
     "critical": 2,
     "high": 23,
     "medium": 41,
@@ -57,7 +57,7 @@
   {
     "image": "document-processor",
     "size": "526MB",
-    "scanDate": "2026-01-27 22:01:46 UTC",
+    "scanDate": "2026-01-27 22:29:30 UTC",
     "critical": 2,
     "high": 26,
     "medium": 42,
@@ -68,7 +68,7 @@
   {
     "image": "ollama/ollama:latest",
     "size": "5.62GB",
-    "scanDate": "2026-01-27 22:03:30 UTC",
+    "scanDate": "2026-01-27 22:31:43 UTC",
     "critical": 1,
     "high": 8,
     "medium": 29,
@@ -79,7 +79,7 @@
   {
     "image": "opensearchproject/opensearch:2.11.0",
     "size": "1.22GB",
-    "scanDate": "2026-01-27 22:04:02 UTC",
+    "scanDate": "2026-01-27 22:32:20 UTC",
     "critical": 1,
     "high": 66,
     "medium": 153,
@@ -90,7 +90,7 @@
   {
     "image": "postgres:16-bookworm",
     "size": "435MB",
-    "scanDate": "2026-01-27 22:04:15 UTC",
+    "scanDate": "2026-01-27 22:32:34 UTC",
     "critical": 1,
     "high": 21,
     "medium": 53,
@@ -101,7 +101,7 @@
   {
     "image": "redis:7-bookworm",
     "size": "117MB",
-    "scanDate": "2026-01-27 22:04:22 UTC",
+    "scanDate": "2026-01-27 22:32:39 UTC",
     "critical": 8,
     "high": 45,
     "medium": 50,

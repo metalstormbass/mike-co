@@ -465,6 +465,90 @@ async def delete_document(document_id: str):
     }
 
 
+@app.post("/reindex/{document_id}")
+async def reindex_document(document_id: str):
+    """Re-index a document that exists in PostgreSQL but not in OpenSearch"""
+    try:
+        doc_uuid = uuid.UUID(document_id)
+    except:
+        raise HTTPException(status_code=400, detail="Invalid document ID")
+
+    if not pg_pool or not opensearch_client:
+        raise HTTPException(status_code=500, detail="Database connections not available")
+
+    try:
+        # Get document metadata from PostgreSQL
+        async with pg_pool.acquire() as conn:
+            doc_row = await conn.fetchrow("""
+                SELECT id, filename, original_filename, file_type
+                FROM documents
+                WHERE id = $1
+            """, doc_uuid)
+
+            if not doc_row:
+                raise HTTPException(status_code=404, detail="Document not found")
+
+            # Get all chunks for this document
+            chunk_rows = await conn.fetch("""
+                SELECT chunk_index, content
+                FROM document_chunks
+                WHERE document_id = $1
+                ORDER BY chunk_index
+            """, doc_uuid)
+
+            if not chunk_rows:
+                raise HTTPException(status_code=404, detail="No chunks found for document")
+
+        # Generate embeddings for all chunks
+        chunk_texts = [row["content"] for row in chunk_rows]
+        embeddings = await get_embeddings_batch(chunk_texts)
+
+        if len(embeddings) != len(chunk_rows):
+            raise HTTPException(status_code=500, detail="Embedding count mismatch")
+
+        # Index each chunk in OpenSearch
+        indexed_count = 0
+        for i, (chunk_row, embedding) in enumerate(zip(chunk_rows, embeddings)):
+            chunk_id = f"{document_id}_{i}"
+
+            doc = {
+                "document_id": document_id,
+                "chunk_id": chunk_id,
+                "chunk_index": i,
+                "content": chunk_row["content"],
+                "embedding": embedding,
+                "metadata": {
+                    "filename": doc_row["original_filename"],
+                    "file_type": doc_row["file_type"]
+                },
+                "created_at": datetime.utcnow().isoformat()
+            }
+
+            try:
+                await opensearch_client.index(
+                    index="documents",
+                    id=chunk_id,
+                    body=doc,
+                    refresh=True
+                )
+                indexed_count += 1
+            except Exception as e:
+                print(f"Error indexing chunk {i}: {e}")
+
+        return {
+            "document_id": document_id,
+            "filename": doc_row["original_filename"],
+            "chunks_reindexed": indexed_count,
+            "status": "success"
+        }
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"Re-indexing error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 @app.get("/documents")
 async def list_documents(
     status: Optional[str] = None,

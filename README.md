@@ -138,14 +138,14 @@ Automated vulnerability scans run on every push and weekly. The security scan re
 The RAG system supports multiple LLM backends:
 
 ### Ollama (Default - Local)
-Runs locally using the Phi model (smaller/faster). No API key required.
+Runs locally using the Mistral 7B model. No API key required.
 
 ```yaml
 # docker-compose.yaml
 environment:
   - USE_OLLAMA=true
   - OLLAMA_URL=http://ollama:11434
-  - OLLAMA_MODEL=phi  # or mistral, tinyllama, llama3, etc.
+  - OLLAMA_MODEL=mistral  # or phi, tinyllama, llama3, etc.
 ```
 
 ### OpenAI (Cloud)

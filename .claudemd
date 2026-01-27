@@ -22,6 +22,12 @@ Any updates to project-wide instructions in this file must be applied to both `o
 
 The architecture diagram in README.md must be synchronized between `original` and `chainguard` branches. Any updates to the diagram must be applied to both branches immediately. This ensures consistent documentation regardless of which branch is being viewed.
 
+## Critical: Always Update the Architecture Diagram
+
+**ALWAYS UPDATE THE ARCHITECTURE DIAGRAM WHEN MAKING ARCHITECTURAL CHANGES.**
+
+Whenever you add, remove, or modify services, change communication patterns, update ports, or make any other architectural changes to the system, you MUST update the architecture diagram in README.md to reflect those changes. The diagram must always accurately represent the current state of the system architecture.
+
 ## Documentation Maintenance
 
 **Always check what was changed and update the README accordingly.**

@@ -16,6 +16,12 @@ Merging these branches into each other will cause conflicts and break the intend
 
 Any updates to project-wide instructions in this file must be applied to both `original` and `chainguard` branches. This file contains rules that apply to the entire project, not just one implementation.
 
+## Critical: Keep Architecture Diagram in Sync
+
+**ALWAYS KEEP THE ARCHITECTURE DIAGRAM IDENTICAL ACROSS BOTH BRANCHES.**
+
+The architecture diagram in README.md must be synchronized between `original` and `chainguard` branches. Any updates to the diagram must be applied to both branches immediately. This ensures consistent documentation regardless of which branch is being viewed.
+
 ## Documentation Maintenance
 
 **Always check what was changed and update the README accordingly.**

@@ -59,7 +59,9 @@ services:
 
   # LLM Service (RAG Query)
   llm-service:
-    build: ./services/llm-service
+    build:
+      context: ./services/llm-service
+      dockerfile: Dockerfile.cpu
     environment:
       - EMBEDDING_SERVICE_URL=http://embedding-service:8000
       - OPENSEARCH_URL=http://opensearch:9200

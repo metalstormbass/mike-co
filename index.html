@@ -194,15 +194,24 @@
                     </td></tr>
                 `;
 
-                // Fetch both index pages
+                // Add cache-busting timestamp to force fresh data
+                const cacheBuster = new Date().getTime();
+
+                // Fetch both index pages with cache-busting and proper headers
                 const [origResponse, cgResponse] = await Promise.all([
-                    fetch('original/index.html'),
-                    fetch('chainguard/index.html')
+                    fetch(`original/index.html?v=${cacheBuster}`, {
+                        cache: 'no-cache',
+                        headers: { 'Cache-Control': 'no-cache, no-store, must-revalidate' }
+                    }),
+                    fetch(`chainguard/index.html?v=${cacheBuster}`, {
+                        cache: 'no-cache',
+                        headers: { 'Cache-Control': 'no-cache, no-store, must-revalidate' }
+                    })
                 ]);
 
                 // Verify both responses are OK
                 if (!origResponse.ok || !cgResponse.ok) {
-                    throw new Error('Failed to fetch scan results from both branches');
+                    throw new Error(`Failed to fetch scan results: Original=${origResponse.status}, Chainguard=${cgResponse.status}`);
                 }
 
                 const origText = await origResponse.text();
@@ -210,9 +219,18 @@
 
                 // Extract scan data from script tags using regex
                 const extractData = (html) => {
-                    const match = html.match(/const scanData = (\[.*?\]);/s);
-                    if (!match) return null;
-                    return JSON.parse(match[1]);
+                    // Use greedy match to capture entire array
+                    const match = html.match(/const scanData = (\[[\s\S]*?\]);/);
+                    if (!match) {
+                        console.error('Failed to match scanData in HTML');
+                        return null;
+                    }
+                    try {
+                        return JSON.parse(match[1]);
+                    } catch (e) {
+                        console.error('Failed to parse scanData JSON:', e);
+                        return null;
+                    }
                 };
 
                 const origData = extractData(origText);

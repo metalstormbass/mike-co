@@ -105,6 +105,7 @@ cat > "$OUTPUT_HTML" << 'VULNHTML'
             <button class="filter-btn" data-filter="high">High</button>
             <button class="filter-btn" data-filter="medium">Medium</button>
             <button class="filter-btn" data-filter="low">Low</button>
+            <button class="filter-btn" id="fixable-filter" style="margin-left: auto;">Has Fix</button>
             <input type="text" class="search-box" id="search-box" placeholder="Search by CVE ID, image name, or package...">
         </div>
 
@@ -120,6 +121,7 @@ cat > "$OUTPUT_HTML" << 'VULNHTML'
         let allVulnerabilities = [];
         let currentFilter = 'all';
         let currentSearch = '';
+        let showOnlyFixable = false;
 
         async function loadVulnerabilities() {
             try {
@@ -235,6 +237,11 @@ cat > "$OUTPUT_HTML" << 'VULNHTML'
                     return false;
                 }
 
+                // Filter by fixable
+                if (showOnlyFixable && v.fixedIn === 'No fix available') {
+                    return false;
+                }
+
                 // Filter by search
                 if (currentSearch) {
                     const search = currentSearch.toLowerCase();
@@ -309,14 +316,21 @@ cat > "$OUTPUT_HTML" << 'VULNHTML'
             content.classList.toggle('expanded');
         }
 
-        // Filter buttons
-        document.querySelectorAll('.filter-btn').forEach(btn => {
+        // Severity filter buttons
+        document.querySelectorAll('.filter-btn[data-filter]').forEach(btn => {
             btn.addEventListener('click', () => {
-                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('.filter-btn[data-filter]').forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
                 currentFilter = btn.dataset.filter;
                 renderVulnerabilities();
             });
+        });
+
+        // Fixable filter button (toggle)
+        document.getElementById('fixable-filter').addEventListener('click', (e) => {
+            showOnlyFixable = !showOnlyFixable;
+            e.target.classList.toggle('active');
+            renderVulnerabilities();
         });
 
         // Search box

@@ -1,8 +1,6 @@
-FROM cgr.dev/mikeco.com/pytorch:2.8-py3.11-cuda12.8-cudnn9-dev
+FROM cgr.dev/mikeco.com/python:3.11-dev
 USER root
 WORKDIR /app
-
-# Install system dependencies and Python packages, then clean up
 
 COPY requirements-cpu.txt .
 RUN pip install --no-cache-dir -r requirements-cpu.txt \

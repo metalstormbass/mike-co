@@ -443,21 +443,37 @@ cat >> "$OUTPUT_HTML" << 'HTMLEND'
 
         async function loadVulnerabilityStats() {
             try {
+                console.log('Migration page: Loading vulnerability stats...');
+
                 // Fetch JSON data files directly
                 const [origResponse, cgResponse] = await Promise.all([
                     fetch('../data/original.json'),
                     fetch('../data/chainguard.json')
                 ]);
 
+                console.log('Migration page: Fetch responses:', {
+                    original: origResponse.status,
+                    chainguard: cgResponse.status
+                });
+
                 if (!origResponse.ok || !cgResponse.ok) {
-                    console.error('Failed to fetch scan data');
+                    console.error('Migration page: Failed to fetch scan data');
                     return;
                 }
 
+                console.log('Migration page: Parsing JSON...');
                 const origData = await origResponse.json();
                 const cgData = await cgResponse.json();
 
-                if (!origData || !cgData) return;
+                console.log('Migration page: Parsed data:', {
+                    originalLength: origData?.length,
+                    chainguardLength: cgData?.length
+                });
+
+                if (!origData || !cgData) {
+                    console.error('Migration page: Missing data');
+                    return;
+                }
 
                 // Parse scan data into maps
                 const parseScans = (data) => {
@@ -508,46 +524,67 @@ cat >> "$OUTPUT_HTML" << 'HTMLEND'
         }
 
         function updateVulnBadge(id, origTotal, cgTotal) {
+            console.log(`Migration page: Updating badge ${id}:`, { origTotal, cgTotal });
             const badge = document.getElementById('vuln-' + id);
-            if (!badge) return;
+            if (!badge) {
+                console.error(`Migration page: Badge element not found: vuln-${id}`);
+                return;
+            }
 
-            const reduction = origTotal - cgTotal;
-            const reductionPercent = origTotal > 0 ? ((reduction / origTotal) * 100).toFixed(1) : 0;
+            try {
+                const reduction = origTotal - cgTotal;
+                const reductionPercent = origTotal > 0 ? ((reduction / origTotal) * 100).toFixed(1) : 0;
 
-            badge.classList.remove('loading', 'positive', 'negative', 'neutral');
+                badge.classList.remove('loading', 'positive', 'negative', 'neutral');
 
-            if (reduction > 0) {
-                badge.classList.add('positive');
-                badge.innerHTML = `↓ ${reduction} vulns (-${reductionPercent}%)`;
-            } else if (reduction < 0) {
-                badge.classList.add('negative');
-                badge.innerHTML = `↑ ${Math.abs(reduction)} vulns (+${Math.abs(reductionPercent)}%)`;
-            } else {
-                badge.classList.add('neutral');
-                badge.innerHTML = 'No change';
+                if (reduction > 0) {
+                    badge.classList.add('positive');
+                    badge.innerHTML = `↓ ${reduction} vulns (-${reductionPercent}%)`;
+                } else if (reduction < 0) {
+                    badge.classList.add('negative');
+                    badge.innerHTML = `↑ ${Math.abs(reduction)} vulns (+${Math.abs(reductionPercent)}%)`;
+                } else {
+                    badge.classList.add('neutral');
+                    badge.innerHTML = 'No change';
+                }
+            } catch (error) {
+                console.error(`Migration page: Error updating badge ${id}:`, error);
+                throw error;
             }
         }
 
         // Load diff data
-        const diffs = DIFF_DATA_PLACEHOLDER;
+        try {
+            console.log('Migration page: Loading diffs...');
+            const diffs = DIFF_DATA_PLACEHOLDER;
 
-        // Apply diffs
-        Object.keys(diffs).forEach(key => {
-            const element = document.getElementById(key + '-diff');
-            if (element) {
+            console.log('Migration page: Applying diffs...');
+            // Apply diffs
+            Object.keys(diffs).forEach(key => {
+                const element = document.getElementById(key + '-diff');
+                if (!element) {
+                    console.error(`Migration page: Diff element not found: ${key}-diff`);
+                    return;
+                }
                 element.innerHTML = formatDiff(diffs[key]);
+            });
+
+            // Update stats
+            console.log('Migration page: Updating stats...');
+            const dockerfileCount = Object.keys(diffs).filter(k => k !== 'compose').length;
+            const dockerfileCountEl = document.getElementById('dockerfile-count');
+            if (!dockerfileCountEl) {
+                console.error('Migration page: dockerfile-count element not found');
+            } else {
+                dockerfileCountEl.textContent = dockerfileCount;
             }
-        });
 
-        // Update stats
-        const dockerfileCount = Object.keys(diffs).filter(k => k !== 'compose').length;
-        const dockerfileCountEl = document.getElementById('dockerfile-count');
-        if (dockerfileCountEl) {
-            dockerfileCountEl.textContent = dockerfileCount;
+            // Load vulnerability stats
+            console.log('Migration page: Loading vulnerability stats...');
+            loadVulnerabilityStats();
+        } catch (error) {
+            console.error('Migration page: Error in initialization:', error);
         }
-
-        // Load vulnerability stats
-        loadVulnerabilityStats();
     </script>
 </body>
 </html>

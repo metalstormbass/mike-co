@@ -191,19 +191,35 @@ cat > "$OUTPUT_HTML" << 'MAINHTML'
 
         async function loadComparisonData() {
             try {
+                console.log('Starting loadComparisonData...');
+
                 // Fetch JSON data files directly
+                console.log('Fetching JSON data files...');
                 const [origResponse, cgResponse] = await Promise.all([
                     fetch('data/original.json'),
                     fetch('data/chainguard.json')
                 ]);
+
+                console.log('Fetch responses:', {
+                    original: origResponse.status,
+                    chainguard: cgResponse.status
+                });
 
                 // Verify both responses are OK
                 if (!origResponse.ok || !cgResponse.ok) {
                     throw new Error(`Failed to fetch scan data: Original=${origResponse.status}, Chainguard=${cgResponse.status}`);
                 }
 
+                console.log('Parsing JSON data...');
                 const origData = await origResponse.json();
                 const cgData = await cgResponse.json();
+
+                console.log('Parsed data:', {
+                    originalLength: origData?.length,
+                    chainguardLength: cgData?.length,
+                    originalSample: origData?.[0],
+                    chainguardSample: cgData?.[0]
+                });
 
                 // Verify both datasets have data
                 if (!Array.isArray(origData) || !Array.isArray(cgData)) {
@@ -232,11 +248,19 @@ cat > "$OUTPUT_HTML" << 'MAINHTML'
 
                 // Update table
                 const updateCell = (id, value, isWinner = false) => {
+                    console.log(`Updating cell: ${id} with value: ${value}`);
                     const cell = document.getElementById(id);
-                    if (cell) {
+                    if (!cell) {
+                        console.error(`Element not found: ${id}`);
+                        return;
+                    }
+                    try {
                         cell.textContent = value;
                         cell.classList.remove('loading');
                         if (isWinner) cell.classList.add('winner');
+                    } catch (error) {
+                        console.error(`Error updating cell ${id}:`, error);
+                        throw error;
                     }
                 };
 
@@ -308,6 +332,11 @@ cat > "$OUTPUT_HTML" << 'MAINHTML'
 
         function loadPerImageComparison(origData, cgData) {
             try {
+                console.log('Starting loadPerImageComparison...', {
+                    origDataLength: origData.length,
+                    cgDataLength: cgData.length
+                });
+
                 // Image mapping between original and chainguard branches
                 const imageMapping = {
                     'ollama/ollama:latest': 'cgr.dev/mikeco.com/ollama:latest-dev-cg',

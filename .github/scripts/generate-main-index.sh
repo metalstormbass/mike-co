@@ -97,7 +97,7 @@ cat > "$OUTPUT_HTML" << 'MAINHTML'
                 <span class="icon">🔄</span> Migration
             </a>
             <a href="vulnerabilities/" class="branch-link vulnerabilities">
-                <span class="icon">🔴</span> OS Vulnerabilities
+                <span class="icon">🎫</span> Tickets
             </a>
         </div>
 

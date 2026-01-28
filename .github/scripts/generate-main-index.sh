@@ -33,14 +33,16 @@ cat > "$OUTPUT_HTML" << 'MAINHTML'
         .winner { background: linear-gradient(135deg, #065f46, #047857); color: white !important; font-weight: 800 !important; padding: 8px 16px !important; border-radius: 8px; }
         .loading { color: #71717a; font-style: italic; }
 
-        .branches { display: flex; gap: 30px; justify-content: center; flex-wrap: wrap; margin-top: 40px; }
-        .branch-link { display: block; padding: 35px 60px; background: linear-gradient(135deg, #1e3a8a, #1e40af); color: white; text-decoration: none; border-radius: 16px; font-size: 1.4em; font-weight: 700; transition: all 0.3s; border: 2px solid #1e40af; box-shadow: 0 4px 20px rgba(30,58,138,0.4); text-transform: uppercase; letter-spacing: 1px; }
-        .branch-link:hover { transform: translateY(-8px); box-shadow: 0 8px 30px rgba(30,58,138,0.6); background: linear-gradient(135deg, #1e40af, #2563eb); }
-        .chainguard { background: linear-gradient(135deg, #0e7490, #0891b2); border-color: #0891b2; box-shadow: 0 4px 20px rgba(8,145,178,0.4); }
-        .chainguard:hover { background: linear-gradient(135deg, #0891b2, #06b6d4); box-shadow: 0 8px 30px rgba(8,145,178,0.6); }
-        .migration { background: linear-gradient(135deg, #7c3aed, #8b5cf6); border-color: #8b5cf6; box-shadow: 0 4px 20px rgba(139,92,246,0.4); }
-        .migration:hover { background: linear-gradient(135deg, #8b5cf6, #a78bfa); box-shadow: 0 8px 30px rgba(139,92,246,0.6); }
-        .icon { font-size: 1.2em; margin-right: 10px; }
+        .branches { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-bottom: 40px; }
+        .branch-link { display: inline-block; padding: 12px 20px; background: linear-gradient(135deg, #1e3a8a, #1e40af); color: white; text-decoration: none; border-radius: 8px; font-size: 0.9em; font-weight: 600; transition: all 0.3s; border: 2px solid #1e40af; box-shadow: 0 2px 10px rgba(30,58,138,0.3); }
+        .branch-link:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(30,58,138,0.5); background: linear-gradient(135deg, #1e40af, #2563eb); }
+        .chainguard { background: linear-gradient(135deg, #0e7490, #0891b2); border-color: #0891b2; box-shadow: 0 2px 10px rgba(8,145,178,0.3); }
+        .chainguard:hover { background: linear-gradient(135deg, #0891b2, #06b6d4); box-shadow: 0 4px 15px rgba(8,145,178,0.5); }
+        .migration { background: linear-gradient(135deg, #7c3aed, #8b5cf6); border-color: #8b5cf6; box-shadow: 0 2px 10px rgba(139,92,246,0.3); }
+        .migration:hover { background: linear-gradient(135deg, #8b5cf6, #a78bfa); box-shadow: 0 4px 15px rgba(139,92,246,0.5); }
+        .vulnerabilities { background: linear-gradient(135deg, #b91c1c, #dc2626); border-color: #dc2626; box-shadow: 0 2px 10px rgba(220,38,38,0.3); }
+        .vulnerabilities:hover { background: linear-gradient(135deg, #dc2626, #ef4444); box-shadow: 0 4px 15px rgba(220,38,38,0.5); }
+        .icon { font-size: 1em; margin-right: 6px; }
 
         .footer { text-align: center; margin-top: 50px; padding-top: 30px; border-top: 2px solid #27272a; color: #71717a; font-size: 0.95em; }
         .footer a { color: #60a5fa; text-decoration: none; }
@@ -82,6 +84,21 @@ cat > "$OUTPUT_HTML" << 'MAINHTML'
         <div class="header">
             <h1>Security Scan Results</h1>
             <p class="subtitle">Container Image Vulnerability Comparison</p>
+        </div>
+
+        <div class="branches">
+            <a href="original/" class="branch-link">
+                <span class="icon">🐳</span> Original
+            </a>
+            <a href="chainguard/" class="branch-link chainguard">
+                <span class="icon">🔒</span> Chainguard
+            </a>
+            <a href="migration/" class="branch-link migration">
+                <span class="icon">🔄</span> Migration
+            </a>
+            <a href="vulnerabilities/" class="branch-link vulnerabilities">
+                <span class="icon">🔴</span> OS Vulnerabilities
+            </a>
         </div>
 
         <div class="comparison">
@@ -166,18 +183,6 @@ cat > "$OUTPUT_HTML" << 'MAINHTML'
                     </tbody>
                 </table>
             </div>
-        </div>
-
-        <div class="branches">
-            <a href="original/" class="branch-link">
-                <span class="icon">🐳</span> Original Branch
-            </a>
-            <a href="chainguard/" class="branch-link chainguard">
-                <span class="icon">🔒</span> Chainguard Branch
-            </a>
-            <a href="migration/" class="branch-link migration">
-                <span class="icon">🔄</span> Migration Guide
-            </a>
         </div>
 
         <div class="footer">

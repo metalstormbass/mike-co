@@ -246,13 +246,15 @@ cat > "$OUTPUT_HTML" << 'MAINHTML'
                 const orig = calculateTotals(origData);
                 const cg = calculateTotals(cgData);
 
+                console.log('Calculated totals:', { orig, cg });
+
                 // Update table
                 const updateCell = (id, value, isWinner = false) => {
                     console.log(`Updating cell: ${id} with value: ${value}`);
                     const cell = document.getElementById(id);
                     if (!cell) {
                         console.error(`Element not found: ${id}`);
-                        return;
+                        throw new Error(`Required element ${id} not found in DOM`);
                     }
                     try {
                         cell.textContent = value;
@@ -293,6 +295,8 @@ cat > "$OUTPUT_HTML" << 'MAINHTML'
                 updateCell('orig-total', orig.total);
                 updateCell('cg-total', cg.total, cg.total < orig.total);
                 updateCell('diff-total', calcImprovement(orig.total, cg.total));
+
+                console.log('Successfully updated all cells');
 
                 // Load per-image comparison
                 loadPerImageComparison(origData, cgData);

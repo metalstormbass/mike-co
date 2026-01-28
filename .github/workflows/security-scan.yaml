@@ -649,14 +649,17 @@ jobs:
         run: |
           mkdir -p gh-pages/original
           mkdir -p gh-pages/original/scans
+          mkdir -p gh-pages/original/scan-results
           mkdir -p gh-pages/chainguard
           mkdir -p gh-pages/chainguard/scans
           mkdir -p gh-pages/migration
+          mkdir -p gh-pages/vulnerabilities
           mkdir -p gh-pages/data
 
           # Copy original branch results
           cp scan-results-original/index.html gh-pages/original/
           cp scan-results-original/scans/*.html gh-pages/original/scans/ 2>/dev/null || true
+          cp scan-results-original/*.json gh-pages/original/scan-results/ 2>/dev/null || true
           cp scan-results-original/scan-results.json gh-pages/data/original.json
 
           # Copy chainguard branch results
@@ -676,6 +679,11 @@ jobs:
       - name: Generate migration page
         run: |
           .github/scripts/generate-migration-page.sh gh-pages/migration/index.html
+
+      - name: Generate vulnerabilities page
+        run: |
+          chmod +x .github/scripts/generate-vulnerabilities-page.sh
+          .github/scripts/generate-vulnerabilities-page.sh gh-pages/vulnerabilities/index.html
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3

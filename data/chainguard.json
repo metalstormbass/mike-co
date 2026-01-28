@@ -2,111 +2,111 @@
   {
     "image": "nginx",
     "size": "17MB",
-    "scanDate": "2026-01-28 00:12:48 UTC",
+    "scanDate": "2026-01-28 12:45:26 UTC",
     "critical": 0,
-    "high": 1,
+    "high": 0,
     "medium": 0,
     "low": 0,
     "negligible": 0,
-    "total": 1
+    "total": 0
   },
   {
     "image": "frontend",
     "size": "17.3MB",
-    "scanDate": "2026-01-28 00:12:53 UTC",
+    "scanDate": "2026-01-28 12:45:31 UTC",
     "critical": 0,
-    "high": 1,
+    "high": 0,
     "medium": 0,
+    "low": 0,
+    "negligible": 0,
+    "total": 0
+  },
+  {
+    "image": "api-gateway",
+    "size": "783MB",
+    "scanDate": "2026-01-28 12:45:43 UTC",
+    "critical": 0,
+    "high": 4,
+    "medium": 0,
+    "low": 0,
+    "negligible": 0,
+    "total": 4
+  },
+  {
+    "image": "embedding-service",
+    "size": "885MB",
+    "scanDate": "2026-01-28 12:45:56 UTC",
+    "critical": 2,
+    "high": 8,
+    "medium": 20,
+    "low": 4,
+    "negligible": 0,
+    "total": 34
+  },
+  {
+    "image": "llm-service",
+    "size": "722MB",
+    "scanDate": "2026-01-28 12:46:07 UTC",
+    "critical": 1,
+    "high": 4,
+    "medium": 16,
+    "low": 7,
+    "negligible": 0,
+    "total": 28
+  },
+  {
+    "image": "document-processor",
+    "size": "764MB",
+    "scanDate": "2026-01-28 12:46:19 UTC",
+    "critical": 1,
+    "high": 7,
+    "medium": 17,
+    "low": 7,
+    "negligible": 0,
+    "total": 32
+  },
+  {
+    "image": "cgr.dev/mikeco.com/ollama:latest-dev",
+    "size": "8.38GB",
+    "scanDate": "2026-01-28 12:49:08 UTC",
+    "critical": 0,
+    "high": 0,
+    "medium": 0,
+    "low": 0,
+    "negligible": 0,
+    "total": 0
+  },
+  {
+    "image": "cgr.dev/mikeco.com/opensearch:2",
+    "size": "1.12GB",
+    "scanDate": "2026-01-28 12:49:46 UTC",
+    "critical": 0,
+    "high": 0,
+    "medium": 1,
     "low": 0,
     "negligible": 0,
     "total": 1
   },
   {
-    "image": "api-gateway",
-    "size": "783MB",
-    "scanDate": "2026-01-28 00:13:04 UTC",
-    "critical": 0,
-    "high": 5,
-    "medium": 1,
-    "low": 0,
-    "negligible": 0,
-    "total": 6
-  },
-  {
-    "image": "embedding-service",
-    "size": "885MB",
-    "scanDate": "2026-01-28 00:13:17 UTC",
-    "critical": 2,
-    "high": 9,
-    "medium": 21,
-    "low": 4,
-    "negligible": 0,
-    "total": 36
-  },
-  {
-    "image": "llm-service",
-    "size": "722MB",
-    "scanDate": "2026-01-28 00:13:28 UTC",
-    "critical": 1,
-    "high": 5,
-    "medium": 17,
-    "low": 7,
-    "negligible": 0,
-    "total": 30
-  },
-  {
-    "image": "document-processor",
-    "size": "764MB",
-    "scanDate": "2026-01-28 00:13:40 UTC",
-    "critical": 1,
-    "high": 8,
-    "medium": 18,
-    "low": 7,
-    "negligible": 0,
-    "total": 34
-  },
-  {
-    "image": "cgr.dev/mikeco.com/ollama:latest-dev",
-    "size": "8.38GB",
-    "scanDate": "2026-01-28 00:17:38 UTC",
-    "critical": 0,
-    "high": 1,
-    "medium": 1,
-    "low": 0,
-    "negligible": 0,
-    "total": 2
-  },
-  {
-    "image": "cgr.dev/mikeco.com/opensearch:2",
-    "size": "1.12GB",
-    "scanDate": "2026-01-28 00:18:33 UTC",
-    "critical": 0,
-    "high": 1,
-    "medium": 2,
-    "low": 0,
-    "negligible": 0,
-    "total": 3
-  },
-  {
     "image": "cgr.dev/mikeco.com/postgres:16",
     "size": "407MB",
-    "scanDate": "2026-01-28 00:18:49 UTC",
+    "scanDate": "2026-01-28 12:50:01 UTC",
     "critical": 0,
-    "high": 1,
-    "medium": 1,
+    "high": 0,
+    "medium": 0,
     "low": 0,
     "negligible": 0,
-    "total": 2
+    "total": 0
   },
   {
     "image": "cgr.dev/mikeco.com/redis:7",
     "size": "25MB",
-    "scanDate": "2026-01-28 00:18:55 UTC",
+    "scanDate": "2026-01-28 12:50:05 UTC",
     "critical": 0,
-    "high": 1,
-    "medium": 1,
+    "high": 0,
+    "medium": 0,
     "low": 1,
     "negligible": 0,
-    "total": 3
+    "total": 1
   }
 ]

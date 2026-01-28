@@ -1,8 +1,8 @@
 [
   {
-    "image": "nginx",
+    "image": "nginx-cg",
     "size": "209MB",
-    "scanDate": "2026-01-28 16:36:47 UTC",
+    "scanDate": "2026-01-28 16:55:08 UTC",
     "critical": 1,
     "high": 17,
     "medium": 35,
@@ -11,9 +11,9 @@
     "total": 162
   },
   {
-    "image": "frontend",
+    "image": "frontend-cg",
     "size": "210MB",
-    "scanDate": "2026-01-28 16:36:54 UTC",
+    "scanDate": "2026-01-28 16:55:15 UTC",
     "critical": 1,
     "high": 17,
     "medium": 35,
@@ -22,9 +22,9 @@
     "total": 162
   },
   {
-    "image": "api-gateway",
+    "image": "api-gateway-cg",
     "size": "306MB",
-    "scanDate": "2026-01-28 16:37:02 UTC",
+    "scanDate": "2026-01-28 16:55:22 UTC",
     "critical": 0,
     "high": 17,
     "medium": 21,
@@ -33,9 +33,9 @@
     "total": 90
   },
   {
-    "image": "embedding-service",
+    "image": "embedding-service-cg",
     "size": "649MB",
-    "scanDate": "2026-01-28 16:37:13 UTC",
+    "scanDate": "2026-01-28 16:55:33 UTC",
     "critical": 3,
     "high": 28,
     "medium": 45,
@@ -44,9 +44,9 @@
     "total": 499
   },
   {
-    "image": "llm-service",
+    "image": "llm-service-cg",
     "size": "486MB",
-    "scanDate": "2026-01-28 16:37:22 UTC",
+    "scanDate": "2026-01-28 16:55:42 UTC",
     "critical": 2,
     "high": 24,
     "medium": 41,
@@ -55,9 +55,9 @@
     "total": 493
   },
   {
-    "image": "document-processor",
+    "image": "document-processor-cg",
     "size": "526MB",
-    "scanDate": "2026-01-28 16:37:31 UTC",
+    "scanDate": "2026-01-28 16:55:52 UTC",
     "critical": 2,
     "high": 27,
     "medium": 42,
@@ -66,9 +66,9 @@
     "total": 497
   },
   {
-    "image": "ollama/ollama:latest",
+    "image": "ollama/ollama:latest-cg",
     "size": "5.62GB",
-    "scanDate": "2026-01-28 16:39:11 UTC",
+    "scanDate": "2026-01-28 16:57:32 UTC",
     "critical": 1,
     "high": 8,
     "medium": 31,
@@ -77,9 +77,9 @@
     "total": 69
   },
   {
-    "image": "opensearchproject/opensearch:2.11.0",
+    "image": "opensearchproject/opensearch:2.11.0-cg",
     "size": "1.22GB",
-    "scanDate": "2026-01-28 16:39:42 UTC",
+    "scanDate": "2026-01-28 16:58:03 UTC",
     "critical": 1,
     "high": 66,
     "medium": 153,
@@ -88,9 +88,9 @@
     "total": 251
   },
   {
-    "image": "postgres:16-bookworm",
+    "image": "postgres:16-bookworm-cg",
     "size": "435MB",
-    "scanDate": "2026-01-28 16:39:57 UTC",
+    "scanDate": "2026-01-28 16:58:18 UTC",
     "critical": 1,
     "high": 32,
     "medium": 55,
@@ -99,9 +99,9 @@
     "total": 205
   },
   {
-    "image": "redis:7-bookworm",
+    "image": "redis:7-bookworm-cg",
     "size": "117MB",
-    "scanDate": "2026-01-28 16:40:03 UTC",
+    "scanDate": "2026-01-28 16:58:24 UTC",
     "critical": 8,
     "high": 46,
     "medium": 51,

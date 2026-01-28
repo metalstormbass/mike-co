@@ -174,12 +174,15 @@ jobs:
 
             rm -rf "$TMPDIR"
 
+            # Append -cg to service name for Chainguard branch display
+            DISPLAY_NAME="${SERVICE}-cg"
+
             # Generate HTML report and get scan data
             SCAN_DATE=$(date -u '+%Y-%m-%d %H:%M:%S UTC')
             SCAN_DATA=$(.github/scripts/generate-scan-report.sh \
               "scan-results/${SAFE_NAME}.json" \
               "scan-results/scans/${SAFE_NAME}.html" \
-              "$SERVICE" \
+              "$DISPLAY_NAME" \
               "$IMAGE_SIZE" \
               "$SCAN_DATE" \
               "$WORKFLOW_URL")
@@ -227,12 +230,15 @@ jobs:
 
             rm -rf "$TMPDIR"
 
+            # Append -cg to the image name for Chainguard branch display
+            DISPLAY_IMAGE="${IMAGE}-cg"
+
             # Generate HTML report and get scan data
             SCAN_DATE=$(date -u '+%Y-%m-%d %H:%M:%S UTC')
             SCAN_DATA=$(.github/scripts/generate-scan-report.sh \
               "scan-results/${SAFE_NAME}.json" \
               "scan-results/scans/${SAFE_NAME}.html" \
-              "$IMAGE" \
+              "$DISPLAY_IMAGE" \
               "$IMAGE_SIZE" \
               "$SCAN_DATE" \
               "$WORKFLOW_URL")
@@ -578,12 +584,15 @@ jobs:
 
             rm -rf "$TMPDIR"
 
+            # Append -cg to service name for Chainguard branch display
+            DISPLAY_NAME="${SERVICE}-cg"
+
             # Generate HTML report and get scan data
             SCAN_DATE=$(date -u '+%Y-%m-%d %H:%M:%S UTC')
             SCAN_DATA=$(.github/scripts/generate-scan-report.sh \
               "scan-results/${SAFE_NAME}.json" \
               "scan-results/scans/${SAFE_NAME}.html" \
-              "$SERVICE" \
+              "$DISPLAY_NAME" \
               "$IMAGE_SIZE" \
               "$SCAN_DATE" \
               "$WORKFLOW_URL")
@@ -631,12 +640,15 @@ jobs:
 
             rm -rf "$TMPDIR"
 
+            # Append -cg to the image name for Chainguard branch display
+            DISPLAY_IMAGE="${IMAGE}-cg"
+
             # Generate HTML report and get scan data
             SCAN_DATE=$(date -u '+%Y-%m-%d %H:%M:%S UTC')
             SCAN_DATA=$(.github/scripts/generate-scan-report.sh \
               "scan-results/${SAFE_NAME}.json" \
               "scan-results/scans/${SAFE_NAME}.html" \
-              "$IMAGE" \
+              "$DISPLAY_IMAGE" \
               "$IMAGE_SIZE" \
               "$SCAN_DATE" \
               "$WORKFLOW_URL")

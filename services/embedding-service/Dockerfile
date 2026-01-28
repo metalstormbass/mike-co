@@ -1,16 +1,14 @@
-FROM pytorch/pytorch:2.1.0-cuda12.1-cudnn8-runtime
+FROM python:3.11-slim-bookworm
 
 WORKDIR /app
 
-# Install system dependencies and Python packages, then clean up
-RUN apt-get update && apt-get install -y --no-install-recommends \
+# Install system dependencies
+RUN apt-get update && apt-get upgrade -y && apt-get install -y --no-install-recommends \
     build-essential \
     && rm -rf /var/lib/apt/lists/*
 
 COPY requirements-cpu.txt .
-RUN pip install --no-cache-dir -r requirements-cpu.txt \
-    && apt-get purge -y --auto-remove build-essential \
-    && rm -rf /root/.cache/pip
+RUN pip install --no-cache-dir -r requirements-cpu.txt
 
 COPY src/ ./src/
 

@@ -193,16 +193,6 @@ cat > "$OUTPUT_HTML" << 'MAINHTML'
             try {
                 console.log('Starting loadComparisonData...');
 
-                // Show loading state
-                document.getElementById('comparison-body').innerHTML = `
-                    <tr><td colspan="4" style="text-align: center; padding: 20px; color: #a1a1aa;">
-                        <div style="display: flex; align-items: center; justify-content: center; gap: 10px;">
-                            <div style="width: 20px; height: 20px; border: 3px solid #27272a; border-top-color: #60a5fa; border-radius: 50%; animation: spin 1s linear infinite;"></div>
-                            Loading scan data...
-                        </div>
-                    </td></tr>
-                `;
-
                 // Fetch JSON data files directly
                 console.log('Fetching JSON data files...');
                 const [origResponse, cgResponse] = await Promise.all([
@@ -256,13 +246,15 @@ cat > "$OUTPUT_HTML" << 'MAINHTML'
                 const orig = calculateTotals(origData);
                 const cg = calculateTotals(cgData);
 
+                console.log('Calculated totals:', { orig, cg });
+
                 // Update table
                 const updateCell = (id, value, isWinner = false) => {
                     console.log(`Updating cell: ${id} with value: ${value}`);
                     const cell = document.getElementById(id);
                     if (!cell) {
                         console.error(`Element not found: ${id}`);
-                        return;
+                        throw new Error(`Required element ${id} not found in DOM`);
                     }
                     try {
                         cell.textContent = value;
@@ -303,6 +295,8 @@ cat > "$OUTPUT_HTML" << 'MAINHTML'
                 updateCell('orig-total', orig.total);
                 updateCell('cg-total', cg.total, cg.total < orig.total);
                 updateCell('diff-total', calcImprovement(orig.total, cg.total));
+
+                console.log('Successfully updated all cells');
 
                 // Load per-image comparison
                 loadPerImageComparison(origData, cgData);

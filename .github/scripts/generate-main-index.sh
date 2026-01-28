@@ -284,21 +284,26 @@ cat > "$OUTPUT_HTML" << 'MAINHTML'
             } catch (error) {
                 console.error('Error loading comparison data:', error);
                 // Show error state to user
-                document.getElementById('comparison-body').innerHTML = `
-                    <tr><td colspan="4" class="error-state">
-                        <div class="error-icon">⚠️</div>
-                        <div><strong>Failed to load scan data</strong></div>
-                        <div style="font-size: 0.9em; margin-top: 10px; color: #a1a1aa;">
-                            ${error.message || 'Unable to fetch scan results. Please try again later.'}
-                        </div>
-                    </td></tr>
-                `;
+                const comparisonBody = document.getElementById('comparison-body');
+                if (comparisonBody) {
+                    comparisonBody.innerHTML = `
+                        <tr><td colspan="4" class="error-state">
+                            <div class="error-icon">⚠️</div>
+                            <div><strong>Failed to load scan data</strong></div>
+                            <div style="font-size: 0.9em; margin-top: 10px; color: #a1a1aa;">
+                                ${error.message || 'Unable to fetch scan results. Please try again later.'}
+                            </div>
+                        </td></tr>
+                    `;
+                }
 
                 // Also show error in per-image section
                 const tbody = document.getElementById('per-image-tbody');
-                tbody.innerHTML = `<tr><td colspan="12" class="error-state">
-                    Unable to load per-image comparison data
-                </td></tr>`;
+                if (tbody) {
+                    tbody.innerHTML = `<tr><td colspan="12" class="error-state">
+                        Unable to load per-image comparison data
+                    </td></tr>`;
+                }
             }
         }
 
@@ -375,6 +380,10 @@ cat > "$OUTPUT_HTML" << 'MAINHTML'
 
                 // Generate table rows
                 const tbody = document.getElementById('per-image-tbody');
+                if (!tbody) {
+                    console.error('per-image-tbody element not found');
+                    return;
+                }
                 tbody.innerHTML = '';
 
                 comparisons.forEach(comp => {
@@ -417,7 +426,9 @@ cat > "$OUTPUT_HTML" << 'MAINHTML'
             } catch (error) {
                 console.error('Error loading per-image comparison:', error);
                 const tbody = document.getElementById('per-image-tbody');
-                tbody.innerHTML = '<tr><td colspan="12" style="text-align: center; padding: 30px; color: #f87171;">Error loading per-image data</td></tr>';
+                if (tbody) {
+                    tbody.innerHTML = '<tr><td colspan="12" style="text-align: center; padding: 30px; color: #f87171;">Error loading per-image data</td></tr>';
+                }
             }
         }
 

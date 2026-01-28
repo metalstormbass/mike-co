@@ -530,7 +530,10 @@ cat >> "$OUTPUT_HTML" << 'HTMLEND'
 
         // Update stats
         const dockerfileCount = Object.keys(diffs).filter(k => k !== 'compose').length;
-        document.getElementById('dockerfile-count').textContent = dockerfileCount;
+        const dockerfileCountEl = document.getElementById('dockerfile-count');
+        if (dockerfileCountEl) {
+            dockerfileCountEl.textContent = dockerfileCount;
+        }
 
         // Load vulnerability stats
         loadVulnerabilityStats();

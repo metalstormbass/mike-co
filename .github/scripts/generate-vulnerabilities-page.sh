@@ -151,7 +151,8 @@ cat > "$OUTPUT_HTML" << 'VULNHTML'
 
                 for (const scan of scanData) {
                     const imageName = scan.image;
-                    const scanFile = scan.image.replace(/[^a-zA-Z0-9]/g, '_') + '.json';
+                    // Match the shell script naming: keep alphanumeric, dots, underscores, and hyphens
+                    const scanFile = scan.image.replace(/[^a-zA-Z0-9._-]/g, '_') + '.json';
                     const isPulledImage = pulledImages.includes(imageName);
 
                     try {

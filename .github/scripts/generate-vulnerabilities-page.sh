@@ -30,12 +30,15 @@ cat > "$OUTPUT_HTML" << 'VULNHTML'
         .high-stat .stat-number { color: #f97316; }
         .total-stat .stat-number { color: #a78bfa; }
 
-        .filters { display: flex; gap: 15px; margin-bottom: 30px; flex-wrap: wrap; align-items: center; }
+        .filters { display: flex; gap: 15px; margin-bottom: 20px; flex-wrap: wrap; align-items: center; }
         .filter-btn { padding: 10px 20px; background: #27272a; color: #e4e4e7; border: 2px solid #27272a; border-radius: 8px; cursor: pointer; transition: all 0.3s; font-size: 0.9em; font-weight: 600; }
         .filter-btn:hover { background: #3f3f46; }
         .filter-btn.active { background: #1e40af; border-color: #2563eb; color: white; }
         .search-box { flex: 1; min-width: 250px; padding: 10px 15px; background: #27272a; border: 2px solid #27272a; border-radius: 8px; color: #e4e4e7; font-size: 0.9em; }
         .search-box:focus { outline: none; border-color: #2563eb; background: #18181b; }
+
+        .result-counter { text-align: center; color: #a1a1aa; font-size: 0.95em; margin-bottom: 20px; padding: 10px; background: #27272a; border-radius: 8px; }
+        .result-counter-number { color: #60a5fa; font-weight: 700; font-size: 1.2em; }
 
         .vuln-list { display: flex; flex-direction: column; gap: 15px; }
         .vuln-item { background: #27272a; border-radius: 12px; overflow: hidden; border: 2px solid #27272a; transition: all 0.3s; }
@@ -108,6 +111,10 @@ cat > "$OUTPUT_HTML" << 'VULNHTML'
             <button class="filter-btn" id="fixable-filter" style="margin-left: auto;">Has Fix</button>
             <button class="filter-btn" id="no-fix-filter">No Fix</button>
             <input type="text" class="search-box" id="search-box" placeholder="Search by CVE ID, image name, or package...">
+        </div>
+
+        <div class="result-counter" id="result-counter">
+            Showing <span class="result-counter-number" id="result-count">0</span> vulnerabilities
         </div>
 
         <div class="vuln-list" id="vuln-list">
@@ -260,6 +267,12 @@ cat > "$OUTPUT_HTML" << 'VULNHTML'
 
                 return true;
             });
+
+            // Update result counter
+            const resultCountEl = document.getElementById('result-count');
+            if (resultCountEl) {
+                resultCountEl.textContent = filtered.length;
+            }
 
             const listEl = document.getElementById('vuln-list');
 

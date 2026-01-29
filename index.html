@@ -331,10 +331,10 @@
 
                 // Image mapping between original and chainguard branches
                 const imageMapping = {
-                    'ollama/ollama:latest': 'cgr.dev/mikeco.com/ollama:latest-dev',
-                    'opensearchproject/opensearch:2.11.0': 'cgr.dev/mikeco.com/opensearch:2',
-                    'postgres:16-bookworm': 'cgr.dev/mikeco.com/postgres:16',
-                    'redis:7-bookworm': 'cgr.dev/mikeco.com/redis:7'
+                    'ollama/ollama:latest': 'cgr.dev/mikeco.com/ollama:latest-dev-cg',
+                    'opensearchproject/opensearch:2.11.0': 'cgr.dev/mikeco.com/opensearch:2-cg',
+                    'postgres:16-bookworm': 'cgr.dev/mikeco.com/postgres:16-cg',
+                    'redis:7-bookworm': 'cgr.dev/mikeco.com/redis:7-cg'
                 };
 
                 // Reverse mapping for looking up
@@ -366,7 +366,11 @@
 
                 // Process all original images
                 Object.keys(origImages).forEach(origName => {
-                    const cgName = imageMapping[origName] || origName;
+                    // For service names (no slash), append -cg to find CG version
+                    // For full image paths, use the mapping
+                    const cgName = origName.includes('/')
+                        ? (imageMapping[origName] || origName + '-cg')
+                        : origName + '-cg';
                     const displayName = origName.includes('cgr.dev') ? origName : origName;
 
                     comparisons.push({
@@ -378,7 +382,8 @@
 
                 // Add any CG-only images that weren't mapped
                 Object.keys(cgImages).forEach(cgName => {
-                    const origName = reverseMapping[cgName] || cgName;
+                    // Strip -cg suffix to find original name
+                    const origName = reverseMapping[cgName] || cgName.replace(/-cg$/, '');
                     if (!origImages[origName] && !origImages[cgName]) {
                         comparisons.push({
                             displayName: cgName,

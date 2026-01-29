@@ -108,9 +108,7 @@ cat > "$OUTPUT_HTML" << 'VULNHTML'
             <button class="filter-btn" data-filter="high">High</button>
             <button class="filter-btn" data-filter="medium">Medium</button>
             <button class="filter-btn" data-filter="low">Low</button>
-            <button class="filter-btn" id="kev-filter" style="margin-left: auto;">In KEV</button>
-            <button class="filter-btn" id="epss-filter">EPSS &gt; 10%</button>
-            <button class="filter-btn" id="fixable-filter">Has Fix</button>
+            <button class="filter-btn" id="fixable-filter" style="margin-left: auto;">Has Fix</button>
             <button class="filter-btn" id="no-fix-filter">No Fix</button>
             <input type="text" class="search-box" id="search-box" placeholder="Search by CVE ID, image name, or package...">
         </div>
@@ -133,8 +131,6 @@ cat > "$OUTPUT_HTML" << 'VULNHTML'
         let currentSearch = '';
         let showOnlyFixable = false;
         let showOnlyNoFix = false;
-        let showOnlyKEV = false;
-        let showOnlyHighEPSS = false;
 
         async function loadVulnerabilities() {
             try {
@@ -188,15 +184,6 @@ cat > "$OUTPUT_HTML" << 'VULNHTML'
                                 const shouldInclude = isPulledImage || ['deb', 'rpm', 'apk'].includes(packageType);
 
                                 if (shouldInclude) {
-                                    // Check for KEV (CISA Known Exploited Vulnerabilities)
-                                    const isKEV = vulnerability.advisories?.some(adv =>
-                                        adv.url?.includes('cisa.gov/known-exploited-vulnerabilities')
-                                    ) || false;
-
-                                    // Extract EPSS score
-                                    const epssScore = vulnerability.epss?.score || null;
-                                    const epssPercentile = vulnerability.epss?.percentile || null;
-
                                     vulnerabilities.push({
                                         id: vulnerability.id || 'UNKNOWN',
                                         severity: (vulnerability.severity || 'Unknown').toLowerCase(),
@@ -207,10 +194,7 @@ cat > "$OUTPUT_HTML" << 'VULNHTML'
                                         fixedIn: vulnerability.fix?.versions?.join(', ') || 'No fix available',
                                         description: vulnerability.description || 'No description available',
                                         urls: vulnerability.urls || [],
-                                        dataSource: vulnerability.dataSource || '',
-                                        isKEV: isKEV,
-                                        epssScore: epssScore,
-                                        epssPercentile: epssPercentile
+                                        dataSource: vulnerability.dataSource || ''
                                     });
                                 }
                             });
@@ -259,16 +243,6 @@ cat > "$OUTPUT_HTML" << 'VULNHTML'
             const filtered = allVulnerabilities.filter(v => {
                 // Filter by severity - allow multiple selections
                 if (!selectedSeverities.has('all') && !selectedSeverities.has(v.severity)) {
-                    return false;
-                }
-
-                // Filter by KEV
-                if (showOnlyKEV && !v.isKEV) {
-                    return false;
-                }
-
-                // Filter by high EPSS (> 10%)
-                if (showOnlyHighEPSS && (!v.epssScore || v.epssScore <= 0.1)) {
                     return false;
                 }
 
@@ -337,15 +311,6 @@ cat > "$OUTPUT_HTML" << 'VULNHTML'
                                 <div class="vuln-section-content code-block">${v.fixedIn}</div>
                             </div>
 
-                            ${v.epssScore !== null ? `
-                            <div class="vuln-section">
-                                <div class="vuln-section-title">Exploitation Probability</div>
-                                <div class="vuln-section-content">
-                                    <span style="background: #3f3f46; color: #e4e4e7; padding: 4px 12px; border-radius: 6px; font-weight: 600; font-size: 0.85em;">EPSS: ${(v.epssScore * 100).toFixed(2)}%${v.epssPercentile !== null ? ` (${v.epssPercentile.toFixed(1)}th percentile)` : ''}</span>
-                                </div>
-                            </div>
-                            ` : ''}
-
                             <div class="vuln-section">
                                 <div class="vuln-section-title">Description</div>
                                 <div class="vuln-section-content">${v.description}</div>
@@ -407,20 +372,6 @@ cat > "$OUTPUT_HTML" << 'VULNHTML'
 
                 renderVulnerabilities();
             });
-        });
-
-        // KEV filter button (toggle)
-        document.getElementById('kev-filter').addEventListener('click', (e) => {
-            showOnlyKEV = !showOnlyKEV;
-            e.target.classList.toggle('active');
-            renderVulnerabilities();
-        });
-
-        // EPSS filter button (toggle)
-        document.getElementById('epss-filter').addEventListener('click', (e) => {
-            showOnlyHighEPSS = !showOnlyHighEPSS;
-            e.target.classList.toggle('active');
-            renderVulnerabilities();
         });
 
         // Fixable filter button (toggle)

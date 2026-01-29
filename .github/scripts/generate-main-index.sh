@@ -28,7 +28,7 @@ cat > "$OUTPUT_HTML" << 'MAINHTML'
         .comparison-table td { border-bottom: 1px solid #27272a; font-size: 1.1em; }
         .comparison-table tr:last-child td { border-bottom: none; }
         .comparison-table .metric-name { text-align: left; font-weight: 600; color: #e4e4e7; }
-        .original-col { color: #a78bfa; font-weight: 700; }
+        .original-col { color: #ef4444; font-weight: 700; }
         .chainguard-col { color: #06b6d4; font-weight: 700; }
         .winner { background: linear-gradient(135deg, #065f46, #047857); color: white !important; font-weight: 800 !important; padding: 8px 16px !important; border-radius: 8px; }
         .loading { color: #71717a; font-style: italic; }
@@ -113,12 +113,6 @@ cat > "$OUTPUT_HTML" << 'MAINHTML'
                     </tr>
                 </thead>
                 <tbody id="comparison-body">
-                    <tr>
-                        <td class="metric-name">Images Scanned</td>
-                        <td class="original-col loading" id="orig-images">Loading...</td>
-                        <td class="chainguard-col loading" id="cg-images">Loading...</td>
-                        <td id="diff-images">-</td>
-                    </tr>
                     <tr>
                         <td class="metric-name">🔴 Critical Vulnerabilities</td>
                         <td class="original-col loading" id="orig-critical">Loading...</td>
@@ -276,10 +270,6 @@ cat > "$OUTPUT_HTML" << 'MAINHTML'
                     const reduction = ((origVal - cgVal) / origVal * 100).toFixed(1);
                     return reduction > 0 ? `↓ ${reduction}%` : reduction < 0 ? `↑ ${Math.abs(reduction)}%` : '=';
                 };
-
-                updateCell('orig-images', orig.images);
-                updateCell('cg-images', cg.images);
-                updateCell('diff-images', orig.images === cg.images ? '=' : `${cg.images - orig.images}`);
 
                 updateCell('orig-critical', orig.critical);
                 updateCell('cg-critical', cg.critical, cg.critical < orig.critical);

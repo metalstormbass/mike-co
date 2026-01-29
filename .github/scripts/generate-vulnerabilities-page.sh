@@ -106,6 +106,7 @@ cat > "$OUTPUT_HTML" << 'VULNHTML'
             <button class="filter-btn" data-filter="medium">Medium</button>
             <button class="filter-btn" data-filter="low">Low</button>
             <button class="filter-btn" id="fixable-filter" style="margin-left: auto;">Has Fix</button>
+            <button class="filter-btn" id="no-fix-filter">No Fix</button>
             <input type="text" class="search-box" id="search-box" placeholder="Search by CVE ID, image name, or package...">
         </div>
 
@@ -122,6 +123,7 @@ cat > "$OUTPUT_HTML" << 'VULNHTML'
         let currentFilter = 'all';
         let currentSearch = '';
         let showOnlyFixable = false;
+        let showOnlyNoFix = false;
 
         async function loadVulnerabilities() {
             try {
@@ -237,8 +239,13 @@ cat > "$OUTPUT_HTML" << 'VULNHTML'
                     return false;
                 }
 
-                // Filter by fixable
+                // Filter by fixable (mutually exclusive with no-fix)
                 if (showOnlyFixable && v.fixedIn === 'No fix available') {
+                    return false;
+                }
+
+                // Filter by no fix (mutually exclusive with fixable)
+                if (showOnlyNoFix && v.fixedIn !== 'No fix available') {
                     return false;
                 }
 
@@ -330,6 +337,27 @@ cat > "$OUTPUT_HTML" << 'VULNHTML'
         document.getElementById('fixable-filter').addEventListener('click', (e) => {
             showOnlyFixable = !showOnlyFixable;
             e.target.classList.toggle('active');
+
+            // Turn off "No Fix" filter if "Has Fix" is activated
+            if (showOnlyFixable && showOnlyNoFix) {
+                showOnlyNoFix = false;
+                document.getElementById('no-fix-filter').classList.remove('active');
+            }
+
+            renderVulnerabilities();
+        });
+
+        // No Fix filter button (toggle)
+        document.getElementById('no-fix-filter').addEventListener('click', (e) => {
+            showOnlyNoFix = !showOnlyNoFix;
+            e.target.classList.toggle('active');
+
+            // Turn off "Has Fix" filter if "No Fix" is activated
+            if (showOnlyNoFix && showOnlyFixable) {
+                showOnlyFixable = false;
+                document.getElementById('fixable-filter').classList.remove('active');
+            }
+
             renderVulnerabilities();
         });
 

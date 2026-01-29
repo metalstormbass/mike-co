@@ -127,7 +127,7 @@ cat > "$OUTPUT_HTML" << 'VULNHTML'
 
     <script>
         let allVulnerabilities = [];
-        let currentFilter = 'all';
+        let selectedSeverities = new Set(['all']);
         let currentSearch = '';
         let showOnlyFixable = false;
         let showOnlyNoFix = false;
@@ -241,8 +241,8 @@ cat > "$OUTPUT_HTML" << 'VULNHTML'
 
         function renderVulnerabilities() {
             const filtered = allVulnerabilities.filter(v => {
-                // Filter by severity
-                if (currentFilter !== 'all' && v.severity !== currentFilter) {
+                // Filter by severity - allow multiple selections
+                if (!selectedSeverities.has('all') && !selectedSeverities.has(v.severity)) {
                     return false;
                 }
 
@@ -336,12 +336,40 @@ cat > "$OUTPUT_HTML" << 'VULNHTML'
             content.classList.toggle('expanded');
         }
 
-        // Severity filter buttons
+        // Severity filter buttons - allow multiple selections
         document.querySelectorAll('.filter-btn[data-filter]').forEach(btn => {
             btn.addEventListener('click', () => {
-                document.querySelectorAll('.filter-btn[data-filter]').forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                currentFilter = btn.dataset.filter;
+                const severity = btn.dataset.filter;
+
+                if (severity === 'all') {
+                    // If "All" is clicked, deselect everything else and select "All"
+                    selectedSeverities.clear();
+                    selectedSeverities.add('all');
+                    document.querySelectorAll('.filter-btn[data-filter]').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                } else {
+                    // Remove "All" if any specific severity is selected
+                    if (selectedSeverities.has('all')) {
+                        selectedSeverities.delete('all');
+                        document.querySelector('.filter-btn[data-filter="all"]').classList.remove('active');
+                    }
+
+                    // Toggle this severity
+                    if (selectedSeverities.has(severity)) {
+                        selectedSeverities.delete(severity);
+                        btn.classList.remove('active');
+
+                        // If no severities selected, revert to "All"
+                        if (selectedSeverities.size === 0) {
+                            selectedSeverities.add('all');
+                            document.querySelector('.filter-btn[data-filter="all"]').classList.add('active');
+                        }
+                    } else {
+                        selectedSeverities.add(severity);
+                        btn.classList.add('active');
+                    }
+                }
+
                 renderVulnerabilities();
             });
         });

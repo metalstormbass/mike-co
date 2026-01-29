@@ -63,11 +63,14 @@ cat > "$OUTPUT_HTML" << 'ENDHTML'
         .stat-label { font-size: 0.9em; opacity: 0.9; margin-top: 8px; text-transform: uppercase; letter-spacing: 1px; }
         .footer { text-align: center; margin-top: 50px; padding-top: 30px; border-top: 2px solid #27272a; color: #71717a; font-size: 0.95em; }
         .footer a { color: #60a5fa; }
+        .back-link { display: inline-block; padding: 12px 24px; background: #27272a; color: #e4e4e7; text-decoration: none; border-radius: 8px; margin-bottom: 30px; transition: all 0.3s; font-weight: 600; }
+        .back-link:hover { background: #3f3f46; transform: translateY(-2px); }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
+            <a href="../" class="back-link">← Back to Main</a>
             <h1>Security Scan Results</h1>
             <div class="branch-badge" style="background: BADGE_COLOR_PH;">BRANCH_DESC_PH</div>
             <p class="subtitle">Last Updated: SCAN_DATE_PH</p>

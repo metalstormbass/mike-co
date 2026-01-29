@@ -35,11 +35,14 @@
         .stat-label { font-size: 0.9em; opacity: 0.9; margin-top: 8px; text-transform: uppercase; letter-spacing: 1px; }
         .footer { text-align: center; margin-top: 50px; padding-top: 30px; border-top: 2px solid #27272a; color: #71717a; font-size: 0.95em; }
         .footer a { color: #60a5fa; }
+        .back-link { display: inline-block; padding: 12px 24px; background: #27272a; color: #e4e4e7; text-decoration: none; border-radius: 8px; margin-bottom: 30px; transition: all 0.3s; font-weight: 600; }
+        .back-link:hover { background: #3f3f46; transform: translateY(-2px); }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
+            <a href="../" class="back-link">← Back to Main</a>
             <h1>Security Scan Results</h1>
             <div class="branch-badge" style="background: #00B4D8;">Chainguard Hardened Images</div>
             <p class="subtitle">Last Updated: 2026-01-29</p>
@@ -93,7 +96,7 @@
     </div>
 
     <script>
-        const scanData = ["nginx-cg|17MB|2026-01-29 14:39:45 UTC|0|0|0|0|0|0","frontend-cg|17.4MB|2026-01-29 14:39:50 UTC|0|0|0|0|0|0","api-gateway-cg|783MB|2026-01-29 14:40:02 UTC|0|5|0|0|0|5","embedding-service-cg|885MB|2026-01-29 14:40:14 UTC|2|10|20|4|0|36","llm-service-cg|722MB|2026-01-29 14:40:25 UTC|1|6|16|7|0|30","document-processor-cg|764MB|2026-01-29 14:40:37 UTC|1|9|17|7|0|34","cgr.dev/mikeco.com/ollama:latest-dev-cg|8.38GB|2026-01-29 14:44:09 UTC|0|0|0|0|0|0","cgr.dev/mikeco.com/opensearch:2-cg|1.12GB|2026-01-29 14:44:51 UTC|0|0|1|0|0|1","cgr.dev/mikeco.com/postgres:16-cg|407MB|2026-01-29 14:45:06 UTC|0|0|0|0|0|0","cgr.dev/mikeco.com/redis:7-cg|25MB|2026-01-29 14:45:11 UTC|0|0|0|1|0|1"];
+        const scanData = ["nginx|17MB|2026-01-29 15:03:01 UTC|0|0|0|0|0|0","frontend|17.4MB|2026-01-29 15:03:06 UTC|0|0|0|0|0|0","api-gateway|783MB|2026-01-29 15:03:18 UTC|0|5|0|0|0|5","embedding-service|885MB|2026-01-29 15:03:32 UTC|2|10|20|4|0|36","llm-service|722MB|2026-01-29 15:03:44 UTC|1|6|16|7|0|30","document-processor|764MB|2026-01-29 15:03:57 UTC|1|9|17|7|0|34","cgr.dev/mikeco.com/ollama:latest-dev|8.38GB|2026-01-29 15:08:29 UTC|0|0|0|0|0|0","cgr.dev/mikeco.com/opensearch:2|1.12GB|2026-01-29 15:09:14 UTC|0|0|1|0|0|1","cgr.dev/mikeco.com/postgres:16|407MB|2026-01-29 15:09:30 UTC|0|0|0|0|0|0","cgr.dev/mikeco.com/redis:7|25MB|2026-01-29 15:09:36 UTC|0|0|0|1|0|1"];
 
         let totalCritical = 0, totalHigh = 0, totalMedium = 0, totalLow = 0;
 

@@ -329,12 +329,11 @@
                                 <div class="vuln-section-content code-block">${v.fixedIn}</div>
                             </div>
 
-                            ${v.isKEV || v.epssScore !== null ? `
+                            ${v.epssScore !== null ? `
                             <div class="vuln-section">
-                                <div class="vuln-section-title">Exploitation Intelligence</div>
+                                <div class="vuln-section-title">Exploitation Probability</div>
                                 <div class="vuln-section-content">
-                                    ${v.isKEV ? '<span style="background: #b91c1c; color: white; padding: 4px 12px; border-radius: 6px; font-weight: 600; font-size: 0.85em; margin-right: 8px;">⚠️ CISA KEV</span>' : ''}
-                                    ${v.epssScore !== null ? `<span style="background: #3f3f46; color: #e4e4e7; padding: 4px 12px; border-radius: 6px; font-weight: 600; font-size: 0.85em;">EPSS: ${(v.epssScore * 100).toFixed(2)}%${v.epssPercentile !== null ? ` (${v.epssPercentile.toFixed(1)}th percentile)` : ''}</span>` : ''}
+                                    <span style="background: #3f3f46; color: #e4e4e7; padding: 4px 12px; border-radius: 6px; font-weight: 600; font-size: 0.85em;">EPSS: ${(v.epssScore * 100).toFixed(2)}%${v.epssPercentile !== null ? ` (${v.epssPercentile.toFixed(1)}th percentile)` : ''}</span>
                                 </div>
                             </div>
                             ` : ''}

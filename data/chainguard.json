@@ -2,7 +2,7 @@
   {
     "image": "nginx",
     "size": "17MB",
-    "scanDate": "2026-02-03 12:55:11 UTC",
+    "scanDate": "2026-02-03 13:18:45 UTC",
     "critical": 0,
     "high": 0,
     "medium": 0,
@@ -13,7 +13,7 @@
   {
     "image": "frontend",
     "size": "17.4MB",
-    "scanDate": "2026-02-03 12:55:15 UTC",
+    "scanDate": "2026-02-03 13:18:49 UTC",
     "critical": 0,
     "high": 0,
     "medium": 0,
@@ -24,7 +24,7 @@
   {
     "image": "api-gateway",
     "size": "783MB",
-    "scanDate": "2026-02-03 12:55:27 UTC",
+    "scanDate": "2026-02-03 13:19:01 UTC",
     "critical": 1,
     "high": 11,
     "medium": 0,
@@ -35,7 +35,7 @@
   {
     "image": "embedding-service",
     "size": "884MB",
-    "scanDate": "2026-02-03 12:55:40 UTC",
+    "scanDate": "2026-02-03 13:19:15 UTC",
     "critical": 2,
     "high": 8,
     "medium": 21,
@@ -46,7 +46,7 @@
   {
     "image": "llm-service",
     "size": "721MB",
-    "scanDate": "2026-02-03 12:55:52 UTC",
+    "scanDate": "2026-02-03 13:19:26 UTC",
     "critical": 1,
     "high": 4,
     "medium": 17,
@@ -57,7 +57,7 @@
   {
     "image": "document-processor",
     "size": "764MB",
-    "scanDate": "2026-02-03 12:56:03 UTC",
+    "scanDate": "2026-02-03 13:19:38 UTC",
     "critical": 1,
     "high": 7,
     "medium": 18,
@@ -68,7 +68,7 @@
   {
     "image": "cgr.dev/mikeco.com/ollama:latest-dev",
     "size": "8.38GB",
-    "scanDate": "2026-02-03 12:59:06 UTC",
+    "scanDate": "2026-02-03 13:22:51 UTC",
     "critical": 0,
     "high": 0,
     "medium": 0,
@@ -79,7 +79,7 @@
   {
     "image": "cgr.dev/mikeco.com/opensearch:2",
     "size": "1.12GB",
-    "scanDate": "2026-02-03 12:59:47 UTC",
+    "scanDate": "2026-02-03 13:23:34 UTC",
     "critical": 0,
     "high": 0,
     "medium": 1,
@@ -90,7 +90,7 @@
   {
     "image": "cgr.dev/mikeco.com/postgres:16",
     "size": "407MB",
-    "scanDate": "2026-02-03 13:00:01 UTC",
+    "scanDate": "2026-02-03 13:23:47 UTC",
     "critical": 0,
     "high": 4,
     "medium": 0,
@@ -101,7 +101,7 @@
   {
     "image": "cgr.dev/mikeco.com/redis:7",
     "size": "25MB",
-    "scanDate": "2026-02-03 13:00:06 UTC",
+    "scanDate": "2026-02-03 13:23:52 UTC",
     "critical": 0,
     "high": 0,
     "medium": 0,

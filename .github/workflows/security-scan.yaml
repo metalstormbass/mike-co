@@ -652,6 +652,7 @@ jobs:
           mkdir -p gh-pages/original/scan-results
           mkdir -p gh-pages/chainguard
           mkdir -p gh-pages/chainguard/scans
+          mkdir -p gh-pages/chainguard/scan-results
           mkdir -p gh-pages/migration
           mkdir -p gh-pages/vulnerabilities
           mkdir -p gh-pages/data
@@ -665,6 +666,7 @@ jobs:
           # Copy chainguard branch results
           cp scan-results-chainguard/index.html gh-pages/chainguard/
           cp scan-results-chainguard/scans/*.html gh-pages/chainguard/scans/ 2>/dev/null || true
+          cp scan-results-chainguard/*.json gh-pages/chainguard/scan-results/ 2>/dev/null || true
           cp scan-results-chainguard/scan-results.json gh-pages/data/chainguard.json
 
           echo "=== Verify files copied ==="

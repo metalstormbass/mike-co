@@ -88,7 +88,18 @@ cat > "$OUTPUT_HTML" << 'VULNHTML'
         <div class="header">
             <a href="../" class="back-link">← Back to Summary</a>
             <h1>🎫 Vulnerability Tickets</h1>
-            <p class="subtitle">Toggle between Original and Chainguard Images</p>
+            <p class="subtitle">View all vulnerabilities for each image setup</p>
+        </div>
+
+        <div style="display: flex; justify-content: center; margin-bottom: 30px;">
+            <div style="background: #27272a; padding: 8px; border-radius: 12px; display: inline-flex; gap: 8px;">
+                <button class="view-toggle active" id="original-view-btn" style="padding: 12px 24px; background: #ef4444; color: white; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; transition: all 0.3s;">
+                    🐳 Original Images
+                </button>
+                <button class="view-toggle" id="chainguard-view-btn" style="padding: 12px 24px; background: transparent; color: #a1a1aa; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; transition: all 0.3s;">
+                    🔒 Chainguard Images
+                </button>
+            </div>
         </div>
 
         <div class="stats-bar" id="stats-bar">
@@ -114,7 +125,6 @@ cat > "$OUTPUT_HTML" << 'VULNHTML'
             <button class="filter-btn" data-filter="low">Low</button>
             <button class="filter-btn" id="fixable-filter" style="margin-left: auto;">Has Fix</button>
             <button class="filter-btn" id="no-fix-filter">No Fix</button>
-            <button class="filter-btn" id="chainguard-toggle">🐳 Original Images</button>
             <input type="text" class="search-box" id="search-box" placeholder="Search by CVE ID, image name, or package...">
         </div>
 
@@ -465,17 +475,33 @@ cat > "$OUTPUT_HTML" << 'VULNHTML'
             renderVulnerabilities();
         });
 
-        // Chainguard/Original toggle button
-        document.getElementById('chainguard-toggle').addEventListener('click', (e) => {
-            showChainguard = !showChainguard;
+        // Original view button
+        document.getElementById('original-view-btn').addEventListener('click', (e) => {
+            if (!showChainguard) return; // Already on original view
 
-            if (showChainguard) {
-                e.target.classList.add('active');
-                e.target.textContent = '🔒 Chainguard Images';
-            } else {
-                e.target.classList.remove('active');
-                e.target.textContent = '🐳 Original Images';
-            }
+            showChainguard = false;
+
+            // Update button styles
+            document.getElementById('original-view-btn').style.background = '#ef4444';
+            document.getElementById('original-view-btn').style.color = 'white';
+            document.getElementById('chainguard-view-btn').style.background = 'transparent';
+            document.getElementById('chainguard-view-btn').style.color = '#a1a1aa';
+
+            updateStats();
+            renderVulnerabilities();
+        });
+
+        // Chainguard view button
+        document.getElementById('chainguard-view-btn').addEventListener('click', (e) => {
+            if (showChainguard) return; // Already on chainguard view
+
+            showChainguard = true;
+
+            // Update button styles
+            document.getElementById('chainguard-view-btn').style.background = '#22c55e';
+            document.getElementById('chainguard-view-btn').style.color = 'white';
+            document.getElementById('original-view-btn').style.background = 'transparent';
+            document.getElementById('original-view-btn').style.color = '#a1a1aa';
 
             updateStats();
             renderVulnerabilities();

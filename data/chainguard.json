@@ -2,7 +2,7 @@
   {
     "image": "nginx-cg",
     "size": "17MB",
-    "scanDate": "2026-02-03 17:23:08 UTC",
+    "scanDate": "2026-02-03 17:41:20 UTC",
     "critical": 0,
     "high": 0,
     "medium": 0,
@@ -13,7 +13,7 @@
   {
     "image": "frontend-cg",
     "size": "17.4MB",
-    "scanDate": "2026-02-03 17:23:12 UTC",
+    "scanDate": "2026-02-03 17:41:25 UTC",
     "critical": 0,
     "high": 0,
     "medium": 0,
@@ -24,7 +24,7 @@
   {
     "image": "api-gateway-cg",
     "size": "783MB",
-    "scanDate": "2026-02-03 17:23:24 UTC",
+    "scanDate": "2026-02-03 17:41:38 UTC",
     "critical": 1,
     "high": 11,
     "medium": 0,
@@ -35,7 +35,7 @@
   {
     "image": "embedding-service-cg",
     "size": "884MB",
-    "scanDate": "2026-02-03 17:23:37 UTC",
+    "scanDate": "2026-02-03 17:41:53 UTC",
     "critical": 2,
     "high": 8,
     "medium": 21,
@@ -46,7 +46,7 @@
   {
     "image": "llm-service-cg",
     "size": "721MB",
-    "scanDate": "2026-02-03 17:23:49 UTC",
+    "scanDate": "2026-02-03 17:42:05 UTC",
     "critical": 1,
     "high": 4,
     "medium": 17,
@@ -57,7 +57,7 @@
   {
     "image": "document-processor-cg",
     "size": "764MB",
-    "scanDate": "2026-02-03 17:24:01 UTC",
+    "scanDate": "2026-02-03 17:42:17 UTC",
     "critical": 1,
     "high": 7,
     "medium": 18,
@@ -68,7 +68,7 @@
   {
     "image": "cgr.dev/mikeco.com/ollama:latest-dev-cg",
     "size": "8.38GB",
-    "scanDate": "2026-02-03 17:27:37 UTC",
+    "scanDate": "2026-02-03 17:46:43 UTC",
     "critical": 0,
     "high": 0,
     "medium": 0,
@@ -79,7 +79,7 @@
   {
     "image": "cgr.dev/mikeco.com/opensearch:2-cg",
     "size": "1.12GB",
-    "scanDate": "2026-02-03 17:28:27 UTC",
+    "scanDate": "2026-02-03 17:47:41 UTC",
     "critical": 0,
     "high": 0,
     "medium": 1,
@@ -90,7 +90,7 @@
   {
     "image": "cgr.dev/mikeco.com/postgres:16-cg",
     "size": "407MB",
-    "scanDate": "2026-02-03 17:28:42 UTC",
+    "scanDate": "2026-02-03 17:47:56 UTC",
     "critical": 0,
     "high": 4,
     "medium": 0,
@@ -101,7 +101,7 @@
   {
     "image": "cgr.dev/mikeco.com/redis:7-cg",
     "size": "25MB",
-    "scanDate": "2026-02-03 17:28:47 UTC",
+    "scanDate": "2026-02-03 17:48:01 UTC",
     "critical": 0,
     "high": 0,
     "medium": 0,

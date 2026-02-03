@@ -152,26 +152,13 @@ cat > "$OUTPUT_HTML" << 'VULNHTML'
                 const scanData = await response.json();
                 console.log('Scan data loaded:', scanData.length, 'images');
 
-                // Define pulled images (infrastructure images that show ALL vulnerabilities)
-                const pulledImages = [
-                    'ollama/ollama:latest',
-                    'opensearchproject/opensearch:2.11.0',
-                    'postgres:16-bookworm',
-                    'redis:7-bookworm',
-                    'cgr.dev/mikeco.com/ollama:latest-dev',
-                    'cgr.dev/mikeco.com/opensearch:2',
-                    'cgr.dev/mikeco.com/postgres:16',
-                    'cgr.dev/mikeco.com/redis:7'
-                ];
-
-                // Load detailed vulnerability data for each image
+                // Load ALL vulnerability data from ALL images
                 const vulnerabilities = [];
 
                 for (const scan of scanData) {
                     const imageName = scan.image;
                     // Match the shell script naming: keep alphanumeric, dots, underscores, and hyphens
                     const scanFile = scan.image.replace(/[^a-zA-Z0-9._-]/g, '_') + '.json';
-                    const isPulledImage = pulledImages.includes(imageName);
 
                     try {
                         const scanResponse = await fetch(`../original/scan-results/${scanFile}`);
@@ -179,7 +166,7 @@ cat > "$OUTPUT_HTML" << 'VULNHTML'
 
                         const scanResults = await scanResponse.json();
 
-                        // Extract ALL vulnerabilities
+                        // Extract ALL vulnerabilities from this image (no filtering)
                         if (scanResults.matches) {
                             scanResults.matches.forEach(match => {
                                 const artifact = match.artifact || {};
@@ -239,23 +226,12 @@ cat > "$OUTPUT_HTML" << 'VULNHTML'
                 const scanData = await response.json();
                 console.log('Chainguard scan data loaded:', scanData.length, 'images');
 
-                const pulledImages = [
-                    'ollama/ollama:latest',
-                    'opensearchproject/opensearch:2.11.0',
-                    'postgres:16-bookworm',
-                    'redis:7-bookworm',
-                    'cgr.dev/mikeco.com/ollama:latest-dev',
-                    'cgr.dev/mikeco.com/opensearch:2',
-                    'cgr.dev/mikeco.com/postgres:16',
-                    'cgr.dev/mikeco.com/redis:7'
-                ];
-
+                // Load ALL vulnerability data from ALL Chainguard images
                 const cgVulns = [];
 
                 for (const scan of scanData) {
                     const imageName = scan.image;
                     const scanFile = scan.image.replace(/[^a-zA-Z0-9._-]/g, '_') + '.json';
-                    const isPulledImage = pulledImages.includes(imageName);
 
                     try {
                         const scanResponse = await fetch(`../chainguard/scan-results/${scanFile}`);
@@ -263,6 +239,7 @@ cat > "$OUTPUT_HTML" << 'VULNHTML'
 
                         const scanResults = await scanResponse.json();
 
+                        // Extract ALL vulnerabilities from this Chainguard image (no filtering)
                         if (scanResults.matches) {
                             scanResults.matches.forEach(match => {
                                 const artifact = match.artifact || {};

@@ -32,9 +32,18 @@
         .result-counter { text-align: center; color: #a1a1aa; font-size: 0.95em; margin-bottom: 20px; padding: 10px; background: #27272a; border-radius: 8px; }
         .result-counter-number { color: #60a5fa; font-weight: 700; font-size: 1.2em; }
 
-        .vuln-list { display: flex; flex-direction: column; gap: 15px; }
-        .vuln-item { background: #27272a; border-radius: 12px; overflow: hidden; border: 2px solid #27272a; transition: all 0.3s; }
+        .vuln-list { display: flex; flex-direction: column; gap: 20px; }
+        .vuln-item { background: #27272a; border-radius: 12px; overflow: hidden; border-left: 5px solid #3f3f46; transition: all 0.3s; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
         .vuln-item.hidden { display: none; }
+        .vuln-item.status-done { border-left-color: #22c55e; opacity: 0.7; }
+        .vuln-item.status-done .vuln-header { background: #1a2e1a; }
+
+        .ticket-meta { display: flex; justify-content: space-between; align-items: center; padding: 12px 20px; background: #18181b; border-bottom: 1px solid #3f3f46; }
+        .ticket-number { color: #71717a; font-size: 0.75em; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; }
+        .status-badge { padding: 4px 12px; border-radius: 4px; font-size: 0.7em; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+        .status-todo { background: #fbbf24; color: #1c1917; }
+        .status-done { background: #22c55e; color: #1c1917; }
+
         .vuln-header { padding: 20px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; transition: all 0.3s; }
         .vuln-header:hover { background: #3f3f46; }
         .vuln-header.expanded { background: #3f3f46; }
@@ -102,6 +111,7 @@
             <button class="filter-btn" data-filter="low">Low</button>
             <button class="filter-btn" id="fixable-filter" style="margin-left: auto;">Has Fix</button>
             <button class="filter-btn" id="no-fix-filter">No Fix</button>
+            <button class="filter-btn" id="chainguard-toggle" style="background: #22c55e; border-color: #22c55e;">🔒 Chainguard View</button>
             <input type="text" class="search-box" id="search-box" placeholder="Search by CVE ID, image name, or package...">
         </div>
 
@@ -119,10 +129,12 @@
 
     <script>
         let allVulnerabilities = [];
+        let chainguardVulnerabilities = [];
         let selectedSeverities = new Set(['all']);
         let currentSearch = '';
         let showOnlyFixable = false;
         let showOnlyNoFix = false;
+        let chainguardMode = false;
 
         async function loadVulnerabilities() {
             try {
@@ -186,7 +198,8 @@
                                         fixedIn: vulnerability.fix?.versions?.join(', ') || 'No fix available',
                                         description: vulnerability.description || 'No description available',
                                         urls: vulnerability.urls || [],
-                                        dataSource: vulnerability.dataSource || ''
+                                        dataSource: vulnerability.dataSource || '',
+                                        status: 'TODO' // Default status
                                     });
                                 }
                             });
@@ -198,6 +211,9 @@
 
                 console.log('Total vulnerabilities found:', vulnerabilities.length);
                 allVulnerabilities = vulnerabilities;
+
+                // Load Chainguard vulnerabilities for comparison
+                await loadChainguardVulnerabilities();
 
                 updateStats();
                 renderVulnerabilities();
@@ -212,6 +228,88 @@
                     </div>
                 `;
             }
+        }
+
+        async function loadChainguardVulnerabilities() {
+            try {
+                console.log('Loading Chainguard scan data for comparison...');
+
+                const response = await fetch('../data/chainguard.json');
+                if (!response.ok) {
+                    console.warn('Chainguard data not available');
+                    return;
+                }
+
+                const scanData = await response.json();
+                console.log('Chainguard scan data loaded:', scanData.length, 'images');
+
+                const pulledImages = [
+                    'ollama/ollama:latest',
+                    'opensearchproject/opensearch:2.11.0',
+                    'postgres:16-bookworm',
+                    'redis:7-bookworm',
+                    'cgr.dev/mikeco.com/ollama:latest-dev',
+                    'cgr.dev/mikeco.com/opensearch:2',
+                    'cgr.dev/mikeco.com/postgres:16',
+                    'cgr.dev/mikeco.com/redis:7'
+                ];
+
+                const cgVulns = [];
+
+                for (const scan of scanData) {
+                    const imageName = scan.image;
+                    const scanFile = scan.image.replace(/[^a-zA-Z0-9._-]/g, '_') + '.json';
+                    const isPulledImage = pulledImages.includes(imageName);
+
+                    try {
+                        const scanResponse = await fetch(`../chainguard/scan-results/${scanFile}`);
+                        if (!scanResponse.ok) continue;
+
+                        const scanResults = await scanResponse.json();
+
+                        if (scanResults.matches) {
+                            scanResults.matches.forEach(match => {
+                                const artifact = match.artifact || {};
+                                const vulnerability = match.vulnerability || {};
+                                const packageType = artifact.type || '';
+                                const shouldInclude = isPulledImage || ['deb', 'rpm', 'apk'].includes(packageType);
+
+                                if (shouldInclude) {
+                                    cgVulns.push({
+                                        id: vulnerability.id || 'UNKNOWN',
+                                        image: imageName,
+                                        package: artifact.name || 'Unknown'
+                                    });
+                                }
+                            });
+                        }
+                    } catch (err) {
+                        console.warn('Failed to load Chainguard scan for', imageName, err);
+                    }
+                }
+
+                chainguardVulnerabilities = cgVulns;
+                console.log('Chainguard vulnerabilities loaded:', cgVulns.length);
+            } catch (error) {
+                console.warn('Failed to load Chainguard data:', error);
+            }
+        }
+
+        function updateVulnerabilityStatuses() {
+            // Create a Set of Chainguard vulnerability signatures for fast lookup
+            const cgVulnSet = new Set(
+                chainguardVulnerabilities.map(v => `${v.id}:${v.image}:${v.package}`)
+            );
+
+            // Update statuses based on Chainguard comparison
+            allVulnerabilities.forEach(v => {
+                const signature = `${v.id}:${v.image}:${v.package}`;
+                if (chainguardMode && !cgVulnSet.has(signature)) {
+                    v.status = 'DONE';
+                } else {
+                    v.status = 'TODO';
+                }
+            });
         }
 
         function updateStats() {
@@ -232,6 +330,9 @@
         }
 
         function renderVulnerabilities() {
+            // Update statuses based on Chainguard mode
+            updateVulnerabilityStatuses();
+
             const filtered = allVulnerabilities.filter(v => {
                 // Filter by severity - allow multiple selections
                 if (!selectedSeverities.has('all') && !selectedSeverities.has(v.severity)) {
@@ -279,8 +380,12 @@
                 return;
             }
 
-            listEl.innerHTML = filtered.map(v => `
-                <div class="vuln-item" data-severity="${v.severity}">
+            listEl.innerHTML = filtered.map((v, index) => `
+                <div class="vuln-item status-${v.status.toLowerCase()}" data-severity="${v.severity}">
+                    <div class="ticket-meta">
+                        <span class="ticket-number">TICKET #${(index + 1).toString().padStart(4, '0')}</span>
+                        <span class="status-badge status-${v.status.toLowerCase()}">${v.status}</span>
+                    </div>
                     <div class="vuln-header" onclick="toggleVuln(this)">
                         <div class="vuln-title">
                             <span class="severity-badge severity-${v.severity}">${v.severity}</span>
@@ -397,6 +502,25 @@
         // Search box
         document.getElementById('search-box').addEventListener('input', (e) => {
             currentSearch = e.target.value;
+            renderVulnerabilities();
+        });
+
+        // Chainguard toggle button
+        document.getElementById('chainguard-toggle').addEventListener('click', (e) => {
+            chainguardMode = !chainguardMode;
+
+            if (chainguardMode) {
+                e.target.classList.add('active');
+                e.target.textContent = '🔓 Original View';
+                e.target.style.background = '#ef4444';
+                e.target.style.borderColor = '#ef4444';
+            } else {
+                e.target.classList.remove('active');
+                e.target.textContent = '🔒 Chainguard View';
+                e.target.style.background = '#22c55e';
+                e.target.style.borderColor = '#22c55e';
+            }
+
             renderVulnerabilities();
         });
 

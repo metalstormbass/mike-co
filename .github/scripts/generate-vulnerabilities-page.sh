@@ -241,7 +241,9 @@ cat > "$OUTPUT_HTML" << 'VULNHTML'
 
                 for (const scan of scanData) {
                     const imageName = scan.image;
-                    const scanFile = scan.image.replace(/[^a-zA-Z0-9._-]/g, '_') + '.json';
+                    // Remove -cg suffix from image name for filename (workflow adds -cg to display names)
+                    const baseImageName = scan.image.replace(/-cg$/, '');
+                    const scanFile = baseImageName.replace(/[^a-zA-Z0-9._-]/g, '_') + '.json';
 
                     try {
                         const scanResponse = await fetch(`../chainguard/scan-results/${scanFile}`);

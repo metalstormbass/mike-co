@@ -43,14 +43,9 @@ cat > "$OUTPUT_HTML" << 'VULNHTML'
         .vuln-list { display: flex; flex-direction: column; gap: 20px; }
         .vuln-item { background: #27272a; border-radius: 12px; overflow: hidden; border-left: 5px solid #3f3f46; transition: all 0.3s; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
         .vuln-item.hidden { display: none; }
-        .vuln-item.status-done { border-left-color: #22c55e; opacity: 0.7; }
-        .vuln-item.status-done .vuln-header { background: #1a2e1a; }
 
         .ticket-meta { display: flex; justify-content: space-between; align-items: center; padding: 12px 20px; background: #18181b; border-bottom: 1px solid #3f3f46; }
         .ticket-number { color: #71717a; font-size: 0.75em; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; }
-        .status-badge { padding: 4px 12px; border-radius: 4px; font-size: 0.7em; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
-        .status-todo { background: #fbbf24; color: #1c1917; }
-        .status-done { background: #22c55e; color: #1c1917; }
 
         .vuln-header { padding: 20px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; transition: all 0.3s; }
         .vuln-header:hover { background: #3f3f46; }
@@ -93,7 +88,7 @@ cat > "$OUTPUT_HTML" << 'VULNHTML'
         <div class="header">
             <a href="../" class="back-link">← Back to Summary</a>
             <h1>🎫 Vulnerability Tickets</h1>
-            <p class="subtitle">Container Image Vulnerability Tracking</p>
+            <p class="subtitle">Toggle between Original and Chainguard Images</p>
         </div>
 
         <div class="stats-bar" id="stats-bar">
@@ -119,9 +114,7 @@ cat > "$OUTPUT_HTML" << 'VULNHTML'
             <button class="filter-btn" data-filter="low">Low</button>
             <button class="filter-btn" id="fixable-filter" style="margin-left: auto;">Has Fix</button>
             <button class="filter-btn" id="no-fix-filter">No Fix</button>
-            <button class="filter-btn" id="status-todo-filter">📋 TODO</button>
-            <button class="filter-btn" id="status-done-filter">✅ DONE</button>
-            <button class="filter-btn" id="chainguard-toggle" style="background: #22c55e; border-color: #22c55e;">🔒 Chainguard View</button>
+            <button class="filter-btn" id="chainguard-toggle">🐳 Original Images</button>
             <input type="text" class="search-box" id="search-box" placeholder="Search by CVE ID, image name, or package...">
         </div>
 
@@ -138,15 +131,13 @@ cat > "$OUTPUT_HTML" << 'VULNHTML'
     </div>
 
     <script>
-        let allVulnerabilities = [];
+        let originalVulnerabilities = [];
         let chainguardVulnerabilities = [];
         let selectedSeverities = new Set(['all']);
         let currentSearch = '';
         let showOnlyFixable = false;
         let showOnlyNoFix = false;
-        let showOnlyTodo = false;
-        let showOnlyDone = false;
-        let chainguardMode = false;
+        let showChainguard = false;
 
         async function loadVulnerabilities() {
             try {
@@ -188,32 +179,25 @@ cat > "$OUTPUT_HTML" << 'VULNHTML'
 
                         const scanResults = await scanResponse.json();
 
-                        // Extract vulnerabilities
+                        // Extract ALL vulnerabilities
                         if (scanResults.matches) {
                             scanResults.matches.forEach(match => {
                                 const artifact = match.artifact || {};
                                 const vulnerability = match.vulnerability || {};
                                 const packageType = artifact.type || '';
 
-                                // For pulled images: show ALL vulnerabilities
-                                // For built service images: show only OS package vulnerabilities
-                                const shouldInclude = isPulledImage || ['deb', 'rpm', 'apk'].includes(packageType);
-
-                                if (shouldInclude) {
-                                    vulnerabilities.push({
-                                        id: vulnerability.id || 'UNKNOWN',
-                                        severity: (vulnerability.severity || 'Unknown').toLowerCase(),
-                                        image: imageName,
-                                        package: artifact.name || 'Unknown',
-                                        version: artifact.version || 'Unknown',
-                                        packageType: packageType,
-                                        fixedIn: vulnerability.fix?.versions?.join(', ') || 'No fix available',
-                                        description: vulnerability.description || 'No description available',
-                                        urls: vulnerability.urls || [],
-                                        dataSource: vulnerability.dataSource || '',
-                                        status: 'TODO' // Default status
-                                    });
-                                }
+                                vulnerabilities.push({
+                                    id: vulnerability.id || 'UNKNOWN',
+                                    severity: (vulnerability.severity || 'Unknown').toLowerCase(),
+                                    image: imageName,
+                                    package: artifact.name || 'Unknown',
+                                    version: artifact.version || 'Unknown',
+                                    packageType: packageType,
+                                    fixedIn: vulnerability.fix?.versions?.join(', ') || 'No fix available',
+                                    description: vulnerability.description || 'No description available',
+                                    urls: vulnerability.urls || [],
+                                    dataSource: vulnerability.dataSource || ''
+                                });
                             });
                         }
                     } catch (err) {
@@ -221,8 +205,8 @@ cat > "$OUTPUT_HTML" << 'VULNHTML'
                     }
                 }
 
-                console.log('Total vulnerabilities found:', vulnerabilities.length);
-                allVulnerabilities = vulnerabilities;
+                console.log('Total Original vulnerabilities found:', vulnerabilities.length);
+                originalVulnerabilities = vulnerabilities;
 
                 // Load Chainguard vulnerabilities for comparison
                 await loadChainguardVulnerabilities();
@@ -284,15 +268,19 @@ cat > "$OUTPUT_HTML" << 'VULNHTML'
                                 const artifact = match.artifact || {};
                                 const vulnerability = match.vulnerability || {};
                                 const packageType = artifact.type || '';
-                                const shouldInclude = isPulledImage || ['deb', 'rpm', 'apk'].includes(packageType);
 
-                                if (shouldInclude) {
-                                    cgVulns.push({
-                                        id: vulnerability.id || 'UNKNOWN',
-                                        image: imageName,
-                                        package: artifact.name || 'Unknown'
-                                    });
-                                }
+                                cgVulns.push({
+                                    id: vulnerability.id || 'UNKNOWN',
+                                    severity: (vulnerability.severity || 'Unknown').toLowerCase(),
+                                    image: imageName,
+                                    package: artifact.name || 'Unknown',
+                                    version: artifact.version || 'Unknown',
+                                    packageType: packageType,
+                                    fixedIn: vulnerability.fix?.versions?.join(', ') || 'No fix available',
+                                    description: vulnerability.description || 'No description available',
+                                    urls: vulnerability.urls || [],
+                                    dataSource: vulnerability.dataSource || ''
+                                });
                             });
                         }
                     } catch (err) {
@@ -307,31 +295,15 @@ cat > "$OUTPUT_HTML" << 'VULNHTML'
             }
         }
 
-        function updateVulnerabilityStatuses() {
-            // Create a Set of Chainguard vulnerability signatures for fast lookup
-            const cgVulnSet = new Set(
-                chainguardVulnerabilities.map(v => `${v.id}:${v.image}:${v.package}`)
-            );
-
-            // Update statuses based on Chainguard comparison
-            allVulnerabilities.forEach(v => {
-                const signature = `${v.id}:${v.image}:${v.package}`;
-                if (chainguardMode && !cgVulnSet.has(signature)) {
-                    v.status = 'DONE';
-                } else {
-                    v.status = 'TODO';
-                }
-            });
-        }
-
         function updateStats() {
+            const currentVulns = showChainguard ? chainguardVulnerabilities : originalVulnerabilities;
             const stats = {
                 critical: 0,
                 high: 0,
-                total: allVulnerabilities.length
+                total: currentVulns.length
             };
 
-            allVulnerabilities.forEach(v => {
+            currentVulns.forEach(v => {
                 if (v.severity === 'critical') stats.critical++;
                 if (v.severity === 'high') stats.high++;
             });
@@ -342,10 +314,9 @@ cat > "$OUTPUT_HTML" << 'VULNHTML'
         }
 
         function renderVulnerabilities() {
-            // Update statuses based on Chainguard mode
-            updateVulnerabilityStatuses();
+            const currentVulns = showChainguard ? chainguardVulnerabilities : originalVulnerabilities;
 
-            const filtered = allVulnerabilities.filter(v => {
+            const filtered = currentVulns.filter(v => {
                 // Filter by severity - allow multiple selections
                 if (!selectedSeverities.has('all') && !selectedSeverities.has(v.severity)) {
                     return false;
@@ -358,16 +329,6 @@ cat > "$OUTPUT_HTML" << 'VULNHTML'
 
                 // Filter by no fix (mutually exclusive with fixable)
                 if (showOnlyNoFix && v.fixedIn !== 'No fix available') {
-                    return false;
-                }
-
-                // Filter by status TODO (mutually exclusive with DONE)
-                if (showOnlyTodo && v.status !== 'TODO') {
-                    return false;
-                }
-
-                // Filter by status DONE (mutually exclusive with TODO)
-                if (showOnlyDone && v.status !== 'DONE') {
                     return false;
                 }
 
@@ -403,10 +364,10 @@ cat > "$OUTPUT_HTML" << 'VULNHTML'
             }
 
             listEl.innerHTML = filtered.map((v, index) => `
-                <div class="vuln-item status-${v.status.toLowerCase()}" data-severity="${v.severity}">
+                <div class="vuln-item" data-severity="${v.severity}">
                     <div class="ticket-meta">
                         <span class="ticket-number">TICKET #${(index + 1).toString().padStart(4, '0')}</span>
-                        <span class="status-badge status-${v.status.toLowerCase()}">${v.status}</span>
+                        <span class="ticket-number">${showChainguard ? '🔒 Chainguard' : '🐳 Original'}</span>
                     </div>
                     <div class="vuln-header" onclick="toggleVuln(this)">
                         <div class="vuln-title">
@@ -527,50 +488,19 @@ cat > "$OUTPUT_HTML" << 'VULNHTML'
             renderVulnerabilities();
         });
 
-        // Status TODO filter button (toggle)
-        document.getElementById('status-todo-filter').addEventListener('click', (e) => {
-            showOnlyTodo = !showOnlyTodo;
-            e.target.classList.toggle('active');
-
-            // Turn off "DONE" filter if "TODO" is activated
-            if (showOnlyTodo && showOnlyDone) {
-                showOnlyDone = false;
-                document.getElementById('status-done-filter').classList.remove('active');
-            }
-
-            renderVulnerabilities();
-        });
-
-        // Status DONE filter button (toggle)
-        document.getElementById('status-done-filter').addEventListener('click', (e) => {
-            showOnlyDone = !showOnlyDone;
-            e.target.classList.toggle('active');
-
-            // Turn off "TODO" filter if "DONE" is activated
-            if (showOnlyDone && showOnlyTodo) {
-                showOnlyTodo = false;
-                document.getElementById('status-todo-filter').classList.remove('active');
-            }
-
-            renderVulnerabilities();
-        });
-
-        // Chainguard toggle button
+        // Chainguard/Original toggle button
         document.getElementById('chainguard-toggle').addEventListener('click', (e) => {
-            chainguardMode = !chainguardMode;
+            showChainguard = !showChainguard;
 
-            if (chainguardMode) {
+            if (showChainguard) {
                 e.target.classList.add('active');
-                e.target.textContent = '🔓 Original View';
-                e.target.style.background = '#ef4444';
-                e.target.style.borderColor = '#ef4444';
+                e.target.textContent = '🔒 Chainguard Images';
             } else {
                 e.target.classList.remove('active');
-                e.target.textContent = '🔒 Chainguard View';
-                e.target.style.background = '#22c55e';
-                e.target.style.borderColor = '#22c55e';
+                e.target.textContent = '🐳 Original Images';
             }
 
+            updateStats();
             renderVulnerabilities();
         });
 

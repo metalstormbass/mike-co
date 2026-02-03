@@ -119,6 +119,8 @@ cat > "$OUTPUT_HTML" << 'VULNHTML'
             <button class="filter-btn" data-filter="low">Low</button>
             <button class="filter-btn" id="fixable-filter" style="margin-left: auto;">Has Fix</button>
             <button class="filter-btn" id="no-fix-filter">No Fix</button>
+            <button class="filter-btn" id="status-todo-filter">📋 TODO</button>
+            <button class="filter-btn" id="status-done-filter">✅ DONE</button>
             <button class="filter-btn" id="chainguard-toggle" style="background: #22c55e; border-color: #22c55e;">🔒 Chainguard View</button>
             <input type="text" class="search-box" id="search-box" placeholder="Search by CVE ID, image name, or package...">
         </div>
@@ -142,6 +144,8 @@ cat > "$OUTPUT_HTML" << 'VULNHTML'
         let currentSearch = '';
         let showOnlyFixable = false;
         let showOnlyNoFix = false;
+        let showOnlyTodo = false;
+        let showOnlyDone = false;
         let chainguardMode = false;
 
         async function loadVulnerabilities() {
@@ -357,6 +361,16 @@ cat > "$OUTPUT_HTML" << 'VULNHTML'
                     return false;
                 }
 
+                // Filter by status TODO (mutually exclusive with DONE)
+                if (showOnlyTodo && v.status !== 'TODO') {
+                    return false;
+                }
+
+                // Filter by status DONE (mutually exclusive with TODO)
+                if (showOnlyDone && v.status !== 'DONE') {
+                    return false;
+                }
+
                 // Filter by search
                 if (currentSearch) {
                     const search = currentSearch.toLowerCase();
@@ -510,6 +524,34 @@ cat > "$OUTPUT_HTML" << 'VULNHTML'
         // Search box
         document.getElementById('search-box').addEventListener('input', (e) => {
             currentSearch = e.target.value;
+            renderVulnerabilities();
+        });
+
+        // Status TODO filter button (toggle)
+        document.getElementById('status-todo-filter').addEventListener('click', (e) => {
+            showOnlyTodo = !showOnlyTodo;
+            e.target.classList.toggle('active');
+
+            // Turn off "DONE" filter if "TODO" is activated
+            if (showOnlyTodo && showOnlyDone) {
+                showOnlyDone = false;
+                document.getElementById('status-done-filter').classList.remove('active');
+            }
+
+            renderVulnerabilities();
+        });
+
+        // Status DONE filter button (toggle)
+        document.getElementById('status-done-filter').addEventListener('click', (e) => {
+            showOnlyDone = !showOnlyDone;
+            e.target.classList.toggle('active');
+
+            // Turn off "TODO" filter if "DONE" is activated
+            if (showOnlyDone && showOnlyTodo) {
+                showOnlyTodo = false;
+                document.getElementById('status-todo-filter').classList.remove('active');
+            }
+
             renderVulnerabilities();
         });
 

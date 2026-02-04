@@ -96,7 +96,7 @@
     </div>
 
     <script>
-        const scanData = ["nginx|17MB|2026-02-04 15:16:56 UTC|0|0|0|0|0|0","frontend|17.4MB|2026-02-04 15:17:01 UTC|0|0|0|0|0|0","api-gateway|783MB|2026-02-04 15:17:13 UTC|1|6|0|0|0|7","embedding-service|5.75GB|2026-02-04 15:18:12 UTC|2|10|20|3|0|35","llm-service|721MB|2026-02-04 15:18:26 UTC|0|4|15|5|0|24","document-processor|764MB|2026-02-04 15:18:39 UTC|0|7|16|5|0|28","cgr.dev/mikeco.com/ollama:latest-dev|8.38GB|2026-02-04 15:21:33 UTC|0|0|0|0|0|0","cgr.dev/mikeco.com/opensearch:2|1.12GB|2026-02-04 15:22:13 UTC|0|0|1|0|0|1","cgr.dev/mikeco.com/postgres:16|407MB|2026-02-04 15:22:28 UTC|0|4|0|0|0|4","cgr.dev/mikeco.com/redis:7|25MB|2026-02-04 15:22:34 UTC|0|0|0|1|0|1"];
+        const scanData = ["nginx-cg|17MB|2026-02-04 16:07:55 UTC|0|0|0|0|0|0","frontend-cg|17.4MB|2026-02-04 16:08:00 UTC|0|0|0|0|0|0","api-gateway-cg|783MB|2026-02-04 16:08:12 UTC|1|6|0|0|0|7","embedding-service-cg|5.75GB|2026-02-04 16:09:16 UTC|2|10|20|3|0|35","llm-service-cg|721MB|2026-02-04 16:09:30 UTC|0|4|15|5|0|24","document-processor-cg|764MB|2026-02-04 16:09:43 UTC|0|7|16|5|0|28","cgr.dev/mikeco.com/ollama:latest-dev-cg|8.38GB|2026-02-04 16:12:48 UTC|0|0|0|0|0|0","cgr.dev/mikeco.com/opensearch:2-cg|1.12GB|2026-02-04 16:13:30 UTC|0|0|1|0|0|1","cgr.dev/mikeco.com/postgres:16-cg|407MB|2026-02-04 16:13:46 UTC|0|4|0|0|0|4","cgr.dev/mikeco.com/redis:7-cg|25MB|2026-02-04 16:13:52 UTC|0|0|0|1|0|1"];
 
         let totalCritical = 0, totalHigh = 0, totalMedium = 0, totalLow = 0;
 

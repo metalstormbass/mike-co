@@ -14,6 +14,13 @@
         .back-link { display: inline-block; padding: 12px 24px; background: #27272a; color: #e4e4e7; text-decoration: none; border-radius: 8px; margin-bottom: 30px; transition: all 0.3s; }
         .back-link:hover { background: #3f3f46; transform: translateY(-2px); }
 
+        .view-toggle-container { display: flex; justify-content: center; margin-bottom: 30px; }
+        .view-toggle-wrapper { background: #18181b; padding: 6px; border-radius: 12px; display: inline-flex; gap: 4px; border: 2px solid #27272a; }
+        .view-toggle-btn { padding: 12px 32px; background: transparent; color: #71717a; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; transition: all 0.3s; font-size: 1em; }
+        .view-toggle-btn.active { background: #ef4444; color: white; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4); }
+        .view-toggle-btn:hover:not(.active) { background: #27272a; color: #e4e4e7; }
+        .view-toggle-btn.chainguard.active { background: #22c55e; box-shadow: 0 4px 12px rgba(34, 197, 94, 0.4); }
+
         .stats-bar { display: flex; gap: 20px; justify-content: center; margin-bottom: 40px; flex-wrap: wrap; }
         .stat-card { background: #27272a; padding: 20px 30px; border-radius: 12px; text-align: center; min-width: 150px; }
         .stat-number { font-size: 2.5em; font-weight: 900; margin-bottom: 5px; }
@@ -83,6 +90,17 @@
             <p class="subtitle">View all vulnerabilities for each image setup</p>
         </div>
 
+        <div class="view-toggle-container">
+            <div class="view-toggle-wrapper">
+                <button class="view-toggle-btn active" id="original-toggle-btn">
+                    🐳 Original Images
+                </button>
+                <button class="view-toggle-btn chainguard" id="chainguard-toggle-btn">
+                    🔒 Chainguard Images
+                </button>
+            </div>
+        </div>
+
         <div class="stats-bar" id="stats-bar">
             <div class="stat-card critical-stat">
                 <div class="stat-number" id="stat-critical">-</div>
@@ -106,7 +124,6 @@
             <button class="filter-btn" data-filter="low">Low</button>
             <button class="filter-btn" id="fixable-filter" style="margin-left: auto;">Has Fix</button>
             <button class="filter-btn" id="no-fix-filter">No Fix</button>
-            <button class="filter-btn" id="chainguard-toggle">🐳 Original Images</button>
             <input type="text" class="search-box" id="search-box" placeholder="Search by CVE ID, image name, or package...">
         </div>
 
@@ -459,17 +476,29 @@
             renderVulnerabilities();
         });
 
-        // Chainguard/Original toggle button
-        document.getElementById('chainguard-toggle').addEventListener('click', (e) => {
-            showChainguard = !showChainguard;
+        // Original toggle button
+        document.getElementById('original-toggle-btn').addEventListener('click', (e) => {
+            if (!showChainguard) return; // Already on original view
 
-            if (showChainguard) {
-                e.target.classList.add('active');
-                e.target.textContent = '🔒 Chainguard Images';
-            } else {
-                e.target.classList.remove('active');
-                e.target.textContent = '🐳 Original Images';
-            }
+            showChainguard = false;
+
+            // Update button styles
+            document.getElementById('original-toggle-btn').classList.add('active');
+            document.getElementById('chainguard-toggle-btn').classList.remove('active');
+
+            updateStats();
+            renderVulnerabilities();
+        });
+
+        // Chainguard toggle button
+        document.getElementById('chainguard-toggle-btn').addEventListener('click', (e) => {
+            if (showChainguard) return; // Already on chainguard view
+
+            showChainguard = true;
+
+            // Update button styles
+            document.getElementById('chainguard-toggle-btn').classList.add('active');
+            document.getElementById('original-toggle-btn').classList.remove('active');
 
             updateStats();
             renderVulnerabilities();

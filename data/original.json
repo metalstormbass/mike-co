@@ -2,7 +2,7 @@
   {
     "image": "nginx",
     "size": "209MB",
-    "scanDate": "2026-02-03 17:40:01 UTC",
+    "scanDate": "2026-02-04 14:19:44 UTC",
     "critical": 2,
     "high": 17,
     "medium": 38,
@@ -13,7 +13,7 @@
   {
     "image": "frontend",
     "size": "210MB",
-    "scanDate": "2026-02-03 17:40:07 UTC",
+    "scanDate": "2026-02-04 14:19:51 UTC",
     "critical": 2,
     "high": 17,
     "medium": 38,
@@ -24,62 +24,62 @@
   {
     "image": "api-gateway",
     "size": "306MB",
-    "scanDate": "2026-02-03 17:40:14 UTC",
+    "scanDate": "2026-02-04 14:19:59 UTC",
     "critical": 0,
-    "high": 18,
+    "high": 19,
     "medium": 21,
     "low": 5,
     "negligible": 46,
-    "total": 90
+    "total": 91
   },
   {
     "image": "embedding-service",
-    "size": "642MB",
-    "scanDate": "2026-02-03 17:40:23 UTC",
+    "size": "630MB",
+    "scanDate": "2026-02-04 14:20:09 UTC",
     "critical": 3,
-    "high": 28,
+    "high": 25,
     "medium": 46,
     "low": 7,
     "negligible": 416,
-    "total": 500
+    "total": 497
   },
   {
     "image": "llm-service",
-    "size": "479MB",
-    "scanDate": "2026-02-03 17:40:31 UTC",
+    "size": "474MB",
+    "scanDate": "2026-02-04 14:20:18 UTC",
     "critical": 2,
-    "high": 24,
+    "high": 21,
     "medium": 42,
     "low": 10,
     "negligible": 416,
-    "total": 494
+    "total": 491
   },
   {
     "image": "document-processor",
-    "size": "519MB",
-    "scanDate": "2026-02-03 17:40:39 UTC",
+    "size": "516MB",
+    "scanDate": "2026-02-04 14:20:28 UTC",
     "critical": 2,
-    "high": 27,
+    "high": 24,
     "medium": 43,
     "low": 10,
     "negligible": 416,
-    "total": 498
+    "total": 495
   },
   {
     "image": "ollama/ollama:latest",
     "size": "5.62GB",
-    "scanDate": "2026-02-03 17:43:12 UTC",
+    "scanDate": "2026-02-04 14:22:18 UTC",
     "critical": 1,
     "high": 10,
     "medium": 35,
-    "low": 29,
+    "low": 30,
     "negligible": 0,
-    "total": 75
+    "total": 76
   },
   {
     "image": "opensearchproject/opensearch:2.11.0",
     "size": "1.22GB",
-    "scanDate": "2026-02-03 17:43:45 UTC",
+    "scanDate": "2026-02-04 14:22:53 UTC",
     "critical": 0,
     "high": 66,
     "medium": 153,
@@ -90,7 +90,7 @@
   {
     "image": "postgres:16-bookworm",
     "size": "435MB",
-    "scanDate": "2026-02-03 17:43:56 UTC",
+    "scanDate": "2026-02-04 14:23:06 UTC",
     "critical": 1,
     "high": 34,
     "medium": 55,
@@ -101,7 +101,7 @@
   {
     "image": "redis:7-bookworm",
     "size": "117MB",
-    "scanDate": "2026-02-03 17:44:01 UTC",
+    "scanDate": "2026-02-04 14:23:12 UTC",
     "critical": 8,
     "high": 48,
     "medium": 52,

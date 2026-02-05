@@ -373,6 +373,7 @@ done
 cat >> "$OUTPUT_HTML" << 'HTMLEND'
         <div class="footer">
             <p>Generated from git diff between <strong>original</strong> and <strong>chainguard</strong> branches</p>
+            <p style="margin-top: 10px;"><a href="https://github.com/metalstormbass/mike-co" target="_blank">View Repository</a></p>
         </div>
     </div>
 

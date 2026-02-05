@@ -181,7 +181,8 @@ cat > "$OUTPUT_HTML" << 'MAINHTML'
 
         <div class="footer">
             <p>Scanned with <a href="https://github.com/anchore/grype" target="_blank">Grype</a> |
-               Powered by <a href="https://github.com/features/actions" target="_blank">GitHub Actions</a></p>
+               Powered by <a href="https://github.com/features/actions" target="_blank">GitHub Actions</a> |
+               <a href="https://github.com/metalstormbass/mike-co" target="_blank">View Repository</a></p>
         </div>
     </div>
 

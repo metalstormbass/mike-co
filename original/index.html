@@ -45,7 +45,7 @@
             <a href="../" class="back-link">← Back to Main</a>
             <h1>Security Scan Results</h1>
             <div class="branch-badge" style="background: #8b5cf6;">Original Images</div>
-            <p class="subtitle">Last Updated: 2026-02-04</p>
+            <p class="subtitle">Last Updated: 2026-02-05</p>
         </div>
 
         <div class="stats">
@@ -91,12 +91,13 @@
 
         <div class="footer">
             <p>Scanned with <a href="https://github.com/anchore/grype" target="_blank">Grype</a> |
-               Powered by <a href="https://github.com/features/actions" target="_blank">GitHub Actions</a></p>
+               Powered by <a href="https://github.com/features/actions" target="_blank">GitHub Actions</a> |
+               <a href="https://github.com/metalstormbass/mike-co" target="_blank">View Repository</a></p>
         </div>
     </div>
 
     <script>
-        const scanData = ["nginx|209MB|2026-02-04 16:22:11 UTC|2|17|38|9|99|165","frontend|210MB|2026-02-04 16:22:18 UTC|2|17|38|9|99|165","api-gateway|306MB|2026-02-04 16:22:25 UTC|0|19|21|5|46|91","embedding-service|630MB|2026-02-04 16:22:36 UTC|3|25|46|7|416|497","llm-service|474MB|2026-02-04 16:22:45 UTC|2|21|42|10|416|491","document-processor|516MB|2026-02-04 16:22:55 UTC|2|24|43|10|416|495","ollama/ollama:latest|5.62GB|2026-02-04 16:24:36 UTC|1|10|35|30|0|76","opensearchproject/opensearch:2.11.0|1.22GB|2026-02-04 16:25:09 UTC|0|66|153|31|0|250","postgres:16-bookworm|435MB|2026-02-04 16:25:23 UTC|1|34|55|7|100|197","redis:7-bookworm|117MB|2026-02-04 16:25:29 UTC|8|48|52|6|47|161"];
+        const scanData = ["nginx|209MB|2026-02-05 12:44:04 UTC|2|16|38|9|99|164","frontend|210MB|2026-02-05 12:44:10 UTC|2|16|38|9|99|164","api-gateway|306MB|2026-02-05 12:44:18 UTC|0|18|21|5|46|90","embedding-service|630MB|2026-02-05 12:44:28 UTC|3|24|47|6|416|496","llm-service|474MB|2026-02-05 12:44:37 UTC|2|20|43|9|416|490","document-processor|516MB|2026-02-05 12:44:46 UTC|2|23|44|9|416|494","ollama/ollama:latest|5.62GB|2026-02-05 12:46:33 UTC|1|10|35|30|0|76","opensearchproject/opensearch:2.11.0|1.22GB|2026-02-05 12:47:04 UTC|0|66|153|31|0|250","postgres:16-bookworm|435MB|2026-02-05 12:47:17 UTC|1|23|55|7|100|186","redis:7-bookworm|117MB|2026-02-05 12:47:22 UTC|8|47|52|6|47|160"];
 
         let totalCritical = 0, totalHigh = 0, totalMedium = 0, totalLow = 0;
 

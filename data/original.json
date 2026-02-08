@@ -2,40 +2,40 @@
   {
     "image": "nginx",
     "size": "209MB",
-    "scanDate": "2026-02-05 12:44:04 UTC",
-    "critical": 2,
-    "high": 16,
-    "medium": 38,
-    "low": 9,
-    "negligible": 99,
-    "total": 164
+    "scanDate": "2026-02-08 02:11:20 UTC",
+    "critical": 1,
+    "high": 17,
+    "medium": 36,
+    "low": 10,
+    "negligible": 101,
+    "total": 165
   },
   {
     "image": "frontend",
     "size": "210MB",
-    "scanDate": "2026-02-05 12:44:10 UTC",
-    "critical": 2,
-    "high": 16,
-    "medium": 38,
-    "low": 9,
-    "negligible": 99,
-    "total": 164
+    "scanDate": "2026-02-08 02:11:27 UTC",
+    "critical": 1,
+    "high": 17,
+    "medium": 36,
+    "low": 10,
+    "negligible": 101,
+    "total": 165
   },
   {
     "image": "api-gateway",
     "size": "306MB",
-    "scanDate": "2026-02-05 12:44:18 UTC",
+    "scanDate": "2026-02-08 02:11:34 UTC",
     "critical": 0,
-    "high": 18,
+    "high": 17,
     "medium": 21,
     "low": 5,
     "negligible": 46,
-    "total": 90
+    "total": 89
   },
   {
     "image": "embedding-service",
     "size": "630MB",
-    "scanDate": "2026-02-05 12:44:28 UTC",
+    "scanDate": "2026-02-08 02:11:45 UTC",
     "critical": 3,
     "high": 24,
     "medium": 47,
@@ -46,7 +46,7 @@
   {
     "image": "llm-service",
     "size": "474MB",
-    "scanDate": "2026-02-05 12:44:37 UTC",
+    "scanDate": "2026-02-08 02:11:54 UTC",
     "critical": 2,
     "high": 20,
     "medium": 43,
@@ -57,7 +57,7 @@
   {
     "image": "document-processor",
     "size": "516MB",
-    "scanDate": "2026-02-05 12:44:46 UTC",
+    "scanDate": "2026-02-08 02:12:03 UTC",
     "critical": 2,
     "high": 23,
     "medium": 44,
@@ -67,30 +67,30 @@
   },
   {
     "image": "ollama/ollama:latest",
-    "size": "5.62GB",
-    "scanDate": "2026-02-05 12:46:33 UTC",
+    "size": "5.63GB",
+    "scanDate": "2026-02-08 02:13:41 UTC",
     "critical": 1,
     "high": 10,
     "medium": 35,
-    "low": 30,
+    "low": 31,
     "negligible": 0,
-    "total": 76
+    "total": 77
   },
   {
     "image": "opensearchproject/opensearch:2.11.0",
     "size": "1.22GB",
-    "scanDate": "2026-02-05 12:47:04 UTC",
+    "scanDate": "2026-02-08 02:14:13 UTC",
     "critical": 0,
-    "high": 66,
-    "medium": 153,
-    "low": 31,
+    "high": 71,
+    "medium": 154,
+    "low": 32,
     "negligible": 0,
-    "total": 250
+    "total": 257
   },
   {
     "image": "postgres:16-bookworm",
     "size": "435MB",
-    "scanDate": "2026-02-05 12:47:17 UTC",
+    "scanDate": "2026-02-08 02:14:27 UTC",
     "critical": 1,
     "high": 23,
     "medium": 55,
@@ -101,12 +101,12 @@
   {
     "image": "redis:7-bookworm",
     "size": "117MB",
-    "scanDate": "2026-02-05 12:47:22 UTC",
+    "scanDate": "2026-02-08 02:14:33 UTC",
     "critical": 8,
     "high": 47,
     "medium": 52,
-    "low": 6,
+    "low": 7,
     "negligible": 47,
-    "total": 160
+    "total": 161
   }
 ]

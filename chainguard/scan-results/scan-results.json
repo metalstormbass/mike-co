@@ -2,7 +2,7 @@
   {
     "image": "nginx-cg",
     "size": "17.2MB",
-    "scanDate": "2026-03-15 02:03:00 UTC",
+    "scanDate": "2026-03-22 01:57:07 UTC",
     "critical": 0,
     "high": 0,
     "medium": 0,
@@ -13,7 +13,7 @@
   {
     "image": "frontend-cg",
     "size": "17.5MB",
-    "scanDate": "2026-03-15 02:03:05 UTC",
+    "scanDate": "2026-03-22 01:57:12 UTC",
     "critical": 0,
     "high": 0,
     "medium": 0,
@@ -23,8 +23,8 @@
   },
   {
     "image": "api-gateway-cg",
-    "size": "786MB",
-    "scanDate": "2026-03-15 02:03:17 UTC",
+    "size": "787MB",
+    "scanDate": "2026-03-22 01:57:24 UTC",
     "critical": 0,
     "high": 7,
     "medium": 0,
@@ -35,40 +35,40 @@
   {
     "image": "embedding-service-cg",
     "size": "5.76GB",
-    "scanDate": "2026-03-15 02:04:17 UTC",
+    "scanDate": "2026-03-22 01:58:33 UTC",
     "critical": 2,
     "high": 10,
-    "medium": 18,
-    "low": 4,
+    "medium": 22,
+    "low": 5,
     "negligible": 0,
-    "total": 34
+    "total": 39
   },
   {
     "image": "llm-service-cg",
     "size": "727MB",
-    "scanDate": "2026-03-15 02:04:31 UTC",
+    "scanDate": "2026-03-22 01:58:47 UTC",
     "critical": 0,
     "high": 4,
-    "medium": 13,
-    "low": 6,
+    "medium": 17,
+    "low": 7,
     "negligible": 0,
-    "total": 23
+    "total": 28
   },
   {
     "image": "document-processor-cg",
     "size": "770MB",
-    "scanDate": "2026-03-15 02:04:44 UTC",
+    "scanDate": "2026-03-22 01:59:00 UTC",
     "critical": 0,
     "high": 7,
-    "medium": 14,
-    "low": 6,
+    "medium": 18,
+    "low": 7,
     "negligible": 0,
-    "total": 27
+    "total": 32
   },
   {
     "image": "cgr.dev/mikeco.com/ollama:latest-dev-cg",
     "size": "8.39GB",
-    "scanDate": "2026-03-15 02:07:36 UTC",
+    "scanDate": "2026-03-22 02:02:18 UTC",
     "critical": 0,
     "high": 0,
     "medium": 0,
@@ -79,7 +79,7 @@
   {
     "image": "cgr.dev/mikeco.com/opensearch:2-cg",
     "size": "1.12GB",
-    "scanDate": "2026-03-15 02:08:18 UTC",
+    "scanDate": "2026-03-22 02:02:57 UTC",
     "critical": 0,
     "high": 3,
     "medium": 1,
@@ -90,7 +90,7 @@
   {
     "image": "cgr.dev/mikeco.com/postgres:16-cg",
     "size": "411MB",
-    "scanDate": "2026-03-15 02:08:32 UTC",
+    "scanDate": "2026-03-22 02:03:12 UTC",
     "critical": 0,
     "high": 0,
     "medium": 0,
@@ -101,7 +101,7 @@
   {
     "image": "cgr.dev/mikeco.com/redis:7-cg",
     "size": "25.1MB",
-    "scanDate": "2026-03-15 02:08:36 UTC",
+    "scanDate": "2026-03-22 02:03:17 UTC",
     "critical": 0,
     "high": 0,
     "medium": 0,

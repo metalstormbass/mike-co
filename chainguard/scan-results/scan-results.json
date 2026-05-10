@@ -2,111 +2,111 @@
   {
     "image": "nginx-cg",
     "size": "17.1MB",
-    "scanDate": "2026-05-03 02:35:33 UTC",
+    "scanDate": "2026-05-10 02:38:15 UTC",
     "critical": 0,
-    "high": 1,
-    "medium": 1,
+    "high": 0,
+    "medium": 0,
     "low": 0,
     "negligible": 0,
-    "total": 2
+    "total": 0
   },
   {
     "image": "frontend-cg",
     "size": "17.5MB",
-    "scanDate": "2026-05-03 02:35:38 UTC",
+    "scanDate": "2026-05-10 02:38:21 UTC",
     "critical": 0,
-    "high": 1,
-    "medium": 1,
+    "high": 0,
+    "medium": 0,
     "low": 0,
     "negligible": 0,
-    "total": 2
+    "total": 0
   },
   {
     "image": "api-gateway-cg",
-    "size": "1.05GB",
-    "scanDate": "2026-05-03 02:35:55 UTC",
+    "size": "794MB",
+    "scanDate": "2026-05-10 02:38:34 UTC",
     "critical": 0,
-    "high": 12,
-    "medium": 2,
+    "high": 7,
+    "medium": 0,
     "low": 0,
     "negligible": 0,
-    "total": 14
+    "total": 7
   },
   {
     "image": "embedding-service-cg",
     "size": "5.76GB",
-    "scanDate": "2026-05-03 02:36:52 UTC",
+    "scanDate": "2026-05-10 02:39:30 UTC",
     "critical": 2,
-    "high": 14,
-    "medium": 26,
-    "low": 13,
+    "high": 11,
+    "medium": 22,
+    "low": 5,
     "negligible": 1,
-    "total": 56
+    "total": 41
   },
   {
     "image": "llm-service-cg",
     "size": "728MB",
-    "scanDate": "2026-05-03 02:37:05 UTC",
+    "scanDate": "2026-05-10 02:39:43 UTC",
     "critical": 0,
-    "high": 8,
-    "medium": 23,
-    "low": 21,
+    "high": 4,
+    "medium": 19,
+    "low": 13,
     "negligible": 1,
-    "total": 53
+    "total": 37
   },
   {
     "image": "document-processor-cg",
     "size": "771MB",
-    "scanDate": "2026-05-03 02:37:18 UTC",
+    "scanDate": "2026-05-10 02:39:56 UTC",
     "critical": 0,
-    "high": 11,
-    "medium": 25,
-    "low": 21,
+    "high": 8,
+    "medium": 21,
+    "low": 13,
     "negligible": 1,
-    "total": 58
+    "total": 43
   },
   {
     "image": "cgr.dev/mikeco.com/ollama:latest-dev-cg",
     "size": "8.49GB",
-    "scanDate": "2026-05-03 02:40:31 UTC",
+    "scanDate": "2026-05-10 02:42:40 UTC",
     "critical": 0,
-    "high": 1,
-    "medium": 1,
+    "high": 0,
+    "medium": 0,
     "low": 0,
     "negligible": 0,
-    "total": 2
+    "total": 0
   },
   {
     "image": "cgr.dev/mikeco.com/opensearch:2-cg",
     "size": "1.12GB",
-    "scanDate": "2026-05-03 02:41:07 UTC",
+    "scanDate": "2026-05-10 02:43:15 UTC",
     "critical": 0,
-    "high": 6,
-    "medium": 15,
+    "high": 3,
+    "medium": 7,
     "low": 0,
     "negligible": 0,
-    "total": 21
+    "total": 10
   },
   {
     "image": "cgr.dev/mikeco.com/postgres:16-cg",
-    "size": "410MB",
-    "scanDate": "2026-05-03 02:41:21 UTC",
+    "size": "411MB",
+    "scanDate": "2026-05-10 02:43:29 UTC",
     "critical": 0,
-    "high": 1,
-    "medium": 1,
+    "high": 0,
+    "medium": 0,
     "low": 0,
     "negligible": 0,
-    "total": 2
+    "total": 0
   },
   {
     "image": "cgr.dev/mikeco.com/redis:7-cg",
     "size": "25.1MB",
-    "scanDate": "2026-05-03 02:41:26 UTC",
+    "scanDate": "2026-05-10 02:43:34 UTC",
     "critical": 0,
-    "high": 1,
-    "medium": 1,
+    "high": 0,
+    "medium": 0,
     "low": 1,
     "negligible": 0,
-    "total": 3
+    "total": 1
   }
 ]
